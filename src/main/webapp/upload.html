@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta charset="utf-8">
+<title>Uploader</title>
+</head>
+<body>
+
+<form action="main" enctype="multipart/form-data" method="post">
+<input type="hidden" name="action" value="upload">
+<input type="file" name="files"><br>
+<input type="submit" value="Upload">
+</form>
+
+<br>
+
+multiple<br>
+<form action="main" enctype="multipart/form-data" method="post">
+<input type="hidden" name="action" value="upload">
+<input type="file" name="files" multiple><br>
+<input type="submit" value="Upload">
+</form>
+
+</body>
+</html>
