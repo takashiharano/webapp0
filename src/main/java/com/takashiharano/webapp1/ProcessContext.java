@@ -156,18 +156,50 @@ public class ProcessContext {
     sendJsonResponse(jb.toString());
   }
 
-  public void sendStreamResponse(String path) throws IOException {
-    String fileName = FileUtil.getFileName(path);
+  public void sendByteStreamResponse(byte[] b, String fileName) throws IOException {
+    setStreamResponseHeader(fileName);
+    sendByteArray(b);
+  }
+
+  public void sendTextStreamResponse(String text, String fileName) throws IOException {
+    setStreamResponseHeader(fileName);
+    byte[] b = text.getBytes("UTF-8");
+    sendByteArray(b);
+  }
+
+  public void sendFileResponse(String path) throws IOException {
+    sendFileResponse(path, null);
+  }
+
+  public void sendFileResponse(String path, String fileName) throws IOException {
+    if (fileName == null) {
+      fileName = FileUtil.getFileName(path);
+    }
+    setStreamResponseHeader(fileName);
+    sendFile(path);
+  }
+
+  private void setStreamResponseHeader(String fileName) {
     response.setContentType("application/octet-stream");
-    String encodedFileName;
+    String encodedFileName = null;
     try {
       encodedFileName = URLEncoder.encode(fileName, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      encodedFileName = "download";
+      // unreachable
     }
     String contentDisposition = "attachment;filename=\"" + fileName + "\";filename*=utf-8''" + encodedFileName;
     response.setHeader("Content-Disposition", contentDisposition);
+  }
 
+  private void sendByteArray(byte[] b) throws IOException {
+    try (ServletOutputStream os = response.getOutputStream()) {
+      os.write(b);
+    } catch (IOException ioe) {
+      throw ioe;
+    }
+  }
+
+  private void sendFile(String path) throws IOException {
     try (ServletOutputStream os = response.getOutputStream();
         FileInputStream fis = new FileInputStream(path);
         BufferedInputStream bis = new BufferedInputStream(fis);
