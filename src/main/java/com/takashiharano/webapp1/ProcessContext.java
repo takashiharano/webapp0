@@ -105,7 +105,7 @@ public class ProcessContext {
     response.setStatus(status);
   }
 
-  public void setHeader(String name, String value) {
+  public void setResponseHeader(String name, String value) {
     response.setHeader(name, value);
   }
 
