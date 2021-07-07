@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 
-import com.takashiharano.util.Log;
+import com.takashiharano.webapp1.util.Log;
 
 public class DefaultErrorHandler {
   /**
@@ -15,7 +15,9 @@ public class DefaultErrorHandler {
    * @param t
    *          throwable object
    * @throws ServletException
+   *           If the Servlet encounters difficulty
    * @throws IOException
+   *           If an I/O error occurs
    */
   public static void handle(ProcessContext context, Throwable t) throws ServletException, IOException {
     if (t instanceof NotAuthorizedException) {
@@ -26,14 +28,16 @@ public class DefaultErrorHandler {
   }
 
   /**
-   * general error handler
+   * General error handler.
    *
    * @param context
    *          process context
    * @param t
    *          throwable object
    * @throws ServletException
+   *           If the Servlet encounters difficulty
    * @throws IOException
+   *           If an I/O error occurs
    */
   private static void handleDefaultException(ProcessContext context, Throwable t) throws ServletException, IOException {
     Log.e(t);
@@ -56,7 +60,9 @@ public class DefaultErrorHandler {
    * @param e
    *          exception object
    * @throws ServletException
+   *           If the Servlet encounters difficulty
    * @throws IOException
+   *           If an I/O error occurs
    */
   private static void handleNotAuthorized(ProcessContext context, NotAuthorizedException e)
       throws ServletException, IOException {

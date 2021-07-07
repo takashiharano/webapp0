@@ -2,11 +2,11 @@ package com.takashiharano.webapp1.task;
 
 import java.io.IOException;
 
-import com.takashiharano.util.CsvBuilder;
-import com.takashiharano.util.FileUtil;
-import com.takashiharano.util.HeapInfo;
-import com.takashiharano.util.Log;
+import com.libutil.CsvBuilder;
+import com.libutil.FileUtil;
+import com.libutil.HeapInfo;
 import com.takashiharano.webapp1.AppManager;
+import com.takashiharano.webapp1.util.Log;
 
 public class HeapMonitor extends IntervalTask {
 
@@ -20,7 +20,7 @@ public class HeapMonitor extends IntervalTask {
     long free = heapInfo.getFree();
     long max = heapInfo.getMax();
     String percent = heapInfo.getPercent();
-    Log.d(now + ": Heap: total=" + total + " / used=" + used + "(" + percent + "%) / free=" + free + " / max=" + max);
+    Log.i(now + ": Heap: total=" + total + " / used=" + used + "(" + percent + "%) / free=" + free + " / max=" + max);
 
     CsvBuilder csvBuilder = new CsvBuilder();
     csvBuilder.append(total);

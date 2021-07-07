@@ -16,10 +16,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.takashiharano.util.FileUtil;
-import com.takashiharano.util.JsonBuilder;
-import com.takashiharano.util.Log;
-import com.takashiharano.util.Util;
+import com.libutil.Base64Util;
+import com.libutil.FileUtil;
+import com.libutil.JsonBuilder;
+import com.takashiharano.webapp1.util.Log;
 
 public class ProcessContext {
   private HttpServletRequest request;
@@ -86,7 +86,7 @@ public class ProcessContext {
     if (value == null) {
       return null;
     }
-    return Util.decodeBase64(value);
+    return Base64Util.decode(value);
   }
 
   public void forward(String path) throws IOException, ServletException {

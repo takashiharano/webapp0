@@ -1,8 +1,8 @@
 package com.takashiharano.webapp1.action;
 
-import com.takashiharano.util.Log;
 import com.takashiharano.webapp1.AppManager;
 import com.takashiharano.webapp1.ProcessContext;
+import com.takashiharano.webapp1.util.Log;
 
 public abstract class Action {
 

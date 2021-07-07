@@ -1,6 +1,6 @@
 package com.takashiharano.webapp1.action;
 
-import com.takashiharano.util.zip.ZipUtil;
+import com.libutil.zip.ZipUtil;
 import com.takashiharano.webapp1.ProcessContext;
 
 public class ZipAction extends Action {

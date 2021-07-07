@@ -5,7 +5,7 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.takashiharano.util.JsonBuilder;
+import com.libutil.JsonBuilder;
 import com.takashiharano.webapp1.ProcessContext;
 import com.takashiharano.webapp1.ServletUtil;
 

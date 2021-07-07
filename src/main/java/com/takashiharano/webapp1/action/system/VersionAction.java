@@ -2,7 +2,7 @@ package com.takashiharano.webapp1.action.system;
 
 import java.io.IOException;
 
-import com.takashiharano.util.JsonBuilder;
+import com.libutil.JsonBuilder;
 import com.takashiharano.webapp1.AppManager;
 import com.takashiharano.webapp1.ProcessContext;
 import com.takashiharano.webapp1.action.Action;

@@ -16,7 +16,9 @@ public class ServletUtil {
    * Returns the Cookie value for the given name.
    *
    * @param context
+   *          process context
    * @param name
+   *          field name
    * @return Cookie value. null if not found.
    */
   public static String getCookie(ProcessContext context, String name) {
@@ -38,7 +40,8 @@ public class ServletUtil {
    * Dump the request parameters.
    *
    * @param request
-   * @return
+   *          HTTP request
+   * @return all request parameters
    */
   public static String dumpParameters(HttpServletRequest request) {
     Map<String, String[]> params = request.getParameterMap();
@@ -76,8 +79,10 @@ public class ServletUtil {
    * Returns the value for the given name from MANIFEST.MF.
    *
    * @param servletContext
+   *          Servlet context
    * @param name
-   * @return
+   *          field name
+   * @return the value
    */
   public static String getManifestEntry(ServletContext servletContext, String name) throws IOException {
     String value = null;

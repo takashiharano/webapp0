@@ -7,7 +7,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import com.takashiharano.util.Log;
+import com.takashiharano.webapp1.util.Log;
 
 @WebListener()
 public class WebAppListener implements ServletContextListener, HttpSessionListener {

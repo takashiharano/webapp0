@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import com.takashiharano.util.Log;
+import com.takashiharano.webapp1.util.Log;
 
 public class AsyncTaskManager {
   private static AsyncTaskManager instance;

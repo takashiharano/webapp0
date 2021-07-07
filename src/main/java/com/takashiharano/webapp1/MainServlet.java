@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.takashiharano.util.Log;
 import com.takashiharano.webapp1.action.Action;
 
 @WebServlet(name = "MainServlet", urlPatterns = ("/main"))
@@ -59,8 +58,6 @@ public class MainServlet extends HttpServlet {
         actionName = DEFAULT_ACTION_NAME;
       }
     }
-
-    Log.i("action=" + actionName);
 
     Action.exec(context, actionName);
   }

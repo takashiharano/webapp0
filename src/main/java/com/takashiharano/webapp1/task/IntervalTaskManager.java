@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.takashiharano.util.Log;
+import com.takashiharano.webapp1.util.Log;
 
 public class IntervalTaskManager {
   private Map<String, TaskContext> taskMap;

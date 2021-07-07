@@ -7,10 +7,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import com.takashiharano.util.FileUtil;
-import com.takashiharano.util.Log;
+import com.libutil.FileUtil;
 import com.takashiharano.webapp1.AppManager;
 import com.takashiharano.webapp1.ProcessContext;
+import com.takashiharano.webapp1.util.Log;
 
 public class UploadAction extends Action {
 

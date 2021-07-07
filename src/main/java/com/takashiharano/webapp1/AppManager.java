@@ -4,12 +4,13 @@ import java.io.IOException;
 
 import javax.servlet.ServletContext;
 
-import com.takashiharano.util.Log;
-import com.takashiharano.util.StrUtil;
+import com.libutil.FileUtil;
+import com.libutil.StrUtil;
 import com.takashiharano.webapp1.async.AsyncTaskManager;
 import com.takashiharano.webapp1.task.HeapMonitor;
 import com.takashiharano.webapp1.task.IntervalTask;
 import com.takashiharano.webapp1.task.IntervalTaskManager;
+import com.takashiharano.webapp1.util.Log;
 
 public class AppManager {
 
@@ -81,6 +82,7 @@ public class AppManager {
       Log.i("[OK] ==> APP READY");
     } catch (Exception e) {
       errorInfo = e.getMessage();
+      Log.i("[NG] ==> APP INIT ERROR : " + errorInfo);
     }
   }
 
@@ -90,11 +92,14 @@ public class AppManager {
       throw new Exception("System env \"HOME\" is not defined.");
     }
     int logLevel = Log.LogLevel.DEBUG.getLevel();
-    Log.init(logLevel, AppInfo.MODULE_NAME);
+    Log.setup(logLevel, AppInfo.MODULE_NAME);
     String appHomePath = homePath + "/" + APPHOME_BASENAME + "/" + AppInfo.MODULE_NAME;
     Log.i("WebAppHome: " + appHomePath);
 
     String propFilePath = appHomePath + "/" + PROPERTIES_FILENAME;
+    if (FileUtil.notExist(propFilePath)) {
+      throw new Exception("App config not found: path=" + propFilePath);
+    }
     config = new Config(propFilePath);
 
     appWorkspacePath = config.getValue(CONFIGKEY_WORKSPACE);
