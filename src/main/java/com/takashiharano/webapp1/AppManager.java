@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.ServletContext;
 
 import com.libutil.FileUtil;
+import com.libutil.Props;
 import com.libutil.StrUtil;
 import com.takashiharano.webapp1.async.AsyncTaskManager;
 import com.takashiharano.webapp1.task.HeapMonitor;
@@ -19,7 +20,7 @@ public class AppManager {
   private static final String CONFIGKEY_WORKSPACE = "app_workspace";
 
   private static AppManager instance;
-  private static Config config;
+  private static Props config;
   private static String errorInfo;
   private static String appHomePath;
   private static String appWorkspacePath;
@@ -100,7 +101,7 @@ public class AppManager {
     if (FileUtil.notExist(propFilePath)) {
       throw new Exception("App config not found: path=" + propFilePath);
     }
-    config = new Config(propFilePath);
+    config = new Props(propFilePath);
 
     appWorkspacePath = config.getValue(CONFIGKEY_WORKSPACE);
     if (StrUtil.isEmpty(appWorkspacePath)) {
