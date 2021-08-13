@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.takashiharano</groupId>
-  <artifactId>webapp1</artifactId>
+  <artifactId>webapp0</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
 
-  <name>webapp1</name>
+  <name>webapp0</name>
   <description>Java WebApp template</description>
   <url>https://takashiharano.com/</url>
 
