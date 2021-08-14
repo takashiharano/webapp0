@@ -4,15 +4,20 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -88,6 +93,28 @@ public class ProcessContext {
       return null;
     }
     return Base64Util.decode(value);
+  }
+
+  /**
+   * Returns the Cookie value for the given name.
+   *
+   * @param name
+   *          field name
+   * @return Cookie value. null if not found.
+   */
+  public String getCookie(String name) {
+    HttpServletRequest request = this.getRequest();
+    String value = null;
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (name.equals(cookie.getName())) {
+          value = cookie.getValue();
+          break;
+        }
+      }
+    }
+    return value;
   }
 
   public void forward(String path) throws IOException, ServletException {
@@ -240,4 +267,61 @@ public class ProcessContext {
     forward(path);
   }
 
+  /**
+   * Dump the request parameters.
+   *
+   * @return all request parameters
+   */
+  public String dumpParameters() {
+    Map<String, String[]> params = request.getParameterMap();
+    StringBuilder sb = new StringBuilder();
+    int paramCount = 0;
+
+    for (Map.Entry<String, String[]> entry : params.entrySet()) {
+      paramCount++;
+      String key = entry.getKey();
+      String[] values = entry.getValue();
+
+      if (paramCount > 1) {
+        sb.append("&");
+      }
+      sb.append(key);
+
+      if ((params.size() > 1) || (!"".equals(values[0]))) {
+        sb.append("=");
+      }
+
+      int valCount = 0;
+      for (int i = 0; i < values.length; i++) {
+        valCount++;
+        if (valCount > 1) {
+          sb.append(",");
+        }
+        sb.append(values[i]);
+      }
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Returns the value for the given name from MANIFEST.MF.
+   *
+   * @param name
+   *          field name
+   * @return the value
+   * @throws IOException
+   *           If an IO error occurs
+   */
+  public String getManifestEntry(String name) throws IOException {
+    String value = null;
+    try (InputStream is = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF")) {
+      Manifest manifest = new Manifest(is);
+      Attributes attributes = manifest.getMainAttributes();
+      value = attributes.getValue(name);
+    } catch (IOException ioe) {
+      throw ioe;
+    }
+    return value;
+  }
 }

@@ -1,9 +1,5 @@
 package com.takashiharano.webapp0;
 
-import java.io.IOException;
-
-import javax.servlet.ServletContext;
-
 import com.libutil.FileUtil;
 import com.libutil.Props;
 import com.libutil.StrUtil;
@@ -139,22 +135,6 @@ public class AppManager {
 
   public AsyncTaskManager getAsyncTaskManager() {
     return asyncTaskManager;
-  }
-
-  /**
-   * Returns manifest entry.
-   *
-   * @param context
-   *          process context
-   * @param name
-   *          field name
-   * @return field value
-   * @throws IOException
-   *           If an IO error occurs
-   */
-  public static String getManifestEntry(ProcessContext context, String name) throws IOException {
-    ServletContext servletContext = context.getServletContext();
-    return ServletUtil.getManifestEntry(servletContext, name);
   }
 
   private void startIntervalTask() {

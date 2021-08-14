@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.libutil.JsonBuilder;
 import com.takashiharano.webapp0.ProcessContext;
-import com.takashiharano.webapp0.ServletUtil;
 
 public class JsonAction extends Action {
 
@@ -17,7 +16,7 @@ public class JsonAction extends Action {
 
     String datetime = getDateTimeString();
     String method = request.getMethod();
-    String params = ServletUtil.dumpParameters(request);
+    String params = context.dumpParameters();
 
     JsonBuilder jb = new JsonBuilder();
     jb.append("datetime", datetime);

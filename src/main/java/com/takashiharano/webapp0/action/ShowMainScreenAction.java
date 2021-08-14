@@ -3,10 +3,7 @@ package com.takashiharano.webapp0.action;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.servlet.ServletContext;
-
 import com.takashiharano.webapp0.ProcessContext;
-import com.takashiharano.webapp0.ServletUtil;
 
 public class ShowMainScreenAction extends Action {
 
@@ -17,8 +14,7 @@ public class ShowMainScreenAction extends Action {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     String datetime = sdf.format(date);
 
-    ServletContext servletContext = context.getServletContext();
-    String appVersion = ServletUtil.getManifestEntry(servletContext, "App-Version");
+    String appVersion = context.getManifestEntry("App-Version");
 
     StringBuilder sb = new StringBuilder();
     sb.append(datetime + " (" + timestamp + ")\n");

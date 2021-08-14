@@ -14,7 +14,7 @@ public class VersionAction extends Action {
     String moduleName = AppManager.getModuleName();
     String version = null;
     try {
-      version = AppManager.getManifestEntry(context, "App-Version");
+      version = context.getManifestEntry("App-Version");
     } catch (IOException e) {
       e.printStackTrace();
     }
