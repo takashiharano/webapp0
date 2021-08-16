@@ -120,7 +120,14 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.libutil</groupId>
+      <artifactId>util</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+
     <!-- WEB-INF/lib -->
+    <!--
     <dependency>
       <groupId>com.takashiharano</groupId>
       <artifactId>util</artifactId>
@@ -128,5 +135,6 @@
       <scope>system</scope>
       <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/util.jar</systemPath>
     </dependency>
+    -->
   </dependencies>
 </project>
