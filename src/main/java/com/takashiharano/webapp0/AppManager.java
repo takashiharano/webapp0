@@ -90,7 +90,7 @@ public class AppManager {
     }
     int logLevel = Log.LogLevel.DEBUG.getLevel();
     Log.setup(logLevel, AppInfo.MODULE_NAME);
-    String appHomePath = homePath + "/" + APPHOME_BASENAME + "/" + AppInfo.MODULE_NAME;
+    appHomePath = homePath + "/" + APPHOME_BASENAME + "/" + AppInfo.MODULE_NAME;
     Log.i("WebAppHome: " + appHomePath);
 
     String propFilePath = appHomePath + "/" + PROPERTIES_FILENAME;
