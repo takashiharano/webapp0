@@ -123,18 +123,18 @@
     <dependency>
       <groupId>com.libutil</groupId>
       <artifactId>util</artifactId>
-      <version>0.1.0</version>
+      <version>0.2.1</version>
     </dependency>
 
     <!-- WEB-INF/lib -->
-    <!--
+<!--
     <dependency>
       <groupId>com.takashiharano</groupId>
-      <artifactId>util</artifactId>
-      <version>0.0.1</version>
+      <artifactId>hello</artifactId>
+      <version>1.1.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/util.jar</systemPath>
+      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/hello.jar</systemPath>
     </dependency>
-    -->
+-->
   </dependencies>
 </project>
