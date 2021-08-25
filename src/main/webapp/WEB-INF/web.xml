@@ -10,9 +10,4 @@
     <servlet-class>MainServlet</servlet-class>
   </servlet>
 
-  <servlet>
-    <servlet-name>upload</servlet-name>
-    <servlet-class>UploadServlet</servlet-class>
-  </servlet>
-
 </web-app>
