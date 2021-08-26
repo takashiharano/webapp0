@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 import com.takashiharano.webapp0.util.Log;
 
 public class AsyncTaskManager {
-  private static AsyncTaskManager instance;
+  private static volatile AsyncTaskManager instance;
 
   private ConcurrentHashMap<String, AsyncTask> asyncTaskMap;
   private long counter;
