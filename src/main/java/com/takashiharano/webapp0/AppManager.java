@@ -11,6 +11,9 @@ import com.takashiharano.webapp0.util.Log;
 
 public class AppManager {
 
+  public static final String BASE_PACKAGE_NAME = "com.takashiharano.webapp0";
+  public static final String MODULE_NAME = "webapp0";
+
   private static final String APPHOME_BASENAME = "webapphome";
   private static final String PROPERTIES_FILENAME = "app.properties";
   private static final String CONFIGKEY_WORKSPACE = "app_workspace";
@@ -44,11 +47,11 @@ public class AppManager {
   }
 
   public static String getBasePackageName() {
-    return AppInfo.BASE_PACKAGE_NAME;
+    return BASE_PACKAGE_NAME;
   }
 
   public static String getModuleName() {
-    return AppInfo.MODULE_NAME;
+    return MODULE_NAME;
   }
 
   public static void reset() {
@@ -89,8 +92,8 @@ public class AppManager {
       throw new Exception("System env \"HOME\" is not defined.");
     }
     int logLevel = Log.LogLevel.DEBUG.getLevel();
-    Log.setup(logLevel, AppInfo.MODULE_NAME);
-    appHomePath = homePath + "/" + APPHOME_BASENAME + "/" + AppInfo.MODULE_NAME;
+    Log.setup(logLevel, MODULE_NAME);
+    appHomePath = homePath + "/" + APPHOME_BASENAME + "/" + MODULE_NAME;
     Log.i("WebAppHome: " + appHomePath);
 
     String propFilePath = appHomePath + "/" + PROPERTIES_FILENAME;
