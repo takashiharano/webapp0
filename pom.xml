@@ -123,7 +123,7 @@
     <dependency>
       <groupId>com.libutil</groupId>
       <artifactId>util</artifactId>
-      <version>0.2.2</version>
+      <version>0.3.0</version>
     </dependency>
 
     <!-- WEB-INF/lib -->
