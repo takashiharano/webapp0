@@ -24,7 +24,6 @@ String appVersion = context.getAppVersion();
 Hello, world!
 <%= datetime %> (<%= timestamp %>)
 App-Version: <%= appVersion %>
-<button onclick="webapp0.common.logout();">Logout</button>
 </pre>
 </body>
 </html>

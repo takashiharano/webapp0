@@ -2,21 +2,12 @@ package com.takashiharano.webapp0.action;
 
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
-import com.takashiharano.webapp0.util.Log;
 
 public abstract class Action {
 
-  public static void exec(ProcessContext context, String name) throws Exception {
-    Action action = getActionInstance(name);
-    if (action == null) {
-      Log.e("ACTION_NOT_FOUND: " + name);
-      context.sendJson("ACTION_NOT_FOUND", name);
-      return;
-    }
-    action.process(context);
-  }
+  protected boolean authRequired = true;
 
-  private static Action getActionInstance(String actionName) {
+  public static Action getActionInstance(ProcessContext context, String actionName) {
     String basePkgName = AppManager.getBasePackageName();
     String pkgName = basePkgName + ".action";
     String[] packages = { "", "system" };
@@ -30,6 +21,7 @@ public abstract class Action {
       String classFullName = pkgName + "." + subPackage + actionName + "Action";
       Action action = getBean(classFullName);
       if (action != null) {
+        action.init(context);
         return action;
       }
     }
@@ -45,6 +37,16 @@ public abstract class Action {
       return null;
     }
   }
+
+  public boolean isAuthRequired() {
+    return authRequired;
+  }
+
+  public void setAuthRequired(boolean authRequired) {
+    this.authRequired = authRequired;
+  }
+
+  protected abstract void init(ProcessContext context);
 
   public abstract void process(ProcessContext context) throws Exception;
 

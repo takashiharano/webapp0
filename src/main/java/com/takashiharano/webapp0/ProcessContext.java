@@ -20,10 +20,14 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import com.bsb64.BSB64;
 import com.libutil.Base64Util;
 import com.libutil.FileUtil;
 import com.libutil.JsonBuilder;
+import com.takashiharano.webapp0.session.SessionInfo;
+import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.util.Log;
 
 public class ProcessContext {
@@ -95,6 +99,16 @@ public class ProcessContext {
     return Base64Util.decode(value);
   }
 
+  public String getBSB64DecodedRequestParameter(String key) {
+    String value = getRequestParameter(key);
+    if (value == null) {
+      return null;
+    }
+    AppManager appManager = AppManager.getInstance();
+    int n = appManager.getConfigIntValue("bab64_n_param", 1);
+    return BSB64.decodeString(value, n);
+  }
+
   /**
    * Returns the Cookie value for the given name.
    *
@@ -146,7 +160,7 @@ public class ProcessContext {
   }
 
   public void sendJsonResponse(String status, String body) {
-
+    sendJsonResponse(status, body, true);
   }
 
   public void sendJsonResponse(String status, String body, boolean isObject) {
@@ -260,6 +274,112 @@ public class ProcessContext {
     info.put(key, value);
   }
 
+  /**
+   * Returns the accessed IP address.
+   *
+   * @return the IP address
+   */
+  public String getRemoteAddr() {
+    return request.getRemoteAddr();
+  }
+
+  /**
+   * Returns the accessed host name.
+   *
+   * @return the host name
+   */
+  public String getRemoteHost() {
+    return request.getRemoteHost();
+  }
+
+  /**
+   * Returns the X-Forwarded-For header value.
+   *
+   * @return X-Forwarded-For header value
+   */
+  public String getXForwardedFor() {
+    return request.getHeader("X-Forwarded-For");
+  }
+
+  /**
+   * Returns the accessed address.
+   *
+   * @param byName
+   *          if true and the host name is available, returns the host name
+   *          instead of the IP address.
+   * @return address
+   */
+  public String getRemoteAddress(boolean byName) {
+    String addr = getXForwardedFor();
+    if (addr != null) {
+      return addr;
+    }
+
+    if (byName) {
+      addr = getRemoteHost();
+      if (addr != null) {
+        return addr;
+      }
+    }
+
+    addr = getRemoteAddr();
+    return addr;
+  }
+
+  /**
+   * Returns User-Agent HTTP request header
+   *
+   * @return User-Agent field value
+   */
+  public String getUserAgent() {
+    return request.getHeader("User-Agent");
+  }
+
+  /**
+   * Returns the host name of the server.
+   *
+   * @return the host name
+   */
+  public String getLocalName() {
+    return request.getLocalName();
+  }
+
+  /**
+   * Returns the IP address of the server.
+   *
+   * @return the IP address
+   */
+  public String getLocalAddr() {
+    return request.getLocalAddr();
+  }
+
+  public HttpSession getSession() {
+    return request.getSession();
+  }
+
+  public String getSessionId() {
+    return getCookie(SessionManager.SESSION_COOKIE_NAME);
+  }
+
+  public SessionInfo getSessionInfo() {
+    String sessionId = getSessionId();
+    if (sessionId == null) {
+      return null;
+    }
+    AppManager appManager = AppManager.getInstance();
+    SessionManager sessionManager = appManager.getSessionManager();
+    SessionInfo sessionInfo = sessionManager.getSessionInfo(sessionId);
+    return sessionInfo;
+  }
+
+  public String getUserName() {
+    SessionInfo sessionInfo = getSessionInfo();
+    if (sessionInfo == null) {
+      return null;
+    }
+    return sessionInfo.getUsername();
+  }
+
   public void sendErrorScreen(String errorInfo) throws ServletException, IOException {
     setInfo("errorInfo", errorInfo);
     String path = "error.jsp";
@@ -324,4 +444,57 @@ public class ProcessContext {
     }
     return value;
   }
+
+  /**
+   * Returns APP version
+   *
+   * @return APP version
+   */
+  public String getAppVersion() {
+    String version;
+    try {
+      version = getManifestEntry("App-Version");
+    } catch (IOException ioe) {
+      version = "";
+    }
+    return version;
+  }
+
+  public void onAccess() {
+    SessionManager sessionManager = getSessionManager();
+    sessionManager.onAccess(this);
+    setSessionCookieMaxAge();
+  }
+
+  /**
+   * Sets expiration date of the session cookie.
+   *
+   * @param context
+   *          Process Context
+   */
+  public void setSessionCookieMaxAge() {
+    String sessionId = getSessionId();
+    if (sessionId == null) {
+      return;
+    }
+    AppManager appManager = AppManager.getInstance();
+    int sessionTimeoutSec = appManager.getConfigIntValue("session_timeout_sec", 86400);
+    setSessionCookieMaxAge(sessionId, sessionTimeoutSec);
+  }
+
+  public void setSessionCookieMaxAge(String sessionId, int sessionTimeoutSec) {
+    SessionManager sessionManager = getSessionManager();
+    String cookieName = sessionManager.getSessionCoolieName();
+    Cookie cookie = new Cookie(cookieName, sessionId);
+    cookie.setMaxAge(sessionTimeoutSec);
+    cookie.setHttpOnly(true);
+    response.addCookie(cookie);
+  }
+
+  private SessionManager getSessionManager() {
+    AppManager appManager = AppManager.getInstance();
+    SessionManager sessionManager = appManager.getSessionManager();
+    return sessionManager;
+  }
+
 }

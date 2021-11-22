@@ -15,10 +15,14 @@ import com.takashiharano.webapp0.util.Log;
 public class UploadAction extends Action {
 
   @Override
+  protected void init(ProcessContext context) {
+  }
+
+  @Override
   public void process(ProcessContext context) throws Exception {
     HttpServletRequest request = context.getRequest();
     HttpServletResponse response = context.getResponse();
-    String uploadPath = AppManager.getAppWorkspacePath() + "/upload/";
+    String uploadPath = AppManager.getInstance().getAppWorkspacePath() + "/upload/";
 
     if (!FileUtil.exists(uploadPath)) {
       FileUtil.mkdir(uploadPath);

@@ -29,7 +29,7 @@ public class HeapMonitor extends IntervalTask {
     csvBuilder.append(free);
     csvBuilder.append(max);
 
-    String path = AppManager.getAppWorkspacePath() + "/" + "heap.txt";
+    String path = AppManager.getInstance().getAppWorkspacePath() + "/" + "heap.txt";
     String info = csvBuilder.toString();
     try {
       FileUtil.appendLine(path, info, 5);

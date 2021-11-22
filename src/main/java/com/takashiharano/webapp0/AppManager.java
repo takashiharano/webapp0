@@ -4,6 +4,7 @@ import com.libutil.FileUtil;
 import com.libutil.Props;
 import com.libutil.StrUtil;
 import com.takashiharano.webapp0.async.AsyncTaskManager;
+import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.task.HeapMonitor;
 import com.takashiharano.webapp0.task.IntervalTask;
 import com.takashiharano.webapp0.task.IntervalTaskManager;
@@ -16,19 +17,16 @@ public class AppManager {
 
   private static final String APPHOME_BASENAME = "webapphome";
   private static final String PROPERTIES_FILENAME = "app.properties";
-  private static final String CONFIGKEY_WORKSPACE = "app_workspace";
+  private static final String CONFIGKEY_WORKSPACE = "workspace";
 
   private static AppManager instance;
-  private static Props config;
-  private static String errorInfo;
-  private static String appHomePath;
-  private static String appWorkspacePath;
+  private String appHomePath;
+  private String appWorkspacePath;
+  private Props config;
+  private String errorInfo;
+  private SessionManager sessionManager;
   private IntervalTaskManager intervalTaskManager;
-  private static AsyncTaskManager asyncTaskManager;
-
-  private AppManager() {
-    intervalTaskManager = new IntervalTaskManager();
-  }
+  private AsyncTaskManager asyncTaskManager;
 
   public static AppManager getInstance() {
     if (instance == null) {
@@ -37,12 +35,13 @@ public class AppManager {
     return instance;
   }
 
-  public static void onStart() {
+  public void onStart() {
     init();
   }
 
-  public static void onStop() {
+  public void onStop() {
     getInstance().stopIntervalTsak();
+    sessionManager.onStop();
     Log.i("[OK] ==> APP STOPPED");
   }
 
@@ -54,39 +53,40 @@ public class AppManager {
     return MODULE_NAME;
   }
 
-  public static void reset() {
+  public void reset() {
     Log.i("Resetting app...");
     init();
   }
 
-  public static boolean isReady() {
+  public boolean isReady() {
     return errorInfo == null;
   }
 
-  public static String getErrorInfo() {
+  public String getErrorInfo() {
     return errorInfo;
   }
 
-  public static String getAppHomePath() {
+  public String getAppHomePath() {
     return appHomePath;
   }
 
-  public static String getAppWorkspacePath() {
+  public String getAppWorkspacePath() {
     return appWorkspacePath;
   }
 
-  private static void init() {
+  private void init() {
     errorInfo = null;
     try {
       _init();
       Log.i("[OK] ==> APP READY");
     } catch (Exception e) {
-      errorInfo = e.getMessage();
+      Log.e(e);
+      errorInfo = e.toString();
       Log.i("[NG] ==> APP INIT ERROR : " + errorInfo);
     }
   }
 
-  private static void _init() throws Exception {
+  private void _init() throws Exception {
     String homePath = System.getenv("HOME");
     if (homePath == null) {
       throw new Exception("System env \"HOME\" is not defined.");
@@ -108,32 +108,56 @@ public class AppManager {
     }
     Log.i("WebAppWorkspace: " + appWorkspacePath);
 
-    getInstance().startIntervalTask();
+    if (sessionManager == null) {
+      String sessionPath = FileUtil.joinPath(getAppWorkspacePath(), "sessions.txt");
+      sessionManager = new SessionManager(sessionPath);
+    }
+
+    if (intervalTaskManager == null) {
+      intervalTaskManager = new IntervalTaskManager();
+    }
+    startIntervalTask();
     asyncTaskManager = AsyncTaskManager.getInstance();
   }
 
-  public static String getConfigValue(String key) {
+  public String getConfigValue(String key) {
     return config.getValue(key);
   }
 
-  public static String getConfigValue(String key, String defaultValue) {
+  public String getConfigValue(String key, String defaultValue) {
     return config.getValue(key);
   }
 
-  public static int getConfigIntValue(String key) {
+  public int getConfigIntValue(String key) {
     return config.getIntValue(key);
   }
 
-  public static float getConfigFloatValue(String key) {
+  public int getConfigIntValue(String key, int defaultValue) {
+    return config.getIntValue(key, defaultValue);
+  }
+
+  public float getConfigFloatValue(String key) {
     return config.getFloatValue(key);
   }
 
-  public static double getConfigDoubleValue(String key) {
+  public float getConfigFloatValue(String key, float defaultValue) {
+    return config.getFloatValue(key, defaultValue);
+  }
+
+  public double getConfigDoubleValue(String key) {
     return config.getDoubleValue(key);
   }
 
-  public static boolean getConfigBooleanValue(String key) {
+  public double getConfigDoubleValue(String key, double defaultValue) {
+    return config.getDoubleValue(key, defaultValue);
+  }
+
+  public boolean getConfigBooleanValue(String key) {
     return config.getBooleanValue(key);
+  }
+
+  public SessionManager getSessionManager() {
+    return sessionManager;
   }
 
   public AsyncTaskManager getAsyncTaskManager() {

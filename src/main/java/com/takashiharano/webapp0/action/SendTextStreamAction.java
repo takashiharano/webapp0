@@ -5,6 +5,10 @@ import com.takashiharano.webapp0.ProcessContext;
 public class SendTextStreamAction extends Action {
 
   @Override
+  protected void init(ProcessContext context) {
+  }
+
+  @Override
   public void process(ProcessContext context) throws Exception {
     String text = "abc";
     String fileName = "file.txt";

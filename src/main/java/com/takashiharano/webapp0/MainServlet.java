@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.takashiharano.webapp0.action.Action;
+import com.takashiharano.webapp0.session.Authenticator;
+import com.takashiharano.webapp0.util.Log;
 
 @WebServlet(name = "MainServlet", urlPatterns = ("/main"))
 @MultipartConfig(fileSizeThreshold = 0, location = "", maxFileSize = -1L, maxRequestSize = -1L)
@@ -18,7 +20,7 @@ public class MainServlet extends HttpServlet {
 
   private static final long serialVersionUID = -5960501271818225697L;
 
-  private static final String DEFAULT_ACTION_NAME = "ShowMainScreen";
+  private static final String DEFAULT_ACTION_NAME = "ShowScreen";
 
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response)
@@ -28,6 +30,9 @@ public class MainServlet extends HttpServlet {
 
     ServletContext servletContext = getServletContext();
     ProcessContext context = new ProcessContext(request, response, servletContext);
+
+    Log.setContext(context);
+    context.onAccess();
 
     try {
       _service(context);
@@ -46,6 +51,25 @@ public class MainServlet extends HttpServlet {
       return;
     }
 
+    String actionName = getActionName(context);
+    Action action = Action.getActionInstance(context, actionName);
+    if (action == null) {
+      Log.e("ACTION_NOT_FOUND: " + actionName);
+      context.sendJson("ACTION_NOT_FOUND", actionName);
+      return;
+    }
+
+    if (action.isAuthRequired()) {
+      boolean authorized = Authenticator.checkAuthorization(context);
+      if (!authorized) {
+        throw new NotAuthorizedException();
+      }
+    }
+
+    action.process(context);
+  }
+
+  private String getActionName(ProcessContext context) {
     String actionName = context.getActionName();
     if (actionName == null) {
       if (context.getRequestParameter("version") != null) {
@@ -58,8 +82,7 @@ public class MainServlet extends HttpServlet {
         actionName = DEFAULT_ACTION_NAME;
       }
     }
-
-    Action.exec(context, actionName);
+    return actionName;
   }
 
   private boolean checkMethod(String method) {

@@ -126,6 +126,12 @@
       <version>1.0.0</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.bsb64</groupId>
+      <artifactId>bsb64</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
     <!-- WEB-INF/lib -->
 <!--
     <dependency>
