@@ -1,4 +1,9 @@
 <%@page language="java" contentType="text/html; charset=utf-8"%>
+<%@ page import="com.takashiharano.webapp0.ProcessContext"%>
+<%
+ProcessContext context = (ProcessContext) request.getAttribute("context");
+String requestedUri = context.getStringInfo("requestedUri");
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -41,6 +46,9 @@ input {
   text-align: center;
 }
 </style>
+<script>
+var REQUESTED_URL = '<%= requestedUri %>';
+</script>
 </head>
 <body>
 <div id="wrapper">

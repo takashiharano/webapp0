@@ -42,10 +42,10 @@ webapp0.login.loginCb = function(xhr, res) {
 };
 
 webapp0.login.onLoginOk = function() {
-  setTimeout(webapp0.login._onLoginOk, 1500);
+  setTimeout(webapp0.login.forwardScreen, 1000);
 };
-webapp0.login._onLoginOk = function() {
-  location.href = 'main';
+webapp0.login.forwardScreen = function() {
+  location.href = '/' + REQUESTED_URL;
 };
 
 webapp0.login.onLoginErr = function() {

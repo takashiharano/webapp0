@@ -62,7 +62,10 @@ public class MainServlet extends HttpServlet {
     if (action.isAuthRequired()) {
       boolean authorized = Authenticator.checkAuthorization(context);
       if (!authorized) {
-        throw new NotAuthorizedException();
+        String message = "Access denied. (action=" + actionName + ")";
+        String requestedUri = context.getRequestedUri();
+        requestedUri = requestedUri.substring(1); // remove leading "/"
+        throw new NotAuthorizedException(message, requestedUri);
       }
     }
 

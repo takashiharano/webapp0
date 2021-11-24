@@ -270,6 +270,10 @@ public class ProcessContext {
     return info.get(key);
   }
 
+  public String getStringInfo(String key) {
+    return (String) getInfo(key);
+  }
+
   public void setInfo(String key, Object value) {
     info.put(key, value);
   }
@@ -370,6 +374,21 @@ public class ProcessContext {
     SessionManager sessionManager = appManager.getSessionManager();
     SessionInfo sessionInfo = sessionManager.getSessionInfo(sessionId);
     return sessionInfo;
+  }
+
+  /**
+   * Returns requested URI (/xxxx/main?aaa=bbb)
+   *
+   * @return URI
+   */
+  public String getRequestedUri() {
+    String requestUri = request.getRequestURI();
+    String queryString = request.getQueryString();
+    String requestedUri = requestUri;
+    if (queryString != null) {
+      requestedUri += "?" + queryString;
+    }
+    return requestedUri;
   }
 
   public String getUserName() {

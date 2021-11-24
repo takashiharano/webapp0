@@ -31,7 +31,10 @@ public class ShowScreenAction extends Action {
       if (isAuthRequired(screen)) {
         boolean authorized = Authenticator.checkAuthorization(context);
         if (!authorized) {
-          throw new NotAuthorizedException();
+          String message = "Access denied. (screen=" + screen + ")";
+          String requestedUri = context.getRequestedUri();
+          requestedUri = requestedUri.substring(1); // remove leading "/"
+          throw new NotAuthorizedException(message, requestedUri);
         }
       }
 
