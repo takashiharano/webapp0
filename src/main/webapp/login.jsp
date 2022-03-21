@@ -57,7 +57,7 @@ var REQUESTED_URL = '<%= requestedUri %>';
       <span id="led"></span> webapp0
     </div>
     <div style="margin-top:20px;">
-      <input type="text" id="id" placeholder="Username">
+      <input type="text" id="id" placeholder="Username" spellcheck="false">
     </div>
     <div style="margin-top:10px;">
       <input type="password" id="pw" placeholder="Password"><br>
