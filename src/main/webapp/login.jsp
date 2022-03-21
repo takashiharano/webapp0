@@ -1,5 +1,5 @@
-<%@page language="java" contentType="text/html; charset=utf-8"%>
-<%@ page import="com.takashiharano.webapp0.ProcessContext"%>
+<%@ page language="java" contentType="text/html; charset=utf-8" %>
+<%@ page import="com.takashiharano.webapp0.ProcessContext" %>
 <%
 ProcessContext context = (ProcessContext) request.getAttribute("context");
 String requestedUri = context.getStringInfo("requestedUrl");

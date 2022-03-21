@@ -1,7 +1,7 @@
-<%@page language="java" contentType="text/html; charset=utf-8"%>
-<%@ page import="com.takashiharano.webapp0.ProcessContext"%>
-<%@ page import="java.util.Date"%>
-<%@ page import="java.text.SimpleDateFormat"%>
+<%@ page language="java" contentType="text/html; charset=utf-8" %>
+<%@ page import="com.takashiharano.webapp0.ProcessContext" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%
 ProcessContext context = (ProcessContext) request.getAttribute("context");
 long timestamp = System.currentTimeMillis();
