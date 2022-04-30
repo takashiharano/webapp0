@@ -96,7 +96,7 @@ public class ProcessContext {
     if (value == null) {
       return null;
     }
-    return Base64Util.decode(value);
+    return Base64Util.decodeToString(value);
   }
 
   public String getBSB64DecodedRequestParameter(String key) {
