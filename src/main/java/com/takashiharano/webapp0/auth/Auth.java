@@ -42,10 +42,10 @@ import javax.xml.bind.DatatypeConverter;
  * TinyAuth
  *
  * register:<br>
- * register(id, hash(pass + id)) -> id,stretch(hash) into the file.<br>
+ * register(id, hash(pass + id)) : id,stretch(hash) into the file.<br>
  * <br>
  * authentication:<br>
- * auth(id, hash(pass + id)) -> stretch(hash) == stored hash ?
+ * auth(id, hash(pass + id)) : stretch(hash) == stored hash ?
  *
  * Available hash algorithms: MD5, SHA-1, SHA-256 (default), SHA-512
  */
@@ -171,7 +171,7 @@ public class Auth {
    * Register a password.<br>
    * The given hash will be stretched before save to the file.
    *
-   * @param targetId
+   * @param id
    *          target user id
    * @param hash
    *          non-stretched hash. hash(pass + id)
@@ -211,7 +211,7 @@ public class Auth {
   /**
    * Register a password with plain text.
    *
-   * @param targetId
+   * @param id
    *          target user id
    * @param pass
    *          plain text password
@@ -223,7 +223,7 @@ public class Auth {
   /**
    * Register a password with plain text.
    *
-   * @param targetId
+   * @param id
    *          target user id
    * @param pass
    *          plain text password

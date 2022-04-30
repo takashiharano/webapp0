@@ -192,8 +192,8 @@ public class SessionManager {
    *
    * @param context
    *          Process Context
-   * @param userName
-   *          the user name
+   * @param userInfo
+   *          user info object
    */
   public void onLoggedIn(ProcessContext context, UserInfo userInfo) {
     String username = userInfo.getUsername();

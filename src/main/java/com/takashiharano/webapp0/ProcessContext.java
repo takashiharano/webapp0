@@ -487,9 +487,6 @@ public class ProcessContext {
 
   /**
    * Sets expiration date of the session cookie.
-   *
-   * @param context
-   *          Process Context
    */
   public void setSessionCookieMaxAge() {
     String sessionId = getSessionId();
