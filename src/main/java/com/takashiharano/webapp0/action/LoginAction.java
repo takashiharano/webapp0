@@ -43,7 +43,7 @@ public class LoginAction extends Action {
     String status = "NG";
 
     UserInfo userInfo = null;
-    if (appManager.getConfigBooleanValue("pseudo_auth")) {
+    if (appManager.isConfigTrue("pseudo_auth")) {
       userInfo = new UserInfo(username);
       userInfo.setAdministrator(true);
     } else {

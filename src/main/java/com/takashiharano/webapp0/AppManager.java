@@ -97,7 +97,7 @@ public class AppManager {
     Log.i("WebAppHome: " + appHomePath);
 
     String propFilePath = appHomePath + "/" + PROPERTIES_FILENAME;
-    if (FileUtil.notExist(propFilePath)) {
+    if (!FileUtil.exists(propFilePath)) {
       throw new Exception("App config not found: path=" + propFilePath);
     }
     config = new Props(propFilePath);
@@ -152,8 +152,8 @@ public class AppManager {
     return config.getDoubleValue(key, defaultValue);
   }
 
-  public boolean getConfigBooleanValue(String key) {
-    return config.getBooleanValue(key);
+  public boolean isConfigTrue(String key) {
+    return config.isTrue(key);
   }
 
   public SessionManager getSessionManager() {
