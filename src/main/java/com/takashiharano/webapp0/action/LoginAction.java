@@ -56,7 +56,7 @@ public class LoginAction extends Action {
     }
 
     if (userInfo != null) {
-      Log.i("Login: " + username);
+      Log.i("Login : " + username);
       status = "OK";
       sessionManager.onLoggedIn(context, userInfo);
     }

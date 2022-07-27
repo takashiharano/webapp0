@@ -13,8 +13,7 @@ public class SessionInfo {
     this(sessionId, userName, System.currentTimeMillis(), 0, remoteAddr, userAgent);
   }
 
-  public SessionInfo(String sessionId, String username, long createdTime, long lastAccessedTime, String remoteAddr,
-      String userAgent) {
+  public SessionInfo(String sessionId, String username, long createdTime, long lastAccessedTime, String remoteAddr, String userAgent) {
     this.sessionId = sessionId;
     this.username = username;
     this.createdTime = createdTime;

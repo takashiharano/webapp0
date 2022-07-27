@@ -26,6 +26,7 @@ import com.bsb64.BSB64;
 import com.libutil.Base64Util;
 import com.libutil.FileUtil;
 import com.libutil.JsonBuilder;
+import com.libutil.Props;
 import com.takashiharano.webapp0.session.SessionInfo;
 import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.util.Log;
@@ -242,10 +243,7 @@ public class ProcessContext {
   }
 
   private void sendFile(String path) throws IOException {
-    try (ServletOutputStream os = response.getOutputStream();
-        FileInputStream fis = new FileInputStream(path);
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        DataInputStream dis = new DataInputStream(bis);) {
+    try (ServletOutputStream os = response.getOutputStream(); FileInputStream fis = new FileInputStream(path); BufferedInputStream bis = new BufferedInputStream(fis); DataInputStream dis = new DataInputStream(bis);) {
 
       byte[] b = new byte[1 * 1024 * 1024];
       int readSize = 0;
@@ -404,6 +402,60 @@ public class ProcessContext {
     String path = "error.jsp";
     Log.i("Screen => " + path);
     forward(path);
+  }
+
+  public String getConfigValue(String key) {
+    AppManager appManager = AppManager.getInstance();
+    Props config = appManager.getConfig();
+    return config.getValue(key);
+  }
+
+  public String getConfigValue(String key, String defaultValue) {
+    AppManager appManager = AppManager.getInstance();
+    Props config = appManager.getConfig();
+    return config.getValue(key);
+  }
+
+  public int getConfigIntValue(String key) {
+    AppManager appManager = AppManager.getInstance();
+    Props config = appManager.getConfig();
+    return config.getIntValue(key);
+  }
+
+  public int getConfigIntValue(String key, int defaultValue) {
+    AppManager appManager = AppManager.getInstance();
+    Props config = appManager.getConfig();
+    return config.getIntValue(key, defaultValue);
+  }
+
+  public float getConfigFloatValue(String key) {
+    AppManager appManager = AppManager.getInstance();
+    Props config = appManager.getConfig();
+    return config.getFloatValue(key);
+  }
+
+  public float getConfigFloatValue(String key, float defaultValue) {
+    AppManager appManager = AppManager.getInstance();
+    Props config = appManager.getConfig();
+    return config.getFloatValue(key, defaultValue);
+  }
+
+  public double getConfigDoubleValue(String key) {
+    AppManager appManager = AppManager.getInstance();
+    Props config = appManager.getConfig();
+    return config.getDoubleValue(key);
+  }
+
+  public double getConfigDoubleValue(String key, double defaultValue) {
+    AppManager appManager = AppManager.getInstance();
+    Props config = appManager.getConfig();
+    return config.getDoubleValue(key, defaultValue);
+  }
+
+  public boolean isConfigTrue(String key) {
+    AppManager appManager = AppManager.getInstance();
+    Props config = appManager.getConfig();
+    return config.isTrue(key);
   }
 
   /**

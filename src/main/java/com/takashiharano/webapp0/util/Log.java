@@ -2,6 +2,7 @@ package com.takashiharano.webapp0.util;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.libutil.DateTime;
 import com.libutil._Log;
 import com.takashiharano.webapp0.ProcessContext;
 
@@ -36,6 +37,13 @@ public class Log extends _Log {
     tidContextMap.put(tid, context);
   }
 
+  public ProcessContext getContext() {
+    Thread th = Thread.currentThread();
+    long tid = th.getId();
+    ProcessContext context = tidContextMap.get(tid);
+    return context;
+  }
+
   public static void removeContext() {
     getInstance()._removeContext();
   }
@@ -47,6 +55,72 @@ public class Log extends _Log {
     Thread th = Thread.currentThread();
     long tid = th.getId();
     tidContextMap.remove(tid);
+  }
+
+  protected String buildMessage(Object o, LogLevel lv, int stackFrameOffset, boolean printLine) {
+    Thread th = Thread.currentThread();
+    ProcessContext context = getContext();
+    StringBuilder sb = new StringBuilder();
+
+    if ((flag & FLAG_TIME) != 0) {
+      String datetime = DateTime.getCurrentDateTimeString(dateTimeFormat);
+      sb.append(datetime);
+      sb.append(" ");
+    }
+
+    StringBuilder inf = new StringBuilder();
+    if ((flag & FLAG_LEVEL) != 0) {
+      inf.append("[");
+      inf.append(lv.getTypeSymbol());
+      inf.append("]");
+    }
+
+    if (((flag & FLAG_MODULE_NAME) != 0) && (moduleName != null)) {
+      inf.append("[");
+      inf.append(moduleName);
+      inf.append("]");
+    }
+
+    if ((flag & FLAG_TID) != 0) {
+      long tid = th.getId();
+      inf.append("[tid:");
+      inf.append(tid);
+      inf.append("]");
+    }
+
+    String userName = "";
+    if (context == null) {
+      userName = "-";
+    } else {
+      userName = context.getUserName();
+    }
+    if (userName == null) {
+      userName = "-";
+    }
+    inf.append("[");
+    inf.append(userName);
+    inf.append("]");
+
+    if (((flag & FLAG_LINE) != 0) && printLine) {
+      StackTraceElement[] stack = th.getStackTrace();
+      int stackFrameIndex = 4 + stackFrameOffset;
+      StackTraceElement frame = stack[stackFrameIndex];
+      String method = frame.getMethodName() + "()";
+      String fileName = frame.getFileName();
+      int line = frame.getLineNumber();
+      String fileLine = method + ":" + fileName + ":" + line;
+      inf.append("[");
+      inf.append(fileLine);
+      inf.append("]");
+    }
+
+    if (inf.length() > 0) {
+      sb.append(inf);
+      sb.append(" ");
+    }
+    sb.append(dump(o));
+
+    return sb.toString();
   }
 
 }

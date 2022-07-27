@@ -120,6 +120,10 @@ public class AppManager {
     asyncTaskManager = AsyncTaskManager.getInstance();
   }
 
+  public Props getConfig() {
+    return config;
+  }
+
   public String getConfigValue(String key) {
     return config.getValue(key);
   }
