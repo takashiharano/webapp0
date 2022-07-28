@@ -29,15 +29,15 @@ public class LoginAction extends Action {
 
     if ("OK".equals(result)) {
       status = "OK";
-      Log.i("Login : " + username);
+      Log.i("Login: " + username);
       status = "OK";
       sessionManager.onLoggedIn(context, username);
     } else if ("PASSWORD_MISMATCH".equals(result)) {
       Log.w("Login Error: user=" + username);
-    } else if ("NO_SUCH_USER".equals(result)) {
-      Log.w("Login Error: NO_SUCH_USER");
+    } else if ("USER_NOT_FOUND".equals(result)) {
+      Log.w("Login Error: USER_NOT_FOUND");
     } else {
-      Log.w("Login Error: NG");
+      Log.w("Login Error: ERROR");
     }
 
     context.sendJsonResponse(status, null);

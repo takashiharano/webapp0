@@ -50,6 +50,11 @@ import javax.xml.bind.DatatypeConverter;
  * Authentication:
  *   auth(user, hash(pass + user))
  *     stretch(hash) == registered hash ?
+ *
+ * Data File:
+ * username1[TAB]hash1[LF]
+ * username2[TAB]hash2[LF]
+ * ...
  * </pre>
  *
  * Available hash algorithms: MD5, SHA-1, SHA-256 (default), SHA-512
@@ -133,7 +138,7 @@ public class Auth {
     try {
       records = loadPasswordFile();
     } catch (IOException e) {
-      return "USER_FILE_LOAD_ERROR";
+      return "PASSWORD_FILE_LOAD_ERROR";
     }
 
     for (int i = 0; i < records.length; i++) {
@@ -153,7 +158,7 @@ public class Auth {
       }
     }
 
-    return "NO_SUCH_USER";
+    return "USER_NOT_FOUND";
   }
 
   /**
@@ -402,6 +407,7 @@ public class Auth {
       String[] fields = record.split(DELIMITER);
       String uid = fields[0];
       if (uid.equals(user)) {
+        // update
         result = 1;
         sb.append(newRecord + LINE_SEPARATOR);
       } else {
@@ -410,6 +416,7 @@ public class Auth {
     }
 
     if (result == 0) {
+      // new
       sb.append(newRecord + LINE_SEPARATOR);
     }
 
