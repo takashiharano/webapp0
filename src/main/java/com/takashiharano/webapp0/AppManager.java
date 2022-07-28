@@ -8,6 +8,7 @@ import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.task.HeapMonitor;
 import com.takashiharano.webapp0.task.IntervalTask;
 import com.takashiharano.webapp0.task.IntervalTaskManager;
+import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
 
 public class AppManager {
@@ -24,6 +25,7 @@ public class AppManager {
   private String appWorkspacePath;
   private Props config;
   private String errorInfo;
+  private UserManager userManager;
   private SessionManager sessionManager;
   private IntervalTaskManager intervalTaskManager;
   private AsyncTaskManager asyncTaskManager;
@@ -107,6 +109,9 @@ public class AppManager {
       appWorkspacePath = appHomePath;
     }
     Log.i("WebAppWorkspace: " + appWorkspacePath);
+
+    userManager = UserManager.getInstance();
+    userManager.loadUsers();
 
     if (sessionManager == null) {
       String sessionPath = FileUtil.joinPath(getAppWorkspacePath(), "sessions.txt");

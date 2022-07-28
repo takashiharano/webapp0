@@ -538,6 +538,19 @@ public class ProcessContext {
   }
 
   /**
+   * Returns if the context has a valid session.
+   *
+   * @return true if the context has a valid session
+   */
+  public boolean isValidSession() {
+    SessionInfo sessionInfo = getSessionInfo();
+    if (sessionInfo == null) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * Sets expiration date of the session cookie.
    */
   public void setSessionCookieMaxAge() {

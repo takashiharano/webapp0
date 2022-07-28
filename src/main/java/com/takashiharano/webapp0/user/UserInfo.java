@@ -1,4 +1,4 @@
-package com.takashiharano.webapp0.session;
+package com.takashiharano.webapp0.user;
 
 import java.util.ArrayList;
 import java.util.List;

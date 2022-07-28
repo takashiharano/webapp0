@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.takashiharano.webapp0.action.Action;
-import com.takashiharano.webapp0.session.Authenticator;
 import com.takashiharano.webapp0.util.Log;
 
 @WebServlet(name = "MainServlet", urlPatterns = ("/main"))
@@ -23,8 +22,7 @@ public class MainServlet extends HttpServlet {
   private static final String DEFAULT_ACTION_NAME = "ShowScreen";
 
   @Override
-  protected void service(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+  protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
     // HttpSession session = request.getSession(true);
 
@@ -41,6 +39,8 @@ public class MainServlet extends HttpServlet {
     }
 
     // session.invalidate();
+
+    Log.removeContext();
   }
 
   protected void _service(ProcessContext context) throws Throwable {
@@ -60,7 +60,7 @@ public class MainServlet extends HttpServlet {
     }
 
     if (action.isAuthRequired()) {
-      boolean authorized = Authenticator.checkAuthorization(context);
+      boolean authorized = context.isValidSession();
       if (!authorized) {
         String message = "Access denied. (action=" + actionName + ")";
         String requestedUri = context.getRequestedUri();

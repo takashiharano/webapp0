@@ -7,7 +7,6 @@ import javax.servlet.ServletException;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.NotAuthorizedException;
 import com.takashiharano.webapp0.ProcessContext;
-import com.takashiharano.webapp0.session.Authenticator;
 
 /**
  * Show screen.
@@ -29,7 +28,7 @@ public class ShowScreenAction extends Action {
     }
     if (AppManager.getInstance().isReady()) {
       if (isAuthRequired(screen)) {
-        boolean authorized = Authenticator.checkAuthorization(context);
+        boolean authorized = context.isValidSession();
         if (!authorized) {
           String message = "Access denied. (screen=" + screen + ")";
           String requestedUri = context.getRequestedUri();

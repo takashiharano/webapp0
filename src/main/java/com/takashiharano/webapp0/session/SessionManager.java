@@ -56,6 +56,9 @@ public class SessionManager {
 
     String remoteAddr = context.getRemoteAddress(true);
     sessionInfo.setRemoteAddr(remoteAddr);
+
+    String ua = context.getUserAgent();
+    sessionInfo.setUserAgent(ua);
   }
 
   public void onStop() {
@@ -221,10 +224,10 @@ public class SessionManager {
    *
    * @param context
    *          Process Context
-   * @param userInfo
-   *          user info object
+   * @param username
+   *          the user name
    */
-  public void onLoggedIn(ProcessContext context, UserInfo userInfo) {
+  public void onLoggedIn(ProcessContext context, String username) {
     SessionInfo session = getSessionInfo(context);
 
     if (session != null) {
@@ -232,7 +235,7 @@ public class SessionManager {
       removeSessionInfo(sessionId);
     }
 
-    createNewSession(context, userInfo);
+    createNewSession(context, username);
   }
 
   /**
@@ -240,12 +243,10 @@ public class SessionManager {
    *
    * @param context
    *          Process Context
-   * @param userInfo
-   *          the user info
+   * @param username
+   *          the user name
    */
-  private void createNewSession(ProcessContext context, UserInfo userInfo) {
-    String username = userInfo.getUsername();
-
+  private void createNewSession(ProcessContext context, String username) {
     // Recreate session
     HttpServletRequest request = context.getRequest();
     HttpSession session = request.getSession();
