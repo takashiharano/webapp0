@@ -29,10 +29,6 @@ public class SessionManager {
   public SessionManager(String sessionFilePath) {
     sessionMap = new ConcurrentHashMap<>();
     this.sessionInfoFilePath = sessionFilePath;
-
-    if (FileUtil.exists(sessionFilePath)) {
-      loadSessionInfo(sessionInfoFilePath);
-    }
   }
 
   /**
@@ -97,19 +93,6 @@ public class SessionManager {
     return sessionMap;
   }
 
-  public String getUsername(ProcessContext context) {
-    String sessionId = context.getSessionId();
-    if (sessionId == null) {
-      return null;
-    }
-    SessionInfo info = getSessionInfo(sessionId);
-    if (info == null) {
-      return null;
-    }
-    String username = info.getUsername();
-    return username;
-  }
-
   /**
    * Removes the session info from the session map.
    *
@@ -149,24 +132,40 @@ public class SessionManager {
       return;
     }
 
+    int count = 0;
     for (int i = 0; i < records.length; i++) {
       String record = records[i];
-      String[] fields = record.split("\t");
-      String sessionId = fields[0];
-      String username = fields[1];
-      String sCreatedTime = fields[2];
-      String sLastAccessedTime = fields[3];
-      String remoteAddr = fields[4];
-      String userAgent = fields[5];
-      long createdTime = Long.parseLong(sCreatedTime);
-      long lastAccessedTime = Long.parseLong(sLastAccessedTime);
-
-      // Restores the session info to memory
-      SessionInfo info = new SessionInfo(sessionId, username, createdTime, lastAccessedTime, remoteAddr, userAgent);
-      registerSessionInfo(info);
+      try {
+        restoreSessionInfo(record);
+        count++;
+      } catch (Exception e) {
+        Log.e("Session restore error: " + e.toString());
+      }
     }
 
-    Log.i(records.length + " session info loaded");
+    Log.i(count + " session info loaded");
+  }
+
+  /**
+   * Restores the session info to memory
+   *
+   * @param record
+   *          session record
+   */
+  private void restoreSessionInfo(String record) {
+    String[] fields = record.split("\t");
+    String sessionId = fields[0];
+    String username = fields[1];
+    String sCreatedTime = fields[2];
+    String sLastAccessedTime = fields[3];
+    String remoteAddr = fields[4];
+    String remoteHost = fields[5];
+    String userAgent = fields[6];
+    long createdTime = Long.parseLong(sCreatedTime);
+    long lastAccessedTime = Long.parseLong(sLastAccessedTime);
+
+    SessionInfo info = new SessionInfo(sessionId, username, createdTime, lastAccessedTime, remoteAddr, remoteHost, userAgent);
+    registerSessionInfo(info);
   }
 
   /**
@@ -189,9 +188,10 @@ public class SessionManager {
       long createdTime = info.getCreatedTime();
       long lastAccessedTime = info.getLastAccessedTime();
       String remoteAddr = info.getRemoteAddr();
+      String remoteHost = info.getRemoteHost();
       String userAgent = info.getUserAgent();
 
-      // sessionId,username,accessToken,createdTime,lastAccessedTime,lastAccessedRemoteAddr
+      // sessionId,username,accessToken,createdTime,lastAccessedTime,lastAccessedRemoteAddr,host,ua
       StringBuilder record = new StringBuilder();
       record.append(sessionId);
       record.append("\t");
@@ -202,6 +202,8 @@ public class SessionManager {
       record.append(lastAccessedTime);
       record.append("\t");
       record.append(remoteAddr);
+      record.append("\t");
+      record.append(remoteHost);
       record.append("\t");
       record.append(userAgent);
 
@@ -254,12 +256,13 @@ public class SessionManager {
     session = request.getSession(true);
     String sessionId = generateSessionId(username);
     String remoteAddr = context.getRemoteAddr();
+    String remoteHost = context.getRemoteHost();
     String userAgent = context.getUserAgent();
 
     long createdTime = System.currentTimeMillis();
     long lastAccessedTime = 0L;
 
-    SessionInfo info = new SessionInfo(sessionId, username, createdTime, lastAccessedTime, remoteAddr, userAgent);
+    SessionInfo info = new SessionInfo(sessionId, username, createdTime, lastAccessedTime, remoteAddr, remoteHost, userAgent);
     registerSessionInfo(info);
 
     // Set session expiration
@@ -313,10 +316,10 @@ public class SessionManager {
    */
   public void logout(ProcessContext context) {
     String username = context.getUserName();
-    HttpSession session = context.getSession();
+    HttpSession httpSession = context.getHttpSession();
     String sessionId = context.getSessionId();
     removeSessionInfo(sessionId);
-    session.invalidate();
+    httpSession.invalidate();
     invalidateSessionCookie(context);
     cleanInvalidatedSessionInfo();
     Log.i("Logout: " + username);

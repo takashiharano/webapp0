@@ -116,6 +116,9 @@ public class AppManager {
     if (sessionManager == null) {
       String sessionPath = FileUtil.joinPath(getAppWorkspacePath(), "sessions.txt");
       sessionManager = new SessionManager(sessionPath);
+      if (FileUtil.exists(sessionPath)) {
+        sessionManager.loadSessionInfo(sessionPath);
+      }
     }
 
     if (intervalTaskManager == null) {

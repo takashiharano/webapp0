@@ -355,7 +355,7 @@ public class ProcessContext {
     return request.getLocalAddr();
   }
 
-  public HttpSession getSession() {
+  public HttpSession getHttpSession() {
     return request.getSession();
   }
 

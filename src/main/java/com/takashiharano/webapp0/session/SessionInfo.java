@@ -7,18 +7,20 @@ public class SessionInfo {
   private long createdTime;
   private long lastAccessedTime;
   private String remoteAddr;
+  private String remoteHost;
   private String userAgent;
 
-  public SessionInfo(String sessionId, String userName, String remoteAddr, String userAgent) {
-    this(sessionId, userName, System.currentTimeMillis(), 0, remoteAddr, userAgent);
+  public SessionInfo(String sessionId, String userName, String remoteAddr, String remoteHost, String userAgent) {
+    this(sessionId, userName, System.currentTimeMillis(), 0, remoteAddr, remoteHost, userAgent);
   }
 
-  public SessionInfo(String sessionId, String username, long createdTime, long lastAccessedTime, String remoteAddr, String userAgent) {
+  public SessionInfo(String sessionId, String username, long createdTime, long lastAccessedTime, String remoteAddr, String remoteHost, String userAgent) {
     this.sessionId = sessionId;
     this.username = username;
     this.createdTime = createdTime;
     this.lastAccessedTime = lastAccessedTime;
     this.remoteAddr = remoteAddr;
+    this.remoteHost = remoteHost;
     this.userAgent = userAgent;
   }
 
@@ -48,6 +50,14 @@ public class SessionInfo {
 
   public void setRemoteAddr(String remoteAddr) {
     this.remoteAddr = remoteAddr;
+  }
+
+  public String getRemoteHost() {
+    return remoteHost;
+  }
+
+  public void setRemoteHost(String remoteHost) {
+    this.remoteHost = remoteHost;
   }
 
   public String getUserAgent() {
