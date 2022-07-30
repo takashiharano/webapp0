@@ -32,12 +32,17 @@ webapp0.login.loginCb = function(xhr, res) {
     };
     $el('#message').textseq('Welcome!', textseqOpt);
   } else {
+    var m = 'Failed to Login';
+    if (res.status == 'ERROR') {
+      m = 'Server Error';
+      log.e(m + ' ' + res.body);
+    }
     webapp0.login.led.on('#f88');
     textseqOpt = {
       cursor: 2,
       oncomplete: webapp0.login.onLoginErr
     };
-    $el('#message').textseq('Failed to Login', textseqOpt);
+    $el('#message').textseq(m, textseqOpt);
   }
 };
 

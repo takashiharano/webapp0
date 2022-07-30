@@ -48,7 +48,7 @@ public class DefaultErrorHandler {
     } else if ("text".equals(context.getResponseType())) {
       context.sendTextResponse("ERROR: " + message);
     } else {
-      context.sendJsonResponse("ERROR", message);
+      context.sendJsonResponse("ERROR", message, false);
     }
   }
 
