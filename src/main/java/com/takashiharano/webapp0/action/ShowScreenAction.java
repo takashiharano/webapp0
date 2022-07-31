@@ -26,7 +26,9 @@ public class ShowScreenAction extends Action {
       // return;
       screen = "main";
     }
-    if (AppManager.getInstance().isReady()) {
+
+    AppManager appManager = AppManager.getInstance();
+    if (appManager.isReady()) {
       if (isAuthRequired(screen)) {
         boolean authorized = context.isValidSession();
         if (!authorized) {
@@ -40,19 +42,18 @@ public class ShowScreenAction extends Action {
       String screenFile = screen + ".jsp";
       context.forward(screenFile);
     } else {
-      showErrorScreen(context);
+      String errorInfo = appManager.getErrorInfo();
+      showErrorScreen(context, errorInfo);
     }
   }
 
-  private void showErrorScreen(ProcessContext context) throws ServletException, IOException {
+  private void showErrorScreen(ProcessContext context, String cause) throws ServletException, IOException {
     StringBuilder sb = new StringBuilder();
-    sb.append("ERROR:\n");
-    sb.append("The system is not working properly.\n");
+    sb.append("ERROR: The system is not working properly.\n\n");
     sb.append("Cause: ");
-    sb.append(AppManager.getInstance().getErrorInfo());
-    sb.append("\n\n");
-    sb.append("Further investigation is required.");
-    context.sendErrorScreen(sb.toString());
+    sb.append(cause);
+    String errorInfo = sb.toString();
+    context.sendErrorScreen(errorInfo);
   }
 
   private boolean isAuthRequired(String screenName) {

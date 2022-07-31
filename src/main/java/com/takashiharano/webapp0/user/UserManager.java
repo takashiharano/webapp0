@@ -30,6 +30,11 @@ public class UserManager {
       return "NG";
     }
 
+    UserInfo user = getUserInfo(username);
+    if (user == null) {
+      return "USER_NOT_FOUND";
+    }
+
     AppManager appManager = AppManager.getInstance();
 
     String result;
@@ -47,16 +52,23 @@ public class UserManager {
     users = new ConcurrentHashMap<>();
     AppManager appManager = AppManager.getInstance();
     String homePath = appManager.getAppHomePath();
-    String userFile = FileUtil.joinPath(homePath, "userpass.txt");
+    String usersFile = FileUtil.joinPath(homePath, "users.txt");
+    String passFile = FileUtil.joinPath(homePath, "userpass.txt");
+    auth = new Auth(passFile, 1);
 
-    auth = new Auth(userFile, 1);
-
-    String[] text = FileUtil.readTextAsArray(userFile);
+    String[] text = FileUtil.readTextAsArray(usersFile);
     for (int i = 0; i < text.length; i++) {
       String line = text[i];
       String[] fields = line.split("\t");
+
       String username = fields[0];
-      UserInfo userInfo = new UserInfo(username);
+      String admin = "";
+      if (fields.length >= 2) {
+        admin = fields[1];
+      }
+      boolean isAdmin = "1".equals(admin);
+
+      UserInfo userInfo = new UserInfo(username, isAdmin);
       users.put(username, userInfo);
     }
   }

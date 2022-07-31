@@ -34,8 +34,8 @@ public class LoginAction extends Action {
       sessionManager.onLoggedIn(context, username);
     } else if ("PASSWORD_MISMATCH".equals(result)) {
       Log.w("Login Error: user=" + username);
-    } else if ("USER_NOT_FOUND".equals(result)) {
-      Log.w("Login Error: USER_NOT_FOUND");
+    } else if ("USER_NOT_FOUND".equals(result) || "PW_DATA_NOT_FOUND".equals(result)) {
+      Log.w("Login Error: " + result);
     } else {
       Log.w("Login Error: ERROR");
     }

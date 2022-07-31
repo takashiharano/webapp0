@@ -5,17 +5,18 @@ import java.util.List;
 
 public class UserInfo {
   private String username;
-  private boolean isAdministrator;
+  private boolean administrator;
   private List<String> roleNames;
 
-  public UserInfo(String username) {
+  public UserInfo(String username, boolean isAdmin) {
     this.username = username;
+    this.administrator = isAdmin;
     this.roleNames = new ArrayList<>();
   }
 
-  public UserInfo(String username, boolean isAdministrator, List<String> roleNames) {
+  public UserInfo(String username, boolean administrator, List<String> roleNames) {
     this.username = username;
-    this.isAdministrator = isAdministrator;
+    this.administrator = administrator;
     this.roleNames = roleNames;
   }
 
@@ -28,11 +29,11 @@ public class UserInfo {
   }
 
   public boolean isAdministrator() {
-    return isAdministrator;
+    return administrator;
   }
 
-  public void setAdministrator(boolean isAdministrator) {
-    this.isAdministrator = isAdministrator;
+  public void setAdministrator(boolean administrator) {
+    this.administrator = administrator;
   }
 
   public List<String> getRoleNames() {

@@ -158,7 +158,7 @@ public class Auth {
       }
     }
 
-    return "USER_NOT_FOUND";
+    return "PW_DATA_NOT_FOUND";
   }
 
   /**
