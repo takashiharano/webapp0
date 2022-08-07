@@ -41,7 +41,7 @@ public class UserManager {
     if (appManager.isConfigTrue("pseudo_auth")) {
       result = "OK";
     } else {
-      String pwHash = HashUtil.sha256(pass + username);
+      String pwHash = HashUtil.getHashString(pass + username, "SHA-256");
       result = auth.auth(username, pwHash);
     }
 
