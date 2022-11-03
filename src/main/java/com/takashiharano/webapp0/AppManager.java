@@ -110,8 +110,7 @@ public class AppManager {
     }
     Log.i("WebAppWorkspace: " + appWorkspacePath);
 
-    userManager = UserManager.getInstance();
-    userManager.loadUsers();
+    userManager = new UserManager();
 
     if (sessionManager == null) {
       String sessionPath = FileUtil.joinPath(getAppWorkspacePath(), "sessions.txt");
@@ -170,6 +169,10 @@ public class AppManager {
 
   public SessionManager getSessionManager() {
     return sessionManager;
+  }
+
+  public UserManager getUserManager() {
+    return userManager;
   }
 
   public AsyncTaskManager getAsyncTaskManager() {

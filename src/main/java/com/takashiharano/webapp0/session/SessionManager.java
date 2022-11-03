@@ -322,7 +322,7 @@ public class SessionManager {
     httpSession.invalidate();
     invalidateSessionCookie(context);
     cleanInvalidatedSessionInfo();
-    Log.i("Logout: " + username);
+    Log.i("Logout: user=" + username);
   }
 
   private void invalidateSessionCookie(ProcessContext context) {

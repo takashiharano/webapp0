@@ -29,6 +29,8 @@ import com.libutil.JsonBuilder;
 import com.libutil.Props;
 import com.takashiharano.webapp0.session.SessionInfo;
 import com.takashiharano.webapp0.session.SessionManager;
+import com.takashiharano.webapp0.user.UserInfo;
+import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
 
 public class ProcessContext {
@@ -105,8 +107,7 @@ public class ProcessContext {
     if (value == null) {
       return null;
     }
-    AppManager appManager = AppManager.getInstance();
-    int n = appManager.getConfigIntValue("bab64_n_param", 1);
+    int n = getConfigIntValue("bab64_n_param", 1);
     return BSB64.decodeString(value, n);
   }
 
@@ -329,12 +330,12 @@ public class ProcessContext {
   }
 
   /**
-   * Returns User-Agent HTTP request header
+   * Returns UserInfo-Agent HTTP request header
    *
-   * @return User-Agent field value
+   * @return UserInfo-Agent field value
    */
   public String getUserAgent() {
-    return request.getHeader("User-Agent");
+    return request.getHeader("UserInfo-Agent");
   }
 
   /**
@@ -355,23 +356,56 @@ public class ProcessContext {
     return request.getLocalAddr();
   }
 
+  /**
+   * Return HTTP session object.
+   *
+   * @return Servlet HttpSession
+   */
   public HttpSession getHttpSession() {
     return request.getSession();
   }
 
+  /**
+   * Returns current session id.
+   *
+   * @return Session id
+   */
   public String getSessionId() {
     return getCookie(SessionManager.SESSION_COOKIE_NAME);
   }
 
+  /**
+   * Returns current session info.
+   *
+   * @return Session info
+   */
   public SessionInfo getSessionInfo() {
     String sessionId = getSessionId();
     if (sessionId == null) {
       return null;
     }
-    AppManager appManager = AppManager.getInstance();
+    AppManager appManager = getAppManager();
     SessionManager sessionManager = appManager.getSessionManager();
     SessionInfo sessionInfo = sessionManager.getSessionInfo(sessionId);
     return sessionInfo;
+  }
+
+  /**
+   * Returns current user info.
+   *
+   * @return User info
+   */
+  public UserInfo getUserInfo() {
+    SessionInfo sessionInfo = getSessionInfo();
+    if (sessionInfo == null) {
+      return null;
+    }
+
+    String username = sessionInfo.getUsername();
+
+    UserManager userManager = getUserManager();
+    UserInfo userInfo = userManager.getUserInfo(username);
+    return userInfo;
   }
 
   /**
@@ -389,12 +423,54 @@ public class ProcessContext {
     return requestedUri;
   }
 
+  /**
+   * Returns current username.
+   *
+   * @return username
+   */
   public String getUserName() {
     SessionInfo sessionInfo = getSessionInfo();
     if (sessionInfo == null) {
       return null;
     }
     return sessionInfo.getUsername();
+  }
+
+  /**
+   * Returns current user full name.
+   *
+   * @return user full name
+   */
+  public String getUserFullName() {
+    UserInfo userInfo = getUserInfo();
+    if (userInfo == null) {
+      return null;
+    }
+    return userInfo.getName();
+  }
+
+  public boolean isAdministrator() {
+    UserInfo userInfo = getUserInfo();
+    if (userInfo == null) {
+      return false;
+    }
+    return userInfo.isAdministrator();
+  }
+
+  public String[] getPermissions() {
+    UserInfo userInfo = getUserInfo();
+    if (userInfo == null) {
+      return null;
+    }
+    return userInfo.getPermissions();
+  }
+
+  public boolean hasPermissions(String permission) {
+    UserInfo userInfo = getUserInfo();
+    if (userInfo == null) {
+      return false;
+    }
+    return userInfo.hasPermission(permission);
   }
 
   public void sendErrorScreen(String errorInfo) throws ServletException, IOException {
@@ -404,57 +480,50 @@ public class ProcessContext {
     forward(path);
   }
 
-  public String getConfigValue(String key) {
-    AppManager appManager = AppManager.getInstance();
+  public Props getConfig() {
+    AppManager appManager = getAppManager();
     Props config = appManager.getConfig();
-    return config.getValue(key);
+    return config;
+  }
+
+  public String getConfigValue(String key) {
+    return getConfigValue(key, null);
   }
 
   public String getConfigValue(String key, String defaultValue) {
-    AppManager appManager = AppManager.getInstance();
-    Props config = appManager.getConfig();
+    Props config = getConfig();
     return config.getValue(key);
   }
 
   public int getConfigIntValue(String key) {
-    AppManager appManager = AppManager.getInstance();
-    Props config = appManager.getConfig();
-    return config.getIntValue(key);
+    return getConfigIntValue(key, 0);
   }
 
   public int getConfigIntValue(String key, int defaultValue) {
-    AppManager appManager = AppManager.getInstance();
-    Props config = appManager.getConfig();
+    Props config = getConfig();
     return config.getIntValue(key, defaultValue);
   }
 
   public float getConfigFloatValue(String key) {
-    AppManager appManager = AppManager.getInstance();
-    Props config = appManager.getConfig();
-    return config.getFloatValue(key);
+    return getConfigFloatValue(key, 0f);
   }
 
   public float getConfigFloatValue(String key, float defaultValue) {
-    AppManager appManager = AppManager.getInstance();
-    Props config = appManager.getConfig();
+    Props config = getConfig();
     return config.getFloatValue(key, defaultValue);
   }
 
   public double getConfigDoubleValue(String key) {
-    AppManager appManager = AppManager.getInstance();
-    Props config = appManager.getConfig();
-    return config.getDoubleValue(key);
+    return getConfigDoubleValue(key, 0);
   }
 
   public double getConfigDoubleValue(String key, double defaultValue) {
-    AppManager appManager = AppManager.getInstance();
-    Props config = appManager.getConfig();
+    Props config = getConfig();
     return config.getDoubleValue(key, defaultValue);
   }
 
   public boolean isConfigTrue(String key) {
-    AppManager appManager = AppManager.getInstance();
-    Props config = appManager.getConfig();
+    Props config = getConfig();
     return config.isTrue(key);
   }
 
@@ -532,9 +601,14 @@ public class ProcessContext {
   }
 
   public void onAccess() {
+    Log.setContext(this);
     SessionManager sessionManager = getSessionManager();
     sessionManager.onAccess(this);
     setSessionCookieMaxAge();
+  }
+
+  public void onAccessEnd() {
+    Log.removeContext();
   }
 
   /**
@@ -542,7 +616,7 @@ public class ProcessContext {
    *
    * @return true if the context has a valid session
    */
-  public boolean isValidSession() {
+  public boolean isAuthorized() {
     SessionInfo sessionInfo = getSessionInfo();
     if (sessionInfo == null) {
       return false;
@@ -558,8 +632,7 @@ public class ProcessContext {
     if (sessionId == null) {
       return;
     }
-    AppManager appManager = AppManager.getInstance();
-    int sessionTimeoutSec = appManager.getConfigIntValue("session_timeout_sec", 86400);
+    int sessionTimeoutSec = getConfigIntValue("session_timeout_sec", 86400);
     setSessionCookieMaxAge(sessionId, sessionTimeoutSec);
   }
 
@@ -572,10 +645,20 @@ public class ProcessContext {
     response.addCookie(cookie);
   }
 
-  private SessionManager getSessionManager() {
+  public AppManager getAppManager() {
     AppManager appManager = AppManager.getInstance();
+    return appManager;
+  }
+
+  public SessionManager getSessionManager() {
+    AppManager appManager = getAppManager();
     SessionManager sessionManager = appManager.getSessionManager();
     return sessionManager;
   }
 
+  public UserManager getUserManager() {
+    AppManager appManager = getAppManager();
+    UserManager userManager = appManager.getUserManager();
+    return userManager;
+  }
 }

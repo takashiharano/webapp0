@@ -10,7 +10,7 @@ public abstract class Action {
   public static Action getActionInstance(ProcessContext context, String actionName) {
     String basePkgName = AppManager.getBasePackageName();
     String pkgName = basePkgName + ".action";
-    String[] packages = { "", "system" };
+    String[] packages = { "", "system", "system.users" };
 
     actionName = actionName.substring(0, 1).toUpperCase() + actionName.substring(1);
     for (int i = 0; i < packages.length; i++) {
@@ -46,7 +46,8 @@ public abstract class Action {
     this.authRequired = authRequired;
   }
 
-  protected abstract void init(ProcessContext context);
+  protected void init(ProcessContext context) {
+  }
 
   public abstract void process(ProcessContext context) throws Exception;
 

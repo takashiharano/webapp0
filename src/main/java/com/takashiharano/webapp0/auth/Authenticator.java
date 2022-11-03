@@ -59,7 +59,7 @@ import javax.xml.bind.DatatypeConverter;
  *
  * Available hash algorithms: MD5, SHA-1, SHA-256 (default), SHA-512
  */
-public class Auth {
+public class Authenticator {
 
   private static final String LINE_SEPARATOR = "\n";
   private static final String DELIMITER = "\t";
@@ -75,7 +75,7 @@ public class Auth {
    * @param filePath
    *          the path of the user password file
    */
-  public Auth(String filePath) {
+  public Authenticator(String filePath) {
     this.passFilePath = filePath;
   }
 
@@ -87,7 +87,7 @@ public class Auth {
    * @param algorithm
    *          hash algorithm
    */
-  public Auth(String filePath, String algorithm) {
+  public Authenticator(String filePath, String algorithm) {
     this.passFilePath = filePath;
     this.hashAlgorithm = algorithm;
   }
@@ -100,7 +100,7 @@ public class Auth {
    * @param stretching
    *          number of times to stretch
    */
-  public Auth(String filePath, int stretching) {
+  public Authenticator(String filePath, int stretching) {
     this.passFilePath = filePath;
     this.stretching = stretching;
   }
@@ -116,7 +116,7 @@ public class Auth {
    * @param stretching
    *          number of times to stretch
    */
-  public Auth(String filePath, String algorithm, int stretching) {
+  public Authenticator(String filePath, String algorithm, int stretching) {
     this.passFilePath = filePath;
     this.hashAlgorithm = algorithm;
     this.stretching = stretching;

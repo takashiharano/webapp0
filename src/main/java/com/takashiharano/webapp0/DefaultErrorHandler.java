@@ -64,14 +64,13 @@ public class DefaultErrorHandler {
    * @throws IOException
    *           If an I/O error occurs
    */
-  private static void handleNotAuthorized(ProcessContext context, NotAuthorizedException e)
-      throws ServletException, IOException {
-    if ("json".equals(context.getResponseType())) {
-      context.sendJsonResponse("FORBIDDEN", null);
-    } else {
+  private static void handleNotAuthorized(ProcessContext context, NotAuthorizedException e) throws ServletException, IOException {
+    if ("html".equals(context.getResponseType())) {
       String requestedUrl = e.getUrl();
       context.setInfo("requestedUrl", requestedUrl);
       context.forward("login.jsp");
+    } else {
+      context.sendJsonResponse("FORBIDDEN", null);
     }
   }
 }

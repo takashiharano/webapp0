@@ -22,16 +22,13 @@ public class ShowScreenAction extends Action {
   public void process(ProcessContext context) throws Exception {
     String screen = context.getRequestParameter("screen");
     if (screen == null) {
-      // context.sendErrorScreen("No Such Screen: " + screen);
-      // return;
       screen = "main";
     }
 
-    AppManager appManager = AppManager.getInstance();
+    AppManager appManager = context.getAppManager();
     if (appManager.isReady()) {
       if (isAuthRequired(screen)) {
-        boolean authorized = context.isValidSession();
-        if (!authorized) {
+        if (!context.isAuthorized()) {
           String message = "Access denied. (screen=" + screen + ")";
           String requestedUri = context.getRequestedUri();
           requestedUri = requestedUri.substring(1); // remove leading "/"

@@ -23,13 +23,9 @@ public class MainServlet extends HttpServlet {
 
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-    // HttpSession session = request.getSession(true);
-
     ServletContext servletContext = getServletContext();
     ProcessContext context = new ProcessContext(request, response, servletContext);
 
-    Log.setContext(context);
     context.onAccess();
 
     try {
@@ -38,9 +34,7 @@ public class MainServlet extends HttpServlet {
       DefaultErrorHandler.handle(context, t);
     }
 
-    // session.invalidate();
-
-    Log.removeContext();
+    context.onAccessEnd();
   }
 
   protected void _service(ProcessContext context) throws Throwable {
@@ -60,8 +54,7 @@ public class MainServlet extends HttpServlet {
     }
 
     if (action.isAuthRequired()) {
-      boolean authorized = context.isValidSession();
-      if (!authorized) {
+      if (!context.isAuthorized()) {
         String message = "Access denied. (action=" + actionName + ")";
         String requestedUri = context.getRequestedUri();
         requestedUri = requestedUri.substring(1); // remove leading "/"

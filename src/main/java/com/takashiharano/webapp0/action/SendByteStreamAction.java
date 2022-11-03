@@ -5,10 +5,6 @@ import com.takashiharano.webapp0.ProcessContext;
 public class SendByteStreamAction extends Action {
 
   @Override
-  protected void init(ProcessContext context) {
-  }
-
-  @Override
   public void process(ProcessContext context) throws Exception {
     byte[] b = { 0x41, 0x42, 0x43 };
     String fileName = "file.txt";

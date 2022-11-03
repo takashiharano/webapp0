@@ -5,10 +5,6 @@ import com.takashiharano.webapp0.ProcessContext;
 public class SendFileAction extends Action {
 
   @Override
-  protected void init(ProcessContext context) {
-  }
-
-  @Override
   public void process(ProcessContext context) throws Exception {
     String path = "C:/test/a.txt";
     String fileName = "file.txt";
