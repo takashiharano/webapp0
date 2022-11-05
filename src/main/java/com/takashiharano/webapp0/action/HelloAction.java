@@ -7,7 +7,8 @@ public class HelloAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    String msg = "Hello!";
+    String s = context.getRequestParameter("text");
+    String msg = "Hello! " + s;
     Log.i(msg);
     context.sendJsonResponse("OK", msg, false);
   }

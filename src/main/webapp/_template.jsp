@@ -13,15 +13,16 @@ String appVersion = context.getAppVersion();
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta charset="utf-8">
 <title>main</title>
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
+<script src="js/_template.js"></script>
 </head>
 <body>
+<input type="text" id="text" value="Test"><button onclick="webapp0.xxx.test();">TEST</button><button onclick="webapp0.xxx.clear();">CLEAR</button>
+<span id="msg"></span>
 <pre>
-Hello, world!
 <%= datetime %> (<%= timestamp %>)
 App-Version: <%= appVersion %>
 </pre>
