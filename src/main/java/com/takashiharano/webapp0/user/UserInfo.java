@@ -4,22 +4,29 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class UserInfo {
+  public static final int STATE_NONE = 0;
+  public static final int STATE_DISABLED = 1;
+  public static final int STATE_RESTRICTED = 1 << 1;
+
   private String username;
   private boolean administrator;
   private String name;
   private Set<String> permissions;
+  private int status;
 
   public UserInfo(String username, boolean isAdmin) {
     this.username = username;
     this.administrator = isAdmin;
     this.permissions = new LinkedHashSet<>();
+    this.status = STATE_NONE;
   }
 
-  public UserInfo(String username, boolean isAdmin, String name, String permissions) {
+  public UserInfo(String username, boolean isAdmin, String name, String permissions, int status) {
     this.username = username;
     this.administrator = isAdmin;
     this.name = name;
     setPermissions(permissions);
+    this.status = status;
   }
 
   public String getUsername() {
@@ -75,6 +82,9 @@ public class UserInfo {
   }
 
   public boolean hasPermission(String permission) {
+    if (isAdministrator()) {
+      return true;
+    }
     return permissions.contains(permission);
   }
 
@@ -93,6 +103,14 @@ public class UserInfo {
       cnt++;
     }
     return sb.toString();
+  }
+
+  public int getStatus() {
+    return status;
+  }
+
+  public void setStatus(int status) {
+    this.status = status;
   }
 
 }

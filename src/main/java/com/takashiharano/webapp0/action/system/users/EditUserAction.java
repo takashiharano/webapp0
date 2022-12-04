@@ -5,30 +5,30 @@ import com.takashiharano.webapp0.action.Action;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
 
-public class UpdateUserAction extends Action {
+public class EditUserAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
     String username = context.getRequestParameter("username");
     String pwHash = context.getRequestParameter("pw");
     String name = context.getRequestParameter("name");
-    String adminFlg = context.getRequestParameter("isadmin");
+    String adminFlag = context.getRequestParameter("isadmin");
     String permissions = context.getRequestParameter("permissions");
     String userStatus = context.getRequestParameter("status");
 
     String currentUsername = context.getUserName();
     if (!context.isAdministrator() && !currentUsername.equals(username)) {
-      context.sendJsonResponse("FORBIDDEN:UpdateUser", null);
+      context.sendJsonResponse("FORBIDDEN:Addser", null);
       return;
     }
 
     String status = "OK";
     try {
       UserManager userManager = context.getUserManager();
-      userManager.updateUser(username, pwHash, name, adminFlg, permissions, userStatus);
+      userManager.updateUser(username, pwHash, adminFlag, name, permissions, userStatus);
     } catch (Exception e) {
       status = e.getMessage();
-      Log.e("User update error: " + status);
+      Log.e("User regieter error: " + status);
     }
 
     context.sendJsonResponse(status, null);

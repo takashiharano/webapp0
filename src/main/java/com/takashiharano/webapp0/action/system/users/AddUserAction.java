@@ -14,11 +14,18 @@ public class AddUserAction extends Action {
     String name = context.getRequestParameter("name");
     String adminFlag = context.getRequestParameter("isadmin");
     String permissions = context.getRequestParameter("permissions");
+    String userStatus = context.getRequestParameter("status");
+
+    String currentUsername = context.getUserName();
+    if (!context.isAdministrator() && !currentUsername.equals(username)) {
+      context.sendJsonResponse("FORBIDDEN:Addser", null);
+      return;
+    }
 
     String status = "OK";
     try {
       UserManager userManager = context.getUserManager();
-      userManager.regieterNewUser(username, pwHash, adminFlag, name, permissions);
+      userManager.regieterNewUser(username, pwHash, adminFlag, name, permissions, userStatus);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User regieter error: " + status);

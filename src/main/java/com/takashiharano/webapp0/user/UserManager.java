@@ -10,6 +10,7 @@ import com.libutil.HashUtil;
 import com.libutil.StrUtil;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.auth.Authenticator;
+import com.takashiharano.webapp0.util.Log;
 
 public class UserManager {
 
@@ -67,25 +68,33 @@ public class UserManager {
 
       String username = fields[0];
 
-      boolean isAdmin = false;
-      String name = null;
-      String permissions = null;
-
       String adminFlag = "";
+      boolean isAdmin = false;
       if (fields.length > 1) {
         adminFlag = fields[1];
         isAdmin = "1".equals(adminFlag);
       }
 
+      String name = null;
       if (fields.length > 2) {
         name = fields[2];
       }
 
+      String permissions = null;
       if (fields.length > 3) {
         permissions = fields[3];
       }
 
-      UserInfo userInfo = new UserInfo(username, isAdmin, name, permissions);
+      int status = UserInfo.STATE_NONE;
+      if (fields.length > 4) {
+        try {
+          status = Integer.parseInt(fields[4]);
+        } catch (Exception e) {
+          // nop
+        }
+      }
+
+      UserInfo userInfo = new UserInfo(username, isAdmin, name, permissions, status);
       users.put(username, userInfo);
     }
   }
@@ -104,6 +113,7 @@ public class UserManager {
       boolean isAdmin = user.isAdministrator();
       String name = user.getName();
       String permissions = user.getPermissionsInOneLine();
+      int status = user.getStatus();
       String adminFlag = (isAdmin ? "1" : "0");
       sb.append(username);
       sb.append("\t");
@@ -112,6 +122,8 @@ public class UserManager {
       sb.append(name);
       sb.append("\t");
       sb.append(permissions);
+      sb.append("\t");
+      sb.append(status);
       sb.append("\n");
     }
 
@@ -139,23 +151,32 @@ public class UserManager {
    *          Name
    * @param permissions
    *          Permissions
+   * @param userStatus
+   *          user status
    * @return UserInfo
    * @throws Exception
    *           if an error occurres
    */
-  public UserInfo regieterNewUser(String username, String pwHash, String adminFlag, String name, String permissions) throws Exception {
+  public UserInfo regieterNewUser(String username, String pwHash, String adminFlag, String name, String permissions, String userStatus) throws Exception {
     if (users.containsKey(username)) {
       throw new Exception("USER_ALREADY_EXISTS");
     }
 
+    Log.i(username);
+    Log.i(pwHash);
+    Log.i(name);
+    Log.i(permissions);
+    Log.i(userStatus);
+
     int ret = authenticator.registerByHash(username, pwHash);
-    if (ret != -1) {
+    if (ret < 0) {
       throw new Exception("PW_REGISTER_ERROR");
     }
 
     boolean isAdmin = "1".equals(adminFlag);
+    int status = StrUtil.parseInt(userStatus, UserInfo.STATE_NONE);
 
-    UserInfo user = new UserInfo(username, isAdmin, name, permissions);
+    UserInfo user = new UserInfo(username, isAdmin, name, permissions, status);
     users.put(username, user);
 
     try {
@@ -180,11 +201,13 @@ public class UserManager {
    *          Name
    * @param permissions
    *          Permissions
+   * @param userStatus
+   *          user status
    * @return UserInfo
    * @throws Exception
    *           if an error occurres
    */
-  public UserInfo updateUser(String username, String pwHash, String adminFlag, String name, String permissions) throws Exception {
+  public UserInfo updateUser(String username, String pwHash, String adminFlag, String name, String permissions, String userStatus) throws Exception {
     UserInfo user = users.get(username);
     if (user == null) {
       throw new Exception("NO_SUCH_USER");
@@ -203,9 +226,14 @@ public class UserManager {
       user.setPermissions(permissions);
     }
 
+    if (userStatus != null) {
+      int status = StrUtil.parseInt(userStatus, UserInfo.STATE_NONE);
+      user.setStatus(status);
+    }
+
     if (pwHash != null) {
       int ret = authenticator.registerByHash(username, pwHash);
-      if (ret != -1) {
+      if (ret < 0) {
         throw new Exception("PW_REGISTER_ERROR");
       }
     }

@@ -14,7 +14,7 @@ String appVersion = context.getAppVersion();
 <html>
 <head>
 <meta charset="utf-8">
-<title>main</title>
+<title></title>
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
 <script src="js/_template.js"></script>

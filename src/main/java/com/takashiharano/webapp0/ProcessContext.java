@@ -449,6 +449,11 @@ public class ProcessContext {
     return userInfo.getName();
   }
 
+  /**
+   * Returns if the current user is administrator.
+   *
+   * @return true if the user is administrator; false otherwise
+   */
   public boolean isAdministrator() {
     UserInfo userInfo = getUserInfo();
     if (userInfo == null) {
