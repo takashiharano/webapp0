@@ -26,19 +26,33 @@ public class AsyncTaskManager {
   }
 
   /**
-   * Execute the async task.
+   * Register the async task.
    *
    * @param asyncTask
    *          the instance of AsyncTask implementation
    * @return id of the async task
    */
-  public String execute(AsyncTask asyncTask) {
+  public String registerTask(AsyncTask asyncTask) {
     cleanupOldTasks();
-
     String taskId = "async-task-" + incrementCounter();
-    asyncTask.execTask();
     asyncTaskMap.put(taskId, asyncTask);
     return taskId;
+  }
+
+  /**
+   * Execute the async task.
+   *
+   * @param taskId
+   *          the task id to execute
+   * @return true if the task has been executed; false otherwise.
+   */
+  public boolean executeTask(String taskId) {
+    AsyncTask asyncTask = asyncTaskMap.get(taskId);
+    if (asyncTask == null) {
+      return false;
+    }
+    asyncTask.exec();
+    return true;
   }
 
   public boolean isDone(String taskId) {
@@ -49,6 +63,33 @@ public class AsyncTaskManager {
     boolean isDone = asyncTask.isDone();
     boolean isCancelled = asyncTask.isCancelled();
     return (isDone || isCancelled);
+  }
+
+  /**
+   * Returns the task object.
+   *
+   * @param taskId
+   *          task id
+   * @return the task object
+   */
+  public AsyncTask getAsyncTask(String taskId) {
+    AsyncTask asyncTask = asyncTaskMap.get(taskId);
+    return asyncTask;
+  }
+
+  /**
+   * Returns the task info.
+   *
+   * @param taskId
+   *          task id
+   * @return task info object
+   */
+  public Object getAsyncTaskInfo(String taskId) {
+    AsyncTask asyncTask = asyncTaskMap.get(taskId);
+    if (asyncTask == null) {
+      return null;
+    }
+    return asyncTask.getTaskInfo();
   }
 
   /**

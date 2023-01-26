@@ -27,6 +27,7 @@ import com.libutil.Base64Util;
 import com.libutil.FileUtil;
 import com.libutil.JsonBuilder;
 import com.libutil.Props;
+import com.takashiharano.webapp0.async.AsyncTaskManager;
 import com.takashiharano.webapp0.session.SessionInfo;
 import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.user.UserInfo;
@@ -745,4 +746,11 @@ public class ProcessContext {
     UserManager userManager = appManager.getUserManager();
     return userManager;
   }
+
+  public AsyncTaskManager getAsyncManager() {
+    AppManager appManager = getAppManager();
+    AsyncTaskManager asyncTaskManager = appManager.getAsyncTaskManager();
+    return asyncTaskManager;
+  }
+
 }

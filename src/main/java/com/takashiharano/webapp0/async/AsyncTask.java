@@ -6,21 +6,21 @@ import java.util.concurrent.Future;
 
 public abstract class AsyncTask {
 
-  protected ExecutorService executor;
   protected Future<AsyncTaskResult> future;
+  protected Object taskInfo;
   protected AsyncTaskResult taskResult;
   protected long startedTime = -1;
   protected long finishedTime = -1;
 
   public AsyncTask() {
-    executor = Executors.newSingleThreadExecutor();
     taskResult = new AsyncTaskResult();
   }
 
-  public Future<AsyncTaskResult> execTask() {
+  public Future<AsyncTaskResult> exec() {
     startedTime = System.currentTimeMillis();
+    ExecutorService executor = Executors.newSingleThreadExecutor();
     future = executor.submit(() -> {
-      AsyncTaskResult result = exec();
+      AsyncTaskResult result = process();
       finishedTime = System.currentTimeMillis();
       return result;
     });
@@ -43,6 +43,14 @@ public abstract class AsyncTask {
 
   public Future<AsyncTaskResult> getFuture() {
     return future;
+  }
+
+  public Object getTaskInfo() {
+    return taskInfo;
+  }
+
+  public void setTaskInfo(Object taskInfo) {
+    this.taskInfo = taskInfo;
   }
 
   public AsyncTaskResult getResult() {
@@ -76,6 +84,6 @@ public abstract class AsyncTask {
    * @throws Exception
    *           If an error occurs
    */
-  protected abstract AsyncTaskResult exec() throws Exception;
+  protected abstract AsyncTaskResult process() throws Exception;
 
 }
