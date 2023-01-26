@@ -83,6 +83,85 @@ public class ProcessContext {
     return request.getParameter(key);
   }
 
+  public int getRequestParameterAsInt(String key) {
+    return getRequestParameterAsInt(key, 0);
+  }
+
+  public int getRequestParameterAsInt(String key, int defaultValue) {
+    String s = request.getParameter(key);
+    int v;
+    try {
+      v = Integer.parseInt(s);
+    } catch (Exception e) {
+      v = defaultValue;
+    }
+    return v;
+  }
+
+  public long getRequestParameterAsLong(String key) {
+    return getRequestParameterAsLong(key, 0L);
+  }
+
+  public long getRequestParameterAsLong(String key, long defaultValue) {
+    String s = request.getParameter(key);
+    long v;
+    try {
+      v = Long.parseLong(s);
+    } catch (Exception e) {
+      v = defaultValue;
+    }
+    return v;
+  }
+
+  public float getRequestParameterAsFloat(String key) {
+    return getRequestParameterAsFloat(key, 0);
+  }
+
+  public float getRequestParameterAsFloat(String key, float defaultValue) {
+    String s = request.getParameter(key);
+    float v;
+    try {
+      v = Float.parseFloat(s);
+    } catch (Exception e) {
+      v = defaultValue;
+    }
+    return v;
+  }
+
+  public double getRequestParameterAsDouble(String key) {
+    return getRequestParameterAsFloat(key, 0);
+  }
+
+  public double getRequestParameterAsDouble(String key, double defaultValue) {
+    String s = request.getParameter(key);
+    double v;
+    try {
+      v = Double.parseDouble(s);
+    } catch (Exception e) {
+      v = defaultValue;
+    }
+    return v;
+  }
+
+  public boolean getRequestParameterAsBoolean(String key, String trueValue) {
+    return getRequestParameterAsBoolean(key, trueValue, false);
+  }
+
+  public boolean getRequestParameterAsBoolean(String key, String trueValue, boolean caseIgnore) {
+    String s = request.getParameter(key);
+    if (s == null) {
+      return false;
+    }
+    if (caseIgnore) {
+      trueValue.toLowerCase();
+      s.toLowerCase();
+    }
+    if (s.equals(trueValue)) {
+      return true;
+    }
+    return false;
+  }
+
   public String getUrlDecodedRequestParameter(String key) {
     String value = getRequestParameter(key);
     String decodedValue = null;
