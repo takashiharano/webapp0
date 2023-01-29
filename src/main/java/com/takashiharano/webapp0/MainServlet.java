@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.takashiharano.webapp0.action.Action;
+import com.takashiharano.webapp0.logic.ShowScreenLogic;
 import com.takashiharano.webapp0.util.Log;
 
 @WebServlet(name = "MainServlet", urlPatterns = ("/main"))
@@ -42,6 +43,12 @@ public class MainServlet extends HttpServlet {
     if (checkMethod(method) == false) {
       context.setResponseCode(405); // Method Not Allowed
       context.sendTextResponse("Method " + method + " is not allowed.");
+      return;
+    }
+
+    String screen = context.getRequestParameter("screen");
+    if (screen != null) {
+      ShowScreenLogic.process(context, screen);
       return;
     }
 

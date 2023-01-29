@@ -12,6 +12,7 @@ public class ExampleAsynkTask extends AsyncTask {
 
   public ExampleAsynkTask(ProcessContext context, int arg1) {
     this.context = context;
+    this.arg1 = arg1;
   }
 
   @Override
@@ -22,7 +23,7 @@ public class ExampleAsynkTask extends AsyncTask {
 
     Log.i("number of loop = " + arg1);
     for (int i = 0; i < arg1; i++) {
-      this.setTaskInfo("loop = " + 0);
+      this.setTaskInfo("loop = " + i);
 
       if ((i % 100) == 0) {
         Log.i("loop: " + i);
@@ -34,6 +35,7 @@ public class ExampleAsynkTask extends AsyncTask {
         Log.e(e);
       }
     }
+    Log.i("done");
 
     AsyncTaskResult result = new AsyncTaskResult();
     result.setResult("RESULT_OK");

@@ -25,6 +25,8 @@ Hello, world!
 <%= datetime %> (<%= timestamp %>)
 App-Version: <%= appVersion %>
 <button onclick="webapp0.common.logout();">Logout</button>
+
+<a href="main?screen=asyncsample">AsyncTask Sample</a>
 </pre>
 </body>
 </html>
