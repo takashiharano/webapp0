@@ -38,8 +38,21 @@ public class ProcessContext {
   private HttpServletRequest request;
   private HttpServletResponse response;
   private ServletContext servletContext;
-  private String responseType;
+
   private String actionName;
+  private String responseType;
+  private String remoteAddr;
+  private String remoteHost;
+  private String xForwardedFor;
+  private String userAgent;
+  private String localAddr;
+  private String localName;
+  private String username;
+  private String userFullName;
+
+  private HttpSession httpSession;
+  private Cookie[] cookies;
+
   private HashMap<String, Object> info;
 
   public ProcessContext(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext) {
@@ -53,6 +66,16 @@ public class ProcessContext {
     this.servletContext = servletContext;
     this.info = new HashMap<>();
     this.actionName = request.getParameter("action");
+    this.remoteAddr = request.getRemoteAddr();
+    this.remoteHost = request.getRemoteHost();
+    this.xForwardedFor = request.getHeader("X-Forwarded-For");
+    this.userAgent = request.getHeader("UserInfo-Agent");
+    this.localName = request.getLocalName();
+    this.localAddr = request.getLocalAddr();
+
+    this.httpSession = request.getSession();
+    this.cookies = request.getCookies();
+
     request.setAttribute("context", this);
   }
 
@@ -199,9 +222,7 @@ public class ProcessContext {
    * @return Cookie value. null if not found.
    */
   public String getCookie(String name) {
-    HttpServletRequest request = this.getRequest();
     String value = null;
-    Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       for (Cookie cookie : cookies) {
         if (name.equals(cookie.getName())) {
@@ -363,7 +384,7 @@ public class ProcessContext {
    * @return the IP address
    */
   public String getRemoteAddr() {
-    return request.getRemoteAddr();
+    return remoteAddr;
   }
 
   /**
@@ -372,7 +393,7 @@ public class ProcessContext {
    * @return the host name
    */
   public String getRemoteHost() {
-    return request.getRemoteHost();
+    return remoteHost;
   }
 
   /**
@@ -381,7 +402,7 @@ public class ProcessContext {
    * @return X-Forwarded-For header value
    */
   public String getXForwardedFor() {
-    return request.getHeader("X-Forwarded-For");
+    return xForwardedFor;
   }
 
   /**
@@ -415,16 +436,7 @@ public class ProcessContext {
    * @return UserInfo-Agent field value
    */
   public String getUserAgent() {
-    return request.getHeader("UserInfo-Agent");
-  }
-
-  /**
-   * Returns the host name of the server.
-   *
-   * @return the host name
-   */
-  public String getLocalName() {
-    return request.getLocalName();
+    return userAgent;
   }
 
   /**
@@ -433,7 +445,16 @@ public class ProcessContext {
    * @return the IP address
    */
   public String getLocalAddr() {
-    return request.getLocalAddr();
+    return localAddr;
+  }
+
+  /**
+   * Returns the host name of the server.
+   *
+   * @return the host name
+   */
+  public String getLocalName() {
+    return localName;
   }
 
   /**
@@ -442,7 +463,7 @@ public class ProcessContext {
    * @return Servlet HttpSession
    */
   public HttpSession getHttpSession() {
-    return request.getSession();
+    return httpSession;
   }
 
   /**
@@ -509,11 +530,15 @@ public class ProcessContext {
    * @return username
    */
   public String getUserName() {
-    SessionInfo sessionInfo = getSessionInfo();
-    if (sessionInfo == null) {
-      return null;
+    if (username == null) {
+      SessionInfo sessionInfo = getSessionInfo();
+      if (sessionInfo == null) {
+        username = "";
+      } else {
+        username = sessionInfo.getUsername();
+      }
     }
-    return sessionInfo.getUsername();
+    return username;
   }
 
   /**
@@ -522,11 +547,15 @@ public class ProcessContext {
    * @return user full name
    */
   public String getUserFullName() {
-    UserInfo userInfo = getUserInfo();
-    if (userInfo == null) {
-      return null;
+    if (userFullName == null) {
+      UserInfo userInfo = getUserInfo();
+      if (userInfo == null) {
+        userFullName = "";
+      } else {
+        userFullName = userInfo.getName();
+      }
     }
-    return userInfo.getName();
+    return userFullName;
   }
 
   /**
