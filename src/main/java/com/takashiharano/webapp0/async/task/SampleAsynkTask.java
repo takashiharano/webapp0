@@ -7,18 +7,15 @@ import com.takashiharano.webapp0.util.Log;
 
 public class SampleAsynkTask extends AsyncTask {
 
-  private ProcessContext context;
   private int arg1;
 
   public SampleAsynkTask(ProcessContext context, int arg1) {
-    this.context = context;
+    super(context);
     this.arg1 = arg1;
   }
 
   @Override
   protected AsyncTaskResult process() throws Exception {
-    Log.setContext(context);
-
     this.setTaskInfo("loop = 0");
 
     Log.i("number of loop = " + arg1);
@@ -40,7 +37,6 @@ public class SampleAsynkTask extends AsyncTask {
     AsyncTaskResult result = new AsyncTaskResult();
     result.setResult("RESULT_OK");
 
-    Log.removeContext();
     return result;
   }
 

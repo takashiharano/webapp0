@@ -4,15 +4,20 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import com.takashiharano.webapp0.ProcessContext;
+import com.takashiharano.webapp0.util.Log;
+
 public abstract class AsyncTask {
 
   protected Future<AsyncTaskResult> future;
   protected Object taskInfo;
   protected AsyncTaskResult taskResult;
+  protected ProcessContext context;
   protected long startedTime = -1;
   protected long finishedTime = -1;
 
-  public AsyncTask() {
+  public AsyncTask(ProcessContext context) {
+    this.context = context;
     taskResult = new AsyncTaskResult();
   }
 
@@ -20,8 +25,10 @@ public abstract class AsyncTask {
     startedTime = System.currentTimeMillis();
     ExecutorService executor = Executors.newSingleThreadExecutor();
     future = executor.submit(() -> {
+      Log.setContext(context);
       AsyncTaskResult result = process();
       finishedTime = System.currentTimeMillis();
+      Log.removeContext();
       return result;
     });
     return future;
