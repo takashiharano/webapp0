@@ -1,4 +1,4 @@
-package com.takashiharano.webapp0.action.example;
+package com.takashiharano.webapp0.action.sample;
 
 import com.libutil.JsonBuilder;
 import com.takashiharano.webapp0.ProcessContext;

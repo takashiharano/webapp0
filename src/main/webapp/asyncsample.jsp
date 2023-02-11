@@ -10,8 +10,10 @@
 <script src="js/asyncsample.js"></script>
 </head>
 <body>
-AsyncTask Sample<br>
-<input type="text" id="param-n" value="30">
+<div>
+AsyncTask Sample <span id="led1"></span>
+</div>
+<input type="text" id="param-n" value="100">
 <button onclick="webapp0.asyncsample.startTask();">Start</button>
 <br>
 <input type="text" id="task-id" value="">

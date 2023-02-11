@@ -1,5 +1,12 @@
 webapp0.asyncsample = {};
 
+webapp0.asyncsample.timerId = 0;
+webapp0.asyncsample.led1 = null;
+
+$onReady = function() {
+  webapp0.asyncsample.led1 = new util.Led('#led1');
+};
+
 webapp0.asyncsample.startTask = function() {
   var n = $el('#param-n').value;
   var params = {
@@ -20,21 +27,52 @@ webapp0.asyncsample.startAsyncTaskCb = function(xhr, res) {
   webapp0.asyncsample.showInfo(s);
 
   $el('#task-id').value = taskId;
+
+  webapp0.asyncsample.startWatchStatus();
+};
+
+webapp0.asyncsample.startWatchStatus = function() {
+  webapp0.asyncsample.led1.on();
+  webapp0.asyncsample.watchStatus();
+};
+
+webapp0.asyncsample.stopWatchStatus = function() {
+  if (webapp0.asyncsample.timerId > 0) {
+    clearTimeout(webapp0.asyncsample.timerId);
+    webapp0.asyncsample.timerId = 0;
+  }
+  webapp0.asyncsample.led1.off();
+};
+
+webapp0.asyncsample.watchStatus = function() {
+  webapp0.asyncsample.getTaskStatus(webapp0.asyncsample.watchStatusPostProc);
+};
+
+webapp0.asyncsample.watchStatusPostProc = function(isDone) {
+  if (isDone) {
+    webapp0.asyncsample.stopWatchStatus();
+  } else {
+    webapp0.asyncsample.timerId = setTimeout(webapp0.asyncsample.watchStatus, 1000);
+  }
 };
 
 //-----------------------------------------------------------------------------
-webapp0.asyncsample.getTaskStatus = function() {
+webapp0.asyncsample.getTaskStatus = function(postProc) {
   var taskId = $el('#task-id').value;
   var params = {
     taskId: taskId
   };
-  app.callServerApi('GetAsyncTaskInfo', params, webapp0.asyncsample.getTaskStatusCb);
+  var req = app.callServerApi('GetAsyncTaskInfo', params, webapp0.asyncsample.getTaskStatusCb);
+  req.postProc = postProc;
 
   webapp0.asyncsample.showInfo('getTaskStatus');
 };
-webapp0.asyncsample.getTaskStatusCb = function(xhr, res) {
+webapp0.asyncsample.getTaskStatusCb = function(xhr, res, req) {
   if (res.status != 'OK') {
     webapp0.asyncsample.showInfo('ERROR: ' + res.status);
+    if (req.postProc) {
+      req.postProc(isDone);
+    }
     return;
   }
 
@@ -45,6 +83,10 @@ webapp0.asyncsample.getTaskStatusCb = function(xhr, res) {
 
   var s = taskId + ': isDone=' + isDone + ' : ' + info;
   webapp0.asyncsample.showInfo(s);
+
+  if (req.postProc) {
+    req.postProc(isDone);
+  }
 };
 
 //-----------------------------------------------------------------------------

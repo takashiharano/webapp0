@@ -10,7 +10,7 @@ public abstract class Action {
   public static Action getActionInstance(ProcessContext context, String actionName) {
     String basePkgName = AppManager.getBasePackageName();
     String pkgName = basePkgName + ".action";
-    String[] packages = { "", "system", "system.users", "example" };
+    String[] packages = { "", "system", "system.users", "sample" };
 
     actionName = actionName.substring(0, 1).toUpperCase() + actionName.substring(1);
     for (int i = 0; i < packages.length; i++) {

@@ -5,12 +5,12 @@ import com.takashiharano.webapp0.async.AsyncTask;
 import com.takashiharano.webapp0.async.AsyncTaskResult;
 import com.takashiharano.webapp0.util.Log;
 
-public class ExampleAsynkTask extends AsyncTask {
+public class SampleAsynkTask extends AsyncTask {
 
   private ProcessContext context;
   private int arg1;
 
-  public ExampleAsynkTask(ProcessContext context, int arg1) {
+  public SampleAsynkTask(ProcessContext context, int arg1) {
     this.context = context;
     this.arg1 = arg1;
   }
@@ -22,10 +22,10 @@ public class ExampleAsynkTask extends AsyncTask {
     this.setTaskInfo("loop = 0");
 
     Log.i("number of loop = " + arg1);
-    for (int i = 0; i < arg1; i++) {
+    for (int i = 1; i <= arg1; i++) {
       this.setTaskInfo("loop = " + i);
 
-      if ((i % 100) == 0) {
+      if ((i % 10) == 0) {
         Log.i("loop: " + i);
       }
 
