@@ -69,7 +69,7 @@ public class ProcessContext {
     this.remoteAddr = request.getRemoteAddr();
     this.remoteHost = request.getRemoteHost();
     this.xForwardedFor = request.getHeader("X-Forwarded-For");
-    this.userAgent = request.getHeader("UserInfo-Agent");
+    this.userAgent = request.getHeader("User-Agent");
     this.localName = request.getLocalName();
     this.localAddr = request.getLocalAddr();
 
@@ -431,9 +431,9 @@ public class ProcessContext {
   }
 
   /**
-   * Returns UserInfo-Agent HTTP request header
+   * Returns User-Agent HTTP request header.
    *
-   * @return UserInfo-Agent field value
+   * @return User-Agent field value
    */
   public String getUserAgent() {
     return userAgent;
