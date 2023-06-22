@@ -6,17 +6,17 @@ import java.util.Set;
 public class UserInfo {
   public static final int STATE_NONE = 0;
   public static final int STATE_DISABLED = 1;
-  public static final int STATE_RESTRICTED = 1 << 1;
+  public static final int STATE_RESTRICTED = 2;
 
   private String username;
   private String fullname;
-  private boolean administrator;
+  private boolean admin;
   private Set<String> privileges;
   private int status;
 
   public UserInfo(String username, boolean isAdmin) {
     this.username = username;
-    this.administrator = isAdmin;
+    this.admin = isAdmin;
     this.privileges = new LinkedHashSet<>();
     this.status = STATE_NONE;
   }
@@ -24,7 +24,7 @@ public class UserInfo {
   public UserInfo(String username, String fullname, boolean isAdmin, String privileges, int status) {
     this.username = username;
     this.fullname = fullname;
-    this.administrator = isAdmin;
+    this.admin = isAdmin;
     setPrivileges(privileges);
     this.status = status;
   }
@@ -45,12 +45,12 @@ public class UserInfo {
     this.fullname = fullname;
   }
 
-  public boolean isAdministrator() {
-    return administrator;
+  public boolean isAdmin() {
+    return admin;
   }
 
-  public void setAdministrator(boolean administrator) {
-    this.administrator = administrator;
+  public void setAdmin(boolean isAdmin) {
+    this.admin = isAdmin;
   }
 
   public String[] getPrivileges() {
@@ -82,7 +82,7 @@ public class UserInfo {
   }
 
   public boolean hasPrivilege(String privilege) {
-    if (isAdministrator()) {
+    if (isAdmin()) {
       return true;
     }
     return privileges.contains(privilege);

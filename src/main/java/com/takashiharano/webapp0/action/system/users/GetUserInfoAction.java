@@ -29,7 +29,7 @@ public class GetUserInfoAction extends Action {
     JsonBuilder jb = new JsonBuilder();
     jb.append("username", userInfo.getUsername());
     jb.append("fullname", userInfo.getFullName());
-    jb.append("isAdmin", userInfo.isAdministrator());
+    jb.append("isAdmin", userInfo.isAdmin());
     jb.append("privileges", userInfo.getPrivilegesInOneLine());
     jb.append("status", userInfo.getStatus());
     String json = jb.toString();

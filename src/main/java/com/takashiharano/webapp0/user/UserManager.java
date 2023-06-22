@@ -116,7 +116,7 @@ public class UserManager {
       UserInfo user = entry.getValue();
       String username = user.getUsername();
       String fullname = user.getFullName();
-      boolean isAdmin = user.isAdministrator();
+      boolean isAdmin = user.isAdmin();
       String privileges = user.getPrivilegesInOneLine();
       int status = user.getStatus();
       String adminFlag = (isAdmin ? "1" : "0");
@@ -214,7 +214,7 @@ public class UserManager {
 
     if (adminFlag != null) {
       boolean isAdmin = "1".equals(adminFlag);
-      user.setAdministrator(isAdmin);
+      user.setAdmin(isAdmin);
     }
 
     if (fullname != null) {

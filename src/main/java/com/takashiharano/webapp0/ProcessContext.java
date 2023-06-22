@@ -568,7 +568,7 @@ public class ProcessContext {
     if (userInfo == null) {
       return false;
     }
-    return userInfo.isAdministrator();
+    return userInfo.isAdmin();
   }
 
   public String[] getPrivileges() {
