@@ -1,9 +1,6 @@
 package com.takashiharano.webapp0.session;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,9 +8,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.bind.DatatypeConverter;
 
 import com.libutil.FileUtil;
+import com.libutil.HashUtil;
 import com.libutil.RandomGenerator;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
@@ -280,7 +277,7 @@ public class SessionManager {
     long t = System.currentTimeMillis();
     long r = RandomGenerator.getLong();
     String s = t + username + r;
-    String sessionId = getHashString(s, "SHA-256");
+    String sessionId = HashUtil.getHashString(s, "SHA-256");
     return sessionId;
   }
 
@@ -330,20 +327,6 @@ public class SessionManager {
     cookie.setMaxAge(0);
     HttpServletResponse response = context.getResponse();
     response.addCookie(cookie);
-  }
-
-  private String getHashString(String s, String algorithm) {
-    byte[] input = s.getBytes(StandardCharsets.UTF_8);
-    byte[] b = null;
-    try {
-      MessageDigest md = MessageDigest.getInstance(algorithm);
-      b = md.digest(input);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
-    String h = DatatypeConverter.printHexBinary(b);
-    String hash = h.toLowerCase();
-    return hash;
   }
 
 }
