@@ -10,7 +10,6 @@ import com.libutil.HashUtil;
 import com.libutil.StrUtil;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.auth.Authenticator;
-import com.takashiharano.webapp0.util.Log;
 
 public class UserManager {
 
@@ -64,25 +63,29 @@ public class UserManager {
     String[] text = FileUtil.readTextAsArray(usersFile);
     for (int i = 0; i < text.length; i++) {
       String line = text[i];
+      if (line.startsWith("#")) {
+        continue;
+      }
+
       String[] fields = line.split("\t");
 
       String username = fields[0];
 
+      String fullname = null;
+      if (fields.length > 1) {
+        fullname = fields[1];
+      }
+
       String adminFlag = "";
       boolean isAdmin = false;
-      if (fields.length > 1) {
-        adminFlag = fields[1];
+      if (fields.length > 2) {
+        adminFlag = fields[2];
         isAdmin = "1".equals(adminFlag);
       }
 
-      String name = null;
-      if (fields.length > 2) {
-        name = fields[2];
-      }
-
-      String permissions = null;
+      String privileges = null;
       if (fields.length > 3) {
-        permissions = fields[3];
+        privileges = fields[3];
       }
 
       int status = UserInfo.STATE_NONE;
@@ -94,7 +97,7 @@ public class UserManager {
         }
       }
 
-      UserInfo userInfo = new UserInfo(username, isAdmin, name, permissions, status);
+      UserInfo userInfo = new UserInfo(username, fullname, isAdmin, privileges, status);
       users.put(username, userInfo);
     }
   }
@@ -106,22 +109,24 @@ public class UserManager {
    *           if an IO error occurres
    */
   public void saveUsers() throws IOException {
+    String header = "#Username\tName\tisAdmin\tPrivileges\tStatus\n";
     StringBuilder sb = new StringBuilder();
+    sb.append(header);
     for (Entry<String, UserInfo> entry : users.entrySet()) {
       UserInfo user = entry.getValue();
       String username = user.getUsername();
+      String fullname = user.getFullName();
       boolean isAdmin = user.isAdministrator();
-      String name = user.getName();
-      String permissions = user.getPermissionsInOneLine();
+      String privileges = user.getPrivilegesInOneLine();
       int status = user.getStatus();
       String adminFlag = (isAdmin ? "1" : "0");
       sb.append(username);
       sb.append("\t");
+      sb.append(fullname);
+      sb.append("\t");
       sb.append(adminFlag);
       sb.append("\t");
-      sb.append(name);
-      sb.append("\t");
-      sb.append(permissions);
+      sb.append(privileges);
       sb.append("\t");
       sb.append(status);
       sb.append("\n");
@@ -145,28 +150,22 @@ public class UserManager {
    *          Username
    * @param pwHash
    *          Password hash
+   * @param fullname
+   *          Full name
    * @param adminFlag
    *          Administrator flag. 1=admin / 0=otherwise
-   * @param name
-   *          Name
-   * @param permissions
-   *          Permissions
+   * @param privileges
+   *          Privileges
    * @param userStatus
    *          user status
    * @return UserInfo
    * @throws Exception
    *           if an error occurres
    */
-  public UserInfo regieterNewUser(String username, String pwHash, String adminFlag, String name, String permissions, String userStatus) throws Exception {
+  public UserInfo regieterNewUser(String username, String pwHash, String fullname, String adminFlag, String privileges, String userStatus) throws Exception {
     if (users.containsKey(username)) {
       throw new Exception("USER_ALREADY_EXISTS");
     }
-
-    Log.i(username);
-    Log.i(pwHash);
-    Log.i(name);
-    Log.i(permissions);
-    Log.i(userStatus);
 
     int ret = authenticator.registerByHash(username, pwHash);
     if (ret < 0) {
@@ -176,7 +175,7 @@ public class UserManager {
     boolean isAdmin = "1".equals(adminFlag);
     int status = StrUtil.parseInt(userStatus, UserInfo.STATE_NONE);
 
-    UserInfo user = new UserInfo(username, isAdmin, name, permissions, status);
+    UserInfo user = new UserInfo(username, fullname, isAdmin, privileges, status);
     users.put(username, user);
 
     try {
@@ -195,19 +194,19 @@ public class UserManager {
    *          Username
    * @param pwHash
    *          Password hash
+   * @param fullname
+   *          Full name
    * @param adminFlag
    *          Administrator flag. 1=admin / 0=otherwise
-   * @param name
-   *          Name
-   * @param permissions
-   *          Permissions
+   * @param privileges
+   *          Privileges
    * @param userStatus
    *          user status
    * @return UserInfo
    * @throws Exception
    *           if an error occurres
    */
-  public UserInfo updateUser(String username, String pwHash, String adminFlag, String name, String permissions, String userStatus) throws Exception {
+  public UserInfo updateUser(String username, String pwHash, String fullname, String adminFlag, String privileges, String userStatus) throws Exception {
     UserInfo user = users.get(username);
     if (user == null) {
       throw new Exception("NO_SUCH_USER");
@@ -218,12 +217,12 @@ public class UserManager {
       user.setAdministrator(isAdmin);
     }
 
-    if (name != null) {
-      user.setName(name);
+    if (fullname != null) {
+      user.setFullName(fullname);
     }
 
-    if (permissions != null) {
-      user.setPermissions(permissions);
+    if (privileges != null) {
+      user.setPrivileges(privileges);
     }
 
     if (userStatus != null) {

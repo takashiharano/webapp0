@@ -21,9 +21,9 @@ webapp0.useredit.onOkClick = function() {
 
 webapp0.useredit.clearUserInfo = function() {
   $el('#username').value = '';
-  $el('#name').value = '';
+  $el('#fullname').value = '';
   $el('#isadmin').checked = false;
-  $el('#permissions').value = '';
+  $el('#privileges').value = '';
   $el('#status').value = '0';
   $el('#pw1').value = '';
   $el('#pw2').value = '';
@@ -60,17 +60,17 @@ webapp0.useredit.loadUserInfoCb = function(xhr, res) {
   var userInfo = res.body;
   $el('#username').value = userInfo.username;
   $el('#username').disabled = true;
-  $el('#name').value = userInfo.name;
+  $el('#fullname').value = userInfo.fullname;
   $el('#isadmin').checked = userInfo.isAdmin;
-  $el('#permissions').value = userInfo.permissions;
+  $el('#privileges').value = userInfo.privileges;
   webapp0.common.showInfotip('OK');
 };
 
 webapp0.useredit.addUser = function() {
   var username = $el('#username').value;
-  var name = $el('#name').value;
+  var fullname = $el('#fullname').value;
   var isadmin = ($el('#isadmin').checked ? '1' : '0');
-  var permissions = $el('#permissions').value;
+  var privileges = $el('#privileges').value;
   var status = $el('#status').value;
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
@@ -86,9 +86,9 @@ webapp0.useredit.addUser = function() {
 
   var params = {
     username: username,
-    name: name,
+    fullname: fullname,
     isadmin: isadmin,
-    permissions: permissions,
+    privileges: privileges,
     status: status,
     pw: pwHash
   };
@@ -102,9 +102,9 @@ webapp0.useredit.addUserCb = function(xhr, res) {
 
 webapp0.useredit.updateUser = function() {
   var username = $el('#username').value;
-  var name = $el('#name').value;
+  var fullname = $el('#fullname').value;
   var isadmin = ($el('#isadmin').checked ? '1' : '0');
-  var permissions = $el('#permissions').value;
+  var privileges = $el('#privileges').value;
   var status = $el('#status').value;
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
@@ -120,9 +120,9 @@ webapp0.useredit.updateUser = function() {
 
   var params = {
     username: username,
-    name: name,
+    fullname: fullname,
     isadmin: isadmin,
-    permissions: permissions,
+    privileges: privileges,
     status: status,
     pw: pwHash
   };

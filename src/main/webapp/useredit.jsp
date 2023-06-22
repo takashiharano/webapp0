@@ -7,8 +7,8 @@
 ProcessContext context = (ProcessContext) request.getAttribute("context");
 UserInfo user = context.getUserInfo();
 String username = user.getUsername();
-String name = user.getName();
-String permissions = user.getPermissionsInOneLine();
+String fullname = user.getFullName();
+String privileges = user.getPrivilegesInOneLine();
 boolean isAdmin = user.isAdministrator();
 int status = user.getStatus();
 %>
@@ -47,8 +47,8 @@ if (isAdmin) {
     </td>
   </tr>
   <tr>
-    <td>Name</td>
-    <td><input type="text" id="name" value="<%= name %>"></td>
+    <td>Full name</td>
+    <td><input type="text" id="fullname" value="<%= fullname %>"></td>
   </tr>
   <tr>
     <td>isAdministrator</td>
@@ -64,8 +64,8 @@ if (isAdmin) {
     </td>
   </tr>
   <tr>
-    <td>Permissions</td>
-    <td><input type="text" id="permissions" value="<%= permissions %>"></td>
+    <td>Privileges</td>
+    <td><input type="text" id="privileges" value="<%= privileges %>"></td>
   </tr>
   <tr>
     <td>Status</td>

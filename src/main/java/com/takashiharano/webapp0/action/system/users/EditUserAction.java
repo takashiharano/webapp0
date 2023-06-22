@@ -11,9 +11,9 @@ public class EditUserAction extends Action {
   public void process(ProcessContext context) throws Exception {
     String username = context.getRequestParameter("username");
     String pwHash = context.getRequestParameter("pw");
-    String name = context.getRequestParameter("name");
+    String fullname = context.getRequestParameter("fullname");
     String adminFlag = context.getRequestParameter("isadmin");
-    String permissions = context.getRequestParameter("permissions");
+    String privileges = context.getRequestParameter("privileges");
     String userStatus = context.getRequestParameter("status");
 
     String currentUsername = context.getUserName();
@@ -25,7 +25,7 @@ public class EditUserAction extends Action {
     String status = "OK";
     try {
       UserManager userManager = context.getUserManager();
-      userManager.updateUser(username, pwHash, adminFlag, name, permissions, userStatus);
+      userManager.updateUser(username, pwHash, fullname, adminFlag, privileges, userStatus);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User regieter error: " + status);

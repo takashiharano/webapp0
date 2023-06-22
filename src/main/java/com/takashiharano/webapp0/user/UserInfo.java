@@ -9,23 +9,23 @@ public class UserInfo {
   public static final int STATE_RESTRICTED = 1 << 1;
 
   private String username;
+  private String fullname;
   private boolean administrator;
-  private String name;
-  private Set<String> permissions;
+  private Set<String> privileges;
   private int status;
 
   public UserInfo(String username, boolean isAdmin) {
     this.username = username;
     this.administrator = isAdmin;
-    this.permissions = new LinkedHashSet<>();
+    this.privileges = new LinkedHashSet<>();
     this.status = STATE_NONE;
   }
 
-  public UserInfo(String username, boolean isAdmin, String name, String permissions, int status) {
+  public UserInfo(String username, String fullname, boolean isAdmin, String privileges, int status) {
     this.username = username;
+    this.fullname = fullname;
     this.administrator = isAdmin;
-    this.name = name;
-    setPermissions(permissions);
+    setPrivileges(privileges);
     this.status = status;
   }
 
@@ -37,6 +37,14 @@ public class UserInfo {
     this.username = username;
   }
 
+  public String getFullName() {
+    return fullname;
+  }
+
+  public void setFullName(String fullname) {
+    this.fullname = fullname;
+  }
+
   public boolean isAdministrator() {
     return administrator;
   }
@@ -45,57 +53,49 @@ public class UserInfo {
     this.administrator = administrator;
   }
 
-  public String getName() {
-    return name;
+  public String[] getPrivileges() {
+    return privileges.toArray(new String[0]);
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setPrivileges(LinkedHashSet<String> privileges) {
+    this.privileges = privileges;
   }
 
-  public String[] getPermissions() {
-    return permissions.toArray(new String[0]);
-  }
-
-  public void setPermissions(LinkedHashSet<String> permissions) {
-    this.permissions = permissions;
-  }
-
-  public void setPermissions(String permissions) {
-    this.permissions = new LinkedHashSet<>();
-    if (permissions == null) {
+  public void setPrivileges(String privileges) {
+    this.privileges = new LinkedHashSet<>();
+    if (privileges == null) {
       return;
     }
-    String[] p = permissions.trim().split(" ");
+    String[] p = privileges.trim().split(" ");
     for (int i = 0; i < p.length; i++) {
-      String permission = p[i];
-      this.permissions.add(permission);
+      String privilege = p[i];
+      this.privileges.add(privilege);
     }
   }
 
-  public void addPermission(String permission) {
-    permissions.add(permission);
+  public void addPrivileges(String privilege) {
+    privileges.add(privilege);
   }
 
-  public void removePermission(String permission) {
-    permissions.remove(permission);
+  public void removePrivilege(String privilege) {
+    privileges.remove(privilege);
   }
 
-  public boolean hasPermission(String permission) {
+  public boolean hasPrivilege(String privilege) {
     if (isAdministrator()) {
       return true;
     }
-    return permissions.contains(permission);
+    return privileges.contains(privilege);
   }
 
-  public String getPermissionsInOneLine() {
-    return getPermissionsInOneLine(" ");
+  public String getPrivilegesInOneLine() {
+    return getPrivilegesInOneLine(" ");
   }
 
-  public String getPermissionsInOneLine(String separator) {
+  public String getPrivilegesInOneLine(String separator) {
     StringBuilder sb = new StringBuilder();
     int cnt = 0;
-    for (String p : permissions) {
+    for (String p : privileges) {
       if (cnt > 0) {
         sb.append(separator);
       }

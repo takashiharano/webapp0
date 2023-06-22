@@ -552,7 +552,7 @@ public class ProcessContext {
       if (userInfo == null) {
         userFullName = "";
       } else {
-        userFullName = userInfo.getName();
+        userFullName = userInfo.getFullName();
       }
     }
     return userFullName;
@@ -571,20 +571,20 @@ public class ProcessContext {
     return userInfo.isAdministrator();
   }
 
-  public String[] getPermissions() {
+  public String[] getPrivileges() {
     UserInfo userInfo = getUserInfo();
     if (userInfo == null) {
       return null;
     }
-    return userInfo.getPermissions();
+    return userInfo.getPrivileges();
   }
 
-  public boolean hasPermissions(String permission) {
+  public boolean hasPrivilege(String privilege) {
     UserInfo userInfo = getUserInfo();
     if (userInfo == null) {
       return false;
     }
-    return userInfo.hasPermission(permission);
+    return userInfo.hasPrivilege(privilege);
   }
 
   public void sendErrorScreen(String errorInfo) throws ServletException, IOException {
