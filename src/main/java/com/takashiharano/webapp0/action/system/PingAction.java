@@ -1,3 +1,6 @@
+/*
+ * THIS CODE IS IMPLEMENTED BASED ON THE webapp0 TEMPLATE.
+ */
 package com.takashiharano.webapp0.action.system;
 
 import com.takashiharano.webapp0.ProcessContext;

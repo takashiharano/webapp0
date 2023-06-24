@@ -1,3 +1,6 @@
+/*
+ * THIS CODE IS IMPLEMENTED BASED ON THE webapp0 TEMPLATE.
+ */
 package com.takashiharano.webapp0.action;
 
 import com.takashiharano.webapp0.AppManager;

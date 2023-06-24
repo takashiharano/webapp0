@@ -1,3 +1,6 @@
+/*!
+ * THIS CODE IS IMPLEMENTED BASED ON THE webapp0 TEMPLATE.
+ */
 webapp0.useredit = {};
 webapp0.useredit.mode = 'update';
 

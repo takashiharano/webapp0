@@ -1,3 +1,6 @@
+/*!
+ * THIS CODE IS IMPLEMENTED BASED ON THE webapp0 TEMPLATE.
+ */
 var webapp0 = {};
 webapp0.common = {};
 
