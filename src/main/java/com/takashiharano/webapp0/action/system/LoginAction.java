@@ -37,7 +37,7 @@ public class LoginAction extends Action {
     } else {
       String msg;
       status = "NG";
-      if ("PASSWORD_MISMATCH".equals(result)) {
+      if (("PASSWORD_MISMATCH".equals(result)) || ("EMPTY_VALUE".equals(result))) {
         msg = "NG user=" + username;
       } else if ("USER_NOT_FOUND".equals(result)) {
         status = "NG";
