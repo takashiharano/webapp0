@@ -1,6 +1,6 @@
 <style>
 body {
-  box-sizing: border-box:
+  box-sizing: border-box;
   width: 100%;
   height: calc(100vh - 24px);
   margin: 0;
@@ -13,7 +13,7 @@ button, input[type="button"], input[type="submit"] {
   width: 70px;
   height: 20px;
   border: none;
-  border-radius: 3px;
+  border-radius: 2px;
   outline: none;
   color: #fff;
   background: #0068cc;
@@ -31,6 +31,7 @@ input[type="text"],input[type="password"] {
   border: none;
   border-bottom: 1px solid #000;
   outline: none;
+  font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
 }
 
 input[type="checkbox"] {

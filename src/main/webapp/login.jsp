@@ -8,23 +8,27 @@ String requestedUri = context.getStringInfo("requestedUrl");
 <html>
 <head>
 <meta charset="utf-8">
-<title>WebApp</title>
+<title>Login</title>
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
 <script src="js/login.js"></script>
 <style>
 body {
-  font-size: 16px;
+  font-size: 18px;
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
 }
 
 input {
-  width: 250px;
+  width: 100%;
   border: none;
   border-bottom: 1px solid #333;
   outline: none;
-  font-size: 16px;
+  font-size: 18px;
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
+}
+
+button {
+  width: 100%;
 }
 
 #wrapper {
@@ -35,8 +39,8 @@ input {
 #login {
   position: absolute;
   display: inline-block;
-  width: 225px;
-  height: 125px;
+  width: 320px;
+  height: 180px;
   top: 0;
   right: 0;
   bottom: 0;

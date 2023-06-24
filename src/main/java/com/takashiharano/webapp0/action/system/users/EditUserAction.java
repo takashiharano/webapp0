@@ -20,8 +20,8 @@ public class EditUserAction extends Action {
     String userStatus = context.getRequestParameter("status");
 
     String currentUsername = context.getUsername();
-    if (!context.isAdministrator() && !currentUsername.equals(username)) {
-      context.sendJsonResponse("FORBIDDEN:Addser", null);
+    if (!context.isAdmin() && !currentUsername.equals(username)) {
+      context.sendJsonResponse("FORBIDDEN:EditUser", null);
       return;
     }
 

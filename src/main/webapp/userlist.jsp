@@ -7,7 +7,7 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 <html>
 <head>
 <meta charset="utf-8">
-<title></title>
+<title>User List</title>
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
 <script src="libs/sha.js"></script>
@@ -19,6 +19,11 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 
 td.user-list,th.user-list {
   border: 1px solid #888;
+}
+
+.edit-disabled {
+  border: none !important;
+  background: transparent;
 }
 </style>
 </head>

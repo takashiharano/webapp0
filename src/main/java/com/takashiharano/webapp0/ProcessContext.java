@@ -557,7 +557,7 @@ public class ProcessContext {
    *
    * @return true if the user is administrator; false otherwise
    */
-  public boolean isAdministrator() {
+  public boolean isAdmin() {
     UserInfo userInfo = getUserInfo();
     if (userInfo == null) {
       return false;

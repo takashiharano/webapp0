@@ -60,15 +60,25 @@ webapp0.userlist.newUser = function() {
 };
 
 webapp0.userlist.editUser = function(username) {
-  if (webapp0.userlist.editWindow) {
-    return;
-  }
-
   webapp0.userlist.mode = (username ? 'edit' : 'add');
+  if (!webapp0.userlist.editWindow) {
+    webapp0.userlist.editWindow = webapp0.userlist.openUserInfoEditorWindow();
+  }
+  webapp0.userlist.clearUserInfoEditor();
+  if (username) {
+    var params = {
+      username: username
+    };
+    app.callServerApi('GetUserInfo', params, webapp0.userlist.GetUserInfoCb);
+  } else {
+    $el('#username').focus();
+  }
+};
 
+webapp0.userlist.openUserInfoEditorWindow = function() {
   var html = '';
-  html += '<div style="width:100%;height:100%;">';
-  html += '<div style="padding:4px;">';
+  html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:280px;height:230px;text-align:left;">';
 
   html += '<table>';
   html += '  <tr>';
@@ -110,7 +120,7 @@ webapp0.userlist.editUser = function(username) {
   html += '  </tr>';
   html += '<table>';
 
-  html += '<div style="margin-top:16px;">';
+  html += '<div style="margin-top:24px;text-align:center;">';
   html += '<button onclick="webapp0.userlist.saveUserInfo();">OK</button>'
   html += '<button style="margin-left:8px;" onclick="webapp0.userlist.editWindow.close();">Cancel</button>'
   html += '</div>';
@@ -142,27 +152,44 @@ webapp0.userlist.editUser = function(username) {
     content: html
   };
 
-  webapp0.userlist.editWindow = util.newWindow(opt);
-
-  if (username) {
-    var params = {
-      username: username
-    };
-    app.callServerApi('GetUserInfo', params, webapp0.userlist.GetUserInfoCb);
-  }
+  var win = util.newWindow(opt);
+  return win;
 };
+
 webapp0.userlist.GetUserInfoCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
   }
   var info = res.body;
-  $el('#username').value = info.username;
-  $el('#username').disabled = true;
+  webapp0.userlist.setUserInfoToEditor(info);
+};
+
+webapp0.userlist.setUserInfoToEditor = function(info) {
+  var username = info.username;
+  $el('#username').value = username;
+  if (username) {
+    $el('#username').disabled = true;
+    $el('#username').addClass('edit-disabled');
+  } else {
+    $el('#username').disabled = false;
+    $el('#username').removeClass('edit-disabled');
+  }
   $el('#fullname').value = info.fullname;
   $el('#isadmin').checked = info.isAdmin;
   $el('#privileges').value = info.privileges;
   $el('#status').value = info.status;
+};
+
+webapp0.userlist.clearUserInfoEditor = function() {
+  var info = {
+    username: '',
+    fullname: '',
+    isAdmin: false,
+    privileges: '',
+    status: ''
+  };
+  webapp0.userlist.setUserInfoToEditor(info);
 };
 
 webapp0.userlist.saveUserInfo = function() {
@@ -171,21 +198,26 @@ webapp0.userlist.saveUserInfo = function() {
   } else {
     webapp0.userlist.updateUser();
   }
-  webapp0.userlist.editWindow.close();
 };
 
 webapp0.userlist.addUser = function() {
-  var username = $el('#username').value;
-  var fullname = $el('#fullname').value;
+  var username = $el('#username').value.trim();
+  var fullname = $el('#fullname').value.trim();
   var isadmin = ($el('#isadmin').checked ? '1' : '0');
-  var privileges = $el('#privileges').value;
-  var status = $el('#status').value;
+  var privileges = $el('#privileges').value.trim();
+  var status = $el('#status').value.trim();
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
-  if ((pw1 != '') && (pw2 != '')) {
+
+  if (!username) {
+    app.showInfotip('Username is required', 2000);
+    return;
+  }
+
+  if ((pw1 != '') || (pw2 != '')) {
     if (pw1 != pw2) {
-      util.alert('Password mismatched');
-      return;
+      app.showInfotip('Password mismatched', 2000);
+      return false;
     }
   }
 
@@ -206,6 +238,10 @@ webapp0.userlist.addUser = function() {
 
 webapp0.userlist.addUserCb = function(xhr, res) {
   app.showInfotip(res.status);
+  if (res.status != 'OK') {
+    return;
+  }
+  webapp0.userlist.editWindow.close();
   webapp0.userlist.getUserList();
 };
 
@@ -217,9 +253,9 @@ webapp0.userlist.updateUser = function() {
   var status = $el('#status').value;
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
-  if ((pw1 != '') && (pw2 != '')) {
+  if ((pw1 != '') || (pw2 != '')) {
     if (pw1 != pw2) {
-      util.alert('Password mismatched');
+      app.showInfotip('Password mismatched', 2000);
       return;
     }
   }
@@ -241,6 +277,10 @@ webapp0.userlist.updateUser = function() {
 
 webapp0.userlist.updateUserCb = function(xhr, res) {
   app.showInfotip(res.status);
+  if (res.status != 'OK') {
+    return;
+  }
+  webapp0.userlist.editWindow.close();
   webapp0.userlist.getUserList();
 };
 

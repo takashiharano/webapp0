@@ -289,6 +289,17 @@ public class UserManager {
     }
   }
 
+  /**
+   * Returns if the specified user exists.
+   *
+   * @param username
+   *          the username for search
+   * @return true if the user exists; otherwise false
+   */
+  public boolean existsUser(String username) {
+    return users.containsKey(username);
+  }
+
   private String getDataPath() {
     AppManager appManager = AppManager.getInstance();
     String workspacePath = appManager.getAppWorkspacePath();

@@ -19,15 +19,20 @@ public class AddUserAction extends Action {
     String privileges = context.getRequestParameter("privileges");
     String userStatus = context.getRequestParameter("status");
 
-    String currentUsername = context.getUsername();
-    if (!context.isAdministrator() && !currentUsername.equals(username)) {
-      context.sendJsonResponse("FORBIDDEN:Addser", null);
+    if (!context.isAdmin()) {
+      context.sendJsonResponse("FORBIDDEN:AddUser", null);
+      return;
+    }
+
+    UserManager userManager = context.getUserManager();
+    if (userManager.existsUser(username)) {
+      context.sendJsonResponse("USER_ALREADY_EXISTS", null);
       return;
     }
 
     String status = "OK";
     try {
-      UserManager userManager = context.getUserManager();
+
       userManager.regieterNewUser(username, pwHash, fullname, adminFlag, privileges, userStatus);
     } catch (Exception e) {
       status = e.getMessage();

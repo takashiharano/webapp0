@@ -45,10 +45,10 @@ app.screen = function(screenId) {
 };
 
 app.showInfotip = function(s, d) {
-  if (!d) d = 3000;
+  if (!d) d = 1500;
   var opt = {
     style: {
-      fontSize: '16px'
+      'font-size': '16px'
     }
   };
   util.infotip.show(s, d, opt);

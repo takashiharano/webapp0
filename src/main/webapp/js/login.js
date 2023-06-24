@@ -35,7 +35,7 @@ webapp0.login.loginCb = function(xhr, res) {
     };
     $el('#message').textseq('Welcome!', textseqOpt);
   } else {
-    var m = 'Failed to Login';
+    var m = 'Incorrect username or password.';
     if (res.status == 'ERROR') {
       m = 'Server Error';
       log.e(m + ' ' + res.body);

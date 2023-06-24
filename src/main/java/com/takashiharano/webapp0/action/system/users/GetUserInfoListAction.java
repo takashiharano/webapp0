@@ -16,10 +16,7 @@ public class GetUserInfoListAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    String username = context.getRequestParameter("username");
-
-    String currentUsername = context.getUsername();
-    if (!context.isAdministrator() && !currentUsername.equals(username)) {
+    if (!context.isAdmin()) {
       context.sendJsonResponse("FORBIDDEN:GetUserInfoList", null);
       return;
     }
