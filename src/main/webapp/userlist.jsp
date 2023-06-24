@@ -14,11 +14,12 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 <script src="js/userlist.js"></script>
 <style>
 .user-list-header {
-  background: #cef;
+  background: #ddebf7;
 }
 
 td.user-list,th.user-list {
   border: 1px solid #888;
+  white-space: nowrap;
 }
 
 .edit-disabled {

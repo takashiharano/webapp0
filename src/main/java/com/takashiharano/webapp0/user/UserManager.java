@@ -200,7 +200,7 @@ public class UserManager {
     try {
       saveUsers();
     } catch (IOException ioe) {
-      throw new Exception("USER_REGISTER_IO_ERROR");
+      throw new Exception("IO_ERROR_ON_USER_REGISTER");
     }
 
     return user;
@@ -228,7 +228,7 @@ public class UserManager {
   public UserInfo updateUser(String username, String pwHash, String fullname, String adminFlag, String privileges, String userStatus) throws Exception {
     UserInfo user = users.get(username);
     if (user == null) {
-      throw new Exception("NO_SUCH_USER");
+      throw new Exception("USER_NOT_FOUND");
     }
 
     if (adminFlag != null) {
@@ -259,7 +259,7 @@ public class UserManager {
     try {
       saveUsers();
     } catch (IOException ioe) {
-      throw new Exception("USER_UPDATE_IO_ERROR");
+      throw new Exception("IO_ERROR_ON_USER_UPDATE");
     }
 
     return user;
@@ -276,7 +276,7 @@ public class UserManager {
   public void deleteUser(String username) throws Exception {
     UserInfo user = users.get(username);
     if (user == null) {
-      throw new Exception("NO_SUCH_USER");
+      throw new Exception("USER_NOT_FOUND");
     }
 
     authenticator.remove(username);
@@ -285,7 +285,7 @@ public class UserManager {
     try {
       saveUsers();
     } catch (IOException ioe) {
-      throw new Exception("USER_DELETE_IO_ERROR");
+      throw new Exception("IO_ERROR_ON_USER_DELETE");
     }
   }
 

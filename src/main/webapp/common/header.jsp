@@ -2,7 +2,7 @@
 <%@ page import="com.takashiharano.webapp0.ProcessContext"%>
 <%
 ProcessContext context = (ProcessContext) request.getAttribute("context");
-String username = context.getUsername();
+String username = context.getUserFullName();
 %>
 <div id="header">
 <div id="header-content">

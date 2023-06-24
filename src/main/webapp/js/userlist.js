@@ -24,10 +24,10 @@ webapp0.userlist.getUserInfoListCb = function(xhr, res) {
 
   var html = '<table>';
   html += '<tr class="user-list-header">';
-  html += '<th class="user-list">username</th>';
-  html += '<th class="user-list">Full Name</th>';
-  html += '<th class="user-list">isAdmin</th>';
-  html += '<th class="user-list">Privileges</th>';
+  html += '<th class="user-list" style="min-width:10em;">Username</th>';
+  html += '<th class="user-list" style="min-width:15em;">Full Name</th>';
+  html += '<th class="user-list">Admin</th>';
+  html += '<th class="user-list" style="min-width:20em;">Privileges</th>';
   html += '<th class="user-list">Status</th>';
   html += '<th class="user-list">&nbsp;</th>';
   html += '<th class="user-list">&nbsp;</th>';
@@ -38,11 +38,11 @@ webapp0.userlist.getUserInfoListCb = function(xhr, res) {
     html += '<tr>';
     html += '<td class="user-list">' + username + '</td>';
     html += '<td class="user-list">' + info.fullname + '</td>';
-    html += '<td class="user-list">' + (info.isAdmin ? 'Y' : '') + '</td>';
+    html += '<td class="user-list" style="text-align:center;">' + (info.isAdmin ? 'Y' : '') + '</td>';
     html += '<td class="user-list">' + info.privileges + '</td>';
-    html += '<td class="user-list">' + info.status + '</td>';
-    html += '<td class="user-list"><span class="pseudo-link" style="color:#00a;" onclick="webapp0.userlist.editUser(\'' + username + '\');">EDIT</span></td>';
-    html += '<td class="user-list">';
+    html += '<td class="user-list" style="text-align:center;">' + info.status + '</td>';
+    html += '<td class="user-list"><span class="pseudo-link" style="color:#00a;text-align:center;" onclick="webapp0.userlist.editUser(\'' + username + '\');">EDIT</span></td>';
+    html += '<td class="user-list" style="text-align:center;width:1.5em;">';
     if (username == currentUsername) {
       html += '&nbsp;';
     } else {
@@ -78,18 +78,18 @@ webapp0.userlist.editUser = function(username) {
 webapp0.userlist.openUserInfoEditorWindow = function() {
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
-  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:280px;height:230px;text-align:left;">';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:230px;text-align:left;">';
 
   html += '<table>';
   html += '  <tr>';
   html += '    <td>Username</td>';
-  html += '    <td>';
-  html += '      <input type="text" id="username">';
+  html += '    <td style="width:256px;">';
+  html += '      <input type="text" id="username" style="width:100%;">';
   html += '    </td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Full name</td>';
-  html += '    <td><input type="text" id="fullname"></td>';
+  html += '    <td><input type="text" id="fullname" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>isAdmin</td>';
@@ -98,11 +98,11 @@ webapp0.userlist.openUserInfoEditorWindow = function() {
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Privileges</td>';
-  html += '    <td><input type="text" id="privileges"></td>';
+  html += '    <td><input type="text" id="privileges" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Status</td>';
-  html += '    <td><input type="text" id="status"></td>';
+  html += '    <td><input type="text" id="status" style="width:1.5em;"></td>';
   html += '  </tr>';
 
   html += '  <tr>';
@@ -112,11 +112,11 @@ webapp0.userlist.openUserInfoEditorWindow = function() {
 
   html += '  <tr>';
   html += '    <td>Password</td>';
-  html += '    <td><input type="password" id="pw1"></td>';
+  html += '    <td><input type="password" id="pw1" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Re-type</td>';
-  html += '    <td><input type="password" id="pw2"></td>';
+  html += '    <td><input type="password" id="pw2" style="width:100%;"></td>';
   html += '  </tr>';
   html += '<table>';
 
@@ -201,18 +201,34 @@ webapp0.userlist.saveUserInfo = function() {
 };
 
 webapp0.userlist.addUser = function() {
-  var username = $el('#username').value.trim();
-  var fullname = $el('#fullname').value.trim();
+  var username = $el('#username').value;
+  var fullname = $el('#fullname').value;
   var isadmin = ($el('#isadmin').checked ? '1' : '0');
-  var privileges = $el('#privileges').value.trim();
+  var privileges = $el('#privileges').value;
   var status = $el('#status').value.trim();
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
-  if (!username) {
-    app.showInfotip('Username is required', 2000);
+  var clnsRes = webapp0.userlist.cleanseUsername(username);
+  if (clnsRes.msg) {
+    app.showInfotip(clnsRes.msg, 2000);
     return;
   }
+  username = clnsRes.val;
+
+  var clnsRes = webapp0.userlist.cleanseFullName(fullname);
+  if (clnsRes.msg) {
+    app.showInfotip(clnsRes.msg, 2000);
+    return;
+  }
+  fullname = clnsRes.val;
+
+  var clnsRes = webapp0.userlist.cleansePrivilege(privileges);
+  if (clnsRes.msg) {
+    app.showInfotip(clnsRes.msg, 2000);
+    return;
+  }
+  privileges = clnsRes.val;
 
   if ((pw1 != '') || (pw2 != '')) {
     if (pw1 != pw2) {
@@ -309,10 +325,64 @@ webapp0.userlist.deleteUserCb = function(xhr, res) {
   webapp0.userlist.getUserList();
 };
 
+//-----------------------------------------------------------------------------
+webapp0.userlist.cleanseCommon = function(s) {
+  s = s.trim();
+  s = s.replace(/\t/g, ' ');
+  var res = {
+    val: s,
+    msg: null
+  };
+  return res;
+};
 
+webapp0.userlist.cleanseUsername = function(s) {
+  var res = webapp0.userlist.cleanseCommon(s);
+  if (res.msg) {
+    return res;
+  }
+  var msg = null;
+  s = res.val;
+  if (!s) {
+    msg = 'Username is required';
+  }
+  res.val = s;
+  res.msg = msg;
+  return res;
+};
+
+webapp0.userlist.cleanseFullName = function(s) {
+  var res = webapp0.userlist.cleanseCommon(s);
+  if (res.msg) {
+    return res;
+  }
+  var msg = null;
+  s = res.val;
+  res.val = s;
+  res.msg = msg;
+  return res;
+};
+
+webapp0.userlist.cleansePrivilege = function(s) {
+  var res = webapp0.userlist.cleanseCommon(s);
+  if (res.msg) {
+    return res;
+  }
+  var msg = null;
+  s = res.val;
+  s = s.replace(/\s{2,}/g, ' ');
+  res.val = s;
+  res.msg = msg;
+  return res;
+};
+
+
+//-----------------------------------------------------------------------------
 webapp0.userlist.onEditWindowClose = function() {
   webapp0.userlist.editWindow = null;
   webapp0.userlist.mode = null;
 };
 
-
+$onBeforeUnload = function(e) {
+  if (webapp0.userlist.editWindow) e.returnValue = '';
+};
