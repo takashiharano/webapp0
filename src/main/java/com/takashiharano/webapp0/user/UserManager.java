@@ -30,6 +30,21 @@ public class UserManager {
     return users.get(username);
   }
 
+  public Map<String, UserInfo> getAllUserInfo() {
+    return users;
+  }
+
+  public UserInfo[] getUserInfoList() {
+    UserInfo[] list = new UserInfo[users.size()];
+    int i = 0;
+    for (Entry<String, UserInfo> entry : users.entrySet()) {
+      UserInfo info = entry.getValue();
+      list[i] = info;
+      i++;
+    }
+    return list;
+  }
+
   public String authenticate(String username, String pass) {
     if (StrUtil.isBlank(username) || StrUtil.isBlank(pass)) {
       return "EMPTY_VALUE";

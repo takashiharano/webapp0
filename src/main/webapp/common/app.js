@@ -44,4 +44,18 @@ app.screen = function(screenId) {
   util.submit(url, 'GET', param);
 };
 
+app.showInfotip = function(s, d) {
+  if (!d) d = 3000;
+  var opt = {
+    style: {
+      fontSize: '16px'
+    }
+  };
+  util.infotip.show(s, d, opt);
+};
+
+app.getUsername = function() {
+  return app.username;
+};
+
 window.addEventListener('DOMContentLoaded', app.onReady, true);

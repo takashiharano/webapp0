@@ -13,9 +13,9 @@ if (context.isScreenEnabled("screen1")) {
 }
 %>
 <%
-if (context.isScreenEnabled("userlist") && context.hasPrivilege("usermng")) {
+if (context.isScreenEnabled("userlist") && context.hasPrivilege("useredit")) {
 %>
-<button id="screen-button-useredit" class="screen-button" onclick="app.screen('useredit');">User Edit</button>
+<button id="screen-button-userlist" class="screen-button" onclick="app.screen('userlist');">User List</button>
 <%
 }
 %>

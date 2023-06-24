@@ -13,7 +13,7 @@ button, input[type="button"], input[type="submit"] {
   width: 70px;
   height: 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 3px;
   outline: none;
   color: #fff;
   background: #0068cc;
@@ -41,6 +41,14 @@ input[type="checkbox"] {
 pre {
   margin: 2px 0;
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+td,th {
+  padding: 2px 4px;
 }
 
 .screen-button {

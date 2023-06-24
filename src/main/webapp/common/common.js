@@ -4,15 +4,6 @@
 var webapp0 = {};
 webapp0.common = {};
 
-webapp0.common.showInfotip = function(s, d) {
-  if (!d) d = 3000;
-  var opt = {
-    style: {
-      fontSize: '16px'
-    }
-  };
-  util.infotip.show(s, d, opt);
-};
 
 webapp0.common.logout = function() {
   util.confirm('Logout?', webapp0.common._logout);

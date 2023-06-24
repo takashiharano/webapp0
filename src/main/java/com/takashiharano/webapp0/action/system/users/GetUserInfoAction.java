@@ -25,7 +25,7 @@ public class GetUserInfoAction extends Action {
     UserManager userManager = context.getUserManager();
     UserInfo userInfo = userManager.getUserInfo(username);
     if (userInfo == null) {
-      context.sendJsonResponse("NO_SUCH_USER", null);
+      context.sendJsonResponse("USER_NOT_FOUND", null);
       return;
     }
 
