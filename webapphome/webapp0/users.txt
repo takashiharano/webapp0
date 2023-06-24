@@ -1,3 +1,4 @@
-admin	Administrator	1
-user1	User1	0
-user2	User2	0
+#Username	Name	isAdmin	Privileges	Status
+admin	Administrator	1		0
+user1	User1	0	aaa bbb	0
+user2	User2	0	aaa	0
