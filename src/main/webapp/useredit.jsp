@@ -9,7 +9,7 @@ UserInfo user = context.getUserInfo();
 String username = user.getUsername();
 String fullname = user.getFullName();
 String privileges = user.getPrivilegesInOneLine();
-boolean isAdmin = user.isAdministrator();
+boolean isAdmin = user.isAdmin();
 int status = user.getStatus();
 %>
 <!DOCTYPE html>
