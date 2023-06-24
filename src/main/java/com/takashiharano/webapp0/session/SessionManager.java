@@ -1,5 +1,5 @@
 /*
- * THIS CODE IS IMPLEMENTED BASED ON THE webapp0 TEMPLATE.
+ * THIS CODE IS IMPLEMENTED BASED ON THE WEBAPP0 TEMPLATE.
  */
 package com.takashiharano.webapp0.session;
 

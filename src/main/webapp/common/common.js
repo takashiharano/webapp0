@@ -1,5 +1,5 @@
 /*!
- * THIS CODE IS IMPLEMENTED BASED ON THE webapp0 TEMPLATE.
+ * THIS CODE IS IMPLEMENTED BASED ON THE WEBAPP0 TEMPLATE.
  */
 var webapp0 = {};
 webapp0.common = {};

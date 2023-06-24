@@ -1,3 +1,6 @@
+/*!
+ * THIS CODE IS IMPLEMENTED BASED ON THE WEBAPP0 TEMPLATE.
+ */
 webapp0.userlist = {};
 
 webapp0.userlist.editWindow = null;
@@ -56,7 +59,7 @@ webapp0.userlist.newUser = function() {
   webapp0.userlist.editUser(null);
 };
 
-webapp0.userlist.editUser = function(username, mode) {
+webapp0.userlist.editUser = function(username) {
   if (webapp0.userlist.editWindow) {
     return;
   }
