@@ -92,7 +92,7 @@ public class Log extends _Log {
     if (context == null) {
       userName = "-";
     } else {
-      userName = context.getUserName();
+      userName = context.getUsername();
     }
     if (userName == null) {
       userName = "-";

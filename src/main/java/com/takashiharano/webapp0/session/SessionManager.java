@@ -312,7 +312,7 @@ public class SessionManager {
    *          Process Context
    */
   public void logout(ProcessContext context) {
-    String username = context.getUserName();
+    String username = context.getUsername();
     HttpSession httpSession = context.getHttpSession();
     String sessionId = context.getSessionId();
     removeSessionInfo(sessionId);

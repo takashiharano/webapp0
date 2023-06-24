@@ -1,5 +1,15 @@
 app = {};
 
+app.onReady = function() {
+  util.clock('#clock');
+  app.onScreenShow();
+};
+
+app.onScreenShow = function() {
+  $el('.screen-button').removeClass('screen-button-active');
+  $el('#screen-button-' + app.screenId).addClass('screen-button-active');
+};
+
 app.callServerApi = function(actionName, params, onsuccess, onerror) {
   if (!params) params = {};
   params.action = actionName;
@@ -22,3 +32,13 @@ app.onHttpReceive = function(xhr, res, req) {
   }
   req.orgOnsuccess(xhr, res, req);
 };
+
+app.screen = function(screenId) {
+  var url = 'main';
+  var param = {
+    screen: screenId
+  };
+  util.submit(url, 'GET', param);
+};
+
+window.addEventListener('DOMContentLoaded', app.onReady, true);

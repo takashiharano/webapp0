@@ -17,7 +17,7 @@ public class ShowScreenAction extends Action {
   public void process(ProcessContext context) throws Exception {
     String screen = context.getRequestParameter("screen");
     if (screen == null) {
-      screen = "main";
+      screen = "dashboard";
     }
     ShowScreenLogic.process(context, screen);
   }

@@ -163,8 +163,8 @@ public class AppManager {
     return config.getDoubleValue(key, defaultValue);
   }
 
-  public boolean isConfigTrue(String key) {
-    return config.isTrue(key);
+  public boolean getConfigValueAsBoolean(String key) {
+    return config.getValueAsBoolean(key);
   }
 
   public SessionManager getSessionManager() {

@@ -7,7 +7,6 @@ String requestedUri = context.getStringInfo("requestedUrl");
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta charset="utf-8">
 <title>WebApp</title>
 <jsp:include page="common/style.jsp" />

@@ -40,7 +40,8 @@ public class UserManager {
     AppManager appManager = AppManager.getInstance();
 
     String result;
-    if (appManager.isConfigTrue("pseudo_auth")) {
+    String authControl = appManager.getConfigValue("auth_control");
+    if ("pseudo".equals(authControl)) {
       result = "OK";
     } else {
       String pwHash = HashUtil.getHashString(pass + username, "SHA-256");

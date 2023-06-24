@@ -22,6 +22,7 @@ public class ShowScreenLogic {
         }
       }
 
+      context.setInfo("screenId", screen);
       String screenFile = screen + ".jsp";
       context.forward(screenFile);
     } else {

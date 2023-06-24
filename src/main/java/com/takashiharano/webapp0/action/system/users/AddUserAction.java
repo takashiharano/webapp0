@@ -16,7 +16,7 @@ public class AddUserAction extends Action {
     String privileges = context.getRequestParameter("privileges");
     String userStatus = context.getRequestParameter("status");
 
-    String currentUsername = context.getUserName();
+    String currentUsername = context.getUsername();
     if (!context.isAdministrator() && !currentUsername.equals(username)) {
       context.sendJsonResponse("FORBIDDEN:Addser", null);
       return;

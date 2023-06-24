@@ -6,7 +6,8 @@ import java.util.Set;
 public class UserInfo {
   public static final int STATE_NONE = 0;
   public static final int STATE_DISABLED = 1;
-  public static final int STATE_RESTRICTED = 2;
+  public static final int STATE_LOCKED = 1 << 1;
+  public static final int STATE_PW_CHANGE = 1 << 2;
 
   private String username;
   private String fullname;

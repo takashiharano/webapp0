@@ -47,9 +47,6 @@ public class ProcessContext {
   private String userAgent;
   private String localAddr;
   private String localName;
-  private String username;
-  private String userFullName;
-
   private HttpSession httpSession;
   private Cookie[] cookies;
 
@@ -529,14 +526,11 @@ public class ProcessContext {
    *
    * @return username
    */
-  public String getUserName() {
-    if (username == null) {
-      SessionInfo sessionInfo = getSessionInfo();
-      if (sessionInfo == null) {
-        username = "";
-      } else {
-        username = sessionInfo.getUsername();
-      }
+  public String getUsername() {
+    String username = "";
+    UserInfo userInfo = getUserInfo();
+    if (userInfo != null) {
+      username = userInfo.getUsername();
     }
     return username;
   }
@@ -547,13 +541,10 @@ public class ProcessContext {
    * @return user full name
    */
   public String getUserFullName() {
-    if (userFullName == null) {
-      UserInfo userInfo = getUserInfo();
-      if (userInfo == null) {
-        userFullName = "";
-      } else {
-        userFullName = userInfo.getFullName();
-      }
+    String userFullName = "";
+    UserInfo userInfo = getUserInfo();
+    if (userInfo != null) {
+      userFullName = userInfo.getFullName();
     }
     return userFullName;
   }
@@ -609,6 +600,18 @@ public class ProcessContext {
     return config.getValue(key);
   }
 
+  /**
+   * Returns true if the value is not null, "false", "0", "".
+   *
+   * @param key
+   *          the key
+   * @return false if the value is null, "false", "0", ""; otherwise true
+   */
+  public boolean getConfigValueAsBoolean(String key) {
+    Props config = getConfig();
+    return config.getValueAsBoolean(key);
+  }
+
   public int getConfigIntValue(String key) {
     return getConfigIntValue(key, 0);
   }
@@ -636,9 +639,9 @@ public class ProcessContext {
     return config.getDoubleValue(key, defaultValue);
   }
 
-  public boolean isConfigTrue(String key) {
+  public boolean hasConfigValue(String key) {
     Props config = getConfig();
-    return config.isTrue(key);
+    return config.hasValue(key);
   }
 
   /**
@@ -780,6 +783,14 @@ public class ProcessContext {
     AppManager appManager = getAppManager();
     AsyncTaskManager asyncTaskManager = appManager.getAsyncTaskManager();
     return asyncTaskManager;
+  }
+
+  public boolean isScreenEnabled(String screenName) {
+    String key = "screen_" + screenName;
+    if (!hasConfigValue(key) || getConfigValueAsBoolean(key)) {
+      return true;
+    }
+    return false;
   }
 
 }

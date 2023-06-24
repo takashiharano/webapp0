@@ -11,7 +11,7 @@ public class DeleteUserAction extends Action {
   public void process(ProcessContext context) throws Exception {
     String username = context.getRequestParameter("username");
 
-    String currentUsername = context.getUserName();
+    String currentUsername = context.getUsername();
     if (!context.isAdministrator() && !currentUsername.equals(username)) {
       context.sendJsonResponse("FORBIDDEN:DeleteUser", null);
       return;

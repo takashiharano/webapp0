@@ -13,20 +13,19 @@ String appVersion = context.getAppVersion();
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta charset="utf-8">
-<title>main</title>
+<title>Dashboard</title>
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
 </head>
 <body>
+<jsp:include page="common/header.jsp" />
+<jsp:include page="common/menu.jsp" />
+<div style="margin-top:10px;">
 <pre>
 Hello, world!
 <%= datetime %> (<%= timestamp %>)
-App-Version: <%= appVersion %>
-<button onclick="webapp0.common.logout();">Logout</button>
-
-<a href="main?screen=asyncsample">AsyncTask Sample</a>
 </pre>
+</div>
 </body>
 </html>
