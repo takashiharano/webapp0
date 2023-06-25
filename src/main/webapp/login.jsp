@@ -9,6 +9,7 @@ String requestedUri = context.getStringInfo("requestedUrl");
 <head>
 <meta charset="utf-8">
 <title>Login</title>
+<jsp:include page="common/include.jsp" />
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
 <script src="js/login.js"></script>

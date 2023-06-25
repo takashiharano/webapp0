@@ -4,6 +4,7 @@
 <head>
 <meta charset="utf-8">
 <title>Screen1</title>
+<jsp:include page="common/include.jsp" />
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
 <script src="js/screen1.js"></script>

@@ -8,21 +8,22 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 <head>
 <meta charset="utf-8">
 <title>User List</title>
+<jsp:include page="common/include.jsp" />
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
 <script src="libs/sha.js"></script>
 <script src="js/userlist.js"></script>
 <style>
-.user-list-header {
+.item-list-header {
   background: #ddebf7;
 }
 
-td.user-list,th.user-list {
+td.item-list,th.item-list {
   border: 1px solid #888;
   white-space: nowrap;
 }
 
-tr.user-list:hover {
+tr.item-list:hover {
   background: #ecfaff;
 }
 

@@ -1,26 +1,26 @@
-webapp0.xxx = {};
+webapp0._template = {};
 
 $onReady = function() {
-  util.addEnterKeyHandler(webapp0.xxx.onEnterKey);
+  util.addEnterKeyHandler(webapp0._template.onEnterKey);
 };
 
-webapp0.xxx.test = function() {
+webapp0._template.test = function() {
   var text = $el('#text').value;
   var params = {
     text: text
   };
-  app.callServerApi('hello', params, webapp0.xxx.helloCb);
+  app.callServerApi('hello', params, webapp0._template.helloCb);
 };
 
-webapp0.xxx.helloCb = function(xhr, res) {
+webapp0._template.helloCb = function(xhr, res) {
   if (res.status == 'OK') {
     $el('#msg').innerHTML = res.body;
   }
 };
 
-webapp0.xxx.clear = function() {
+webapp0._template.clear = function() {
   $el('#msg').innerHTML = '';
 };
 
-webapp0.xxx.onEnterKey = function() {
+webapp0._template.onEnterKey = function() {
 };
