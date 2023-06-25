@@ -350,7 +350,7 @@ webapp0.userlist.addUser = function() {
   };
   if (pw) {
     var salt = username;
-    params.pw = webapp0.common.getHash('SHA-256', pw, salt);;
+    params.pw = webapp0.common.getHash('SHA-256', pw, salt);
   }
 
   app.callServerApi('AddUser', params, webapp0.userlist.addUserCb);
@@ -392,7 +392,7 @@ webapp0.userlist.updateUser = function() {
 
   if (pw) {
     var salt = username;
-    params.pw = webapp0.common.getHash('SHA-256', pw, salt);;
+    params.pw = webapp0.common.getHash('SHA-256', pw, salt);
   }
 
   app.callServerApi('EditUser', params, webapp0.userlist.updateUserCb);
