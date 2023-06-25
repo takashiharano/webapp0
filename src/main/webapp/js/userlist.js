@@ -157,7 +157,7 @@ webapp0.userlist.sortItemList = function(sortIdx, sortOrder) {
   webapp0.userlist.drawList(webapp0.userlist.itemList, sortIdx, sortOrder);
 };
 
-
+//-----------------------------------------------------------------------------
 webapp0.userlist.newUser = function() {
   webapp0.userlist.editUser(null);
 };
@@ -303,6 +303,7 @@ webapp0.userlist.saveUserInfo = function() {
   }
 };
 
+//-----------------------------------------------------------------------------
 webapp0.userlist.addUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
@@ -333,15 +334,12 @@ webapp0.userlist.addUser = function() {
   }
   privileges = clnsRes.val;
 
-  if ((pw1 != '') || (pw2 != '')) {
-    if (pw1 != pw2) {
-      app.showInfotip('Password mismatched', 2000);
-      return false;
-    }
+  clnsRes = webapp0.userlist.cleansePW(pw1, pw2, 'new');
+  if (clnsRes.msg) {
+    app.showInfotip(clnsRes.msg, 2000);
+    return;
   }
-
-  var salt = username;
-  var pwHash = webapp0.common.getHash('SHA-256', pw1, salt);
+  var pw = clnsRes.val;
 
   var params = {
     username: username,
@@ -349,8 +347,11 @@ webapp0.userlist.addUser = function() {
     is_admin: isAdmin,
     privileges: privileges,
     status: status,
-    pw: pwHash
   };
+  if (pw) {
+    var salt = username;
+    params.pw = webapp0.common.getHash('SHA-256', pw, salt);;
+  }
 
   app.callServerApi('AddUser', params, webapp0.userlist.addUserCb);
 };
@@ -364,6 +365,7 @@ webapp0.userlist.addUserCb = function(xhr, res) {
   webapp0.userlist.getUserList();
 };
 
+//-----------------------------------------------------------------------------
 webapp0.userlist.updateUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
@@ -372,15 +374,13 @@ webapp0.userlist.updateUser = function() {
   var status = $el('#status').value;
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
-  if ((pw1 != '') || (pw2 != '')) {
-    if (pw1 != pw2) {
-      app.showInfotip('Password mismatched', 2000);
-      return;
-    }
-  }
 
-  var salt = username;
-  pwHash = webapp0.common.getHash('SHA-256', pw1, salt);
+  var clnsRes = webapp0.userlist.cleansePW(pw1, pw2, 'edit');
+  if (clnsRes.msg) {
+    app.showInfotip(clnsRes.msg, 2000);
+    return;
+  }
+  var pw = clnsRes.val;
 
   var params = {
     username: username,
@@ -388,8 +388,12 @@ webapp0.userlist.updateUser = function() {
     is_admin: isAdmin,
     privileges: privileges,
     status: status,
-    pw: pwHash
   };
+
+  if (pw) {
+    var salt = username;
+    params.pw = webapp0.common.getHash('SHA-256', pw, salt);;
+  }
 
   app.callServerApi('EditUser', params, webapp0.userlist.updateUserCb);
 };
@@ -403,6 +407,7 @@ webapp0.userlist.updateUserCb = function(xhr, res) {
   webapp0.userlist.getUserList();
 };
 
+//-----------------------------------------------------------------------------
 webapp0.userlist.deleteUser = function(username) {
   var opt = {
     data: username
@@ -472,6 +477,25 @@ webapp0.userlist.cleanseFullName = function(s) {
   s = res.val;
   res.val = s;
   res.msg = msg;
+  return res;
+};
+
+webapp0.userlist.cleansePW = function(pw1, pw2, mode) {
+  var msg = null;
+  if (mode == 'new') {
+    if (pw1 == '') {
+      msg = 'Password is required';
+    }
+  }
+  if ((pw1 != '') || (pw2 != '')) {
+    if (pw1 != pw2) {
+      msg = 'Password mismatched';
+    }
+  }
+  var res = {
+    val: pw1,
+    msg: msg
+  };
   return res;
 };
 
