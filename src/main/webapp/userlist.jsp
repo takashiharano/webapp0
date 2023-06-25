@@ -11,7 +11,6 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 <jsp:include page="common/include.jsp" />
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
-<script src="libs/sha.js"></script>
 <script src="js/userlist.js"></script>
 <style>
 .item-list-header {

@@ -8,7 +8,7 @@ String username = context.getUserFullName();
 <div id="header-content">
 webapp0
 <span id="header-right">
-<span id="user" class="pseudo-link" onclick="webapp0.common.logout();"><%= username %></span>
+<span id="user" class="pseudo-link" onclick="webapp0.common.usermenu.openUserMenu();"><%= username %></span>
 <span id="clock"></span>
 <span id="version">v.<%= context.getAppVersion() %></span>
 </span>

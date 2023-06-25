@@ -1,5 +1,7 @@
 /*!
  * THIS CODE IS IMPLEMENTED BASED ON THE WEBAPP0 TEMPLATE.
+ * The template is released under the MIT license.
+ * Copyright 2023 Takashi Harano
  */
 webapp0.userlist = {};
 
@@ -485,7 +487,6 @@ webapp0.userlist.cleansePrivilege = function(s) {
   res.msg = msg;
   return res;
 };
-
 
 //-----------------------------------------------------------------------------
 webapp0.userlist.onEditWindowClose = function() {

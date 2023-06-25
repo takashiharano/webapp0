@@ -12,7 +12,6 @@ String requestedUri = (String) context.getInfo("requestedUrl");
 <jsp:include page="common/include.jsp" />
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
-<script src="libs/sha.js"></script>
 <script src="js/login.js"></script>
 <style>
 body {
