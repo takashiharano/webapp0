@@ -37,7 +37,7 @@ tr.item-list:hover {
 <jsp:include page="common/menu.jsp" />
 <div style="margin-top:20px;">
 <div style="margin-bottom:4px;">
-<button onclick="webapp0.userlist.newUser();">ADD</button>
+<button onclick="webapp0.userlist.newUser();">+</button>
 </div>
 <div id="user-list"></div>
 </div>
