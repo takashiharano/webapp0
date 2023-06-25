@@ -91,17 +91,23 @@ public class Log extends _Log {
       inf.append("]");
     }
 
-    String userName = "";
-    if (context == null) {
-      userName = "-";
-    } else {
-      userName = context.getUsername();
+    String addr = "-";
+    String username = "-";
+
+    if (context != null) {
+      addr = context.getRemoteAddr();
+      username = context.getUsername();
     }
-    if (userName == null) {
-      userName = "-";
+    if (username == null) {
+      username = "-";
     }
+
     inf.append("[");
-    inf.append(userName);
+    inf.append(addr);
+    inf.append("]");
+
+    inf.append("[");
+    inf.append(username);
     inf.append("]");
 
     if (((flag & FLAG_LINE) != 0) && printLine) {
