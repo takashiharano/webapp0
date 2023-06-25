@@ -339,7 +339,7 @@ webapp0.userlist.addUser = function() {
   }
 
   var salt = username;
-  pwHash = webapp0.common.getHash('SHA-256', pw1, salt);
+  var pwHash = webapp0.common.getHash('SHA-256', pw1, salt);
 
   var params = {
     username: username,

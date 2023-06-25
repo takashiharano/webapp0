@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.libutil.FileUtil;
-import com.libutil.HashUtil;
 import com.libutil.StrUtil;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.auth.Authenticator;
@@ -54,12 +53,14 @@ public class UserManager {
    *
    * @param username
    *          the target username
-   * @param pass
-   *          the password for the user.
+   * @param pwHash
+   *          the password hash for the user.<br>
+   *          the hash is sha256(plain-pw + username).<br>
+   *          it must be lower case.
    * @return The result status string. "OK" or any error status.
    */
-  public String authenticate(String username, String pass) {
-    if (StrUtil.isBlank(username) || StrUtil.isBlank(pass)) {
+  public String authenticate(String username, String pwHash) {
+    if (StrUtil.isBlank(username) || StrUtil.isBlank(pwHash)) {
       return "EMPTY_VALUE";
     }
 
@@ -75,7 +76,6 @@ public class UserManager {
     if ("pseudo".equals(authControl)) {
       status = "OK";
     } else {
-      String pwHash = HashUtil.getHashString(pass + username, "SHA-256");
       status = authenticator.auth(username, pwHash);
     }
 

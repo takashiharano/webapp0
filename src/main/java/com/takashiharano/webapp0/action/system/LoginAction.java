@@ -23,10 +23,10 @@ public class LoginAction extends Action {
     sessionManager.cleanInvalidatedSessionInfo();
 
     String username = context.getRequestParameter("id");
-    String pass = context.getBSB64DecodedRequestParameter("pw");
+    String pwHash = context.getBSB64DecodedRequestParameter("pw");
 
     UserManager userManager = context.getUserManager();
-    String result = userManager.authenticate(username, pass);
+    String result = userManager.authenticate(username, pwHash);
     String status;
 
     if ("OK".equals(result)) {

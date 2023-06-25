@@ -24,11 +24,15 @@ $onReady = function() {
 };
 
 webapp0.login.login = function() {
-  var id = $el('#id').value;
-  var pw = util.encodeBSB64($el('#pw').value, BSB64N);
+  var username = $el('#id').value;
+  var pw = $el('#pw').value;
+  var salt = username;
+  var pwHash = webapp0.common.getHash('SHA-256', pw, salt);
+  pwHash = util.encodeBSB64(pwHash, BSB64N);
+
   var params = {
-    id: id,
-    pw: pw
+    id: username,
+    pw: pwHash
   };
   app.callServerApi('login', params, webapp0.login.loginCb);
 };
