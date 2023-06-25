@@ -2,7 +2,7 @@
 <%@ page import="com.takashiharano.webapp0.ProcessContext" %>
 <%
 ProcessContext context = (ProcessContext) request.getAttribute("context");
-String requestedUri = context.getStringInfo("requestedUrl");
+String requestedUri = (String) context.getInfo("requestedUrl");
 %>
 <!DOCTYPE html>
 <html>

@@ -29,7 +29,7 @@ public class VersionAction extends Action {
     JsonBuilder jb = new JsonBuilder();
     jb.append("module", moduleName);
     jb.append("version", version);
-    context.sendJson(jb);
+    context.sendJsonResponse(jb);
   }
 
 }

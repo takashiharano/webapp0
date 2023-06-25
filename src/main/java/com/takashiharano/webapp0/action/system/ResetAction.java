@@ -12,7 +12,7 @@ public class ResetAction extends Action {
   @Override
   public void process(ProcessContext context) throws Exception {
     if (!context.isAdmin()) {
-      context.sendJson("FORBIDDEN", null);
+      context.sendJsonResponse("FORBIDDEN", null);
       return;
     }
     AppManager appManager = AppManager.getInstance();
@@ -23,7 +23,7 @@ public class ResetAction extends Action {
       status = "ERROR";
       message = appManager.getErrorInfo();
     }
-    context.sendJson(status, message);
+    context.sendJsonResponse(status, message);
   }
 
 }

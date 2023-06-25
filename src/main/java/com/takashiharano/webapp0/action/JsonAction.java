@@ -27,7 +27,7 @@ public class JsonAction extends Action {
     jb.append("params", params);
 
     String body = jb.toString();
-    context.sendJson("OK", body);
+    context.sendJsonResponse("OK", body);
   }
 
   private String getDateTimeString() {

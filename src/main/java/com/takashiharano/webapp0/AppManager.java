@@ -33,6 +33,11 @@ public class AppManager {
   private IntervalTaskManager intervalTaskManager;
   private AsyncTaskManager asyncTaskManager;
 
+  /**
+   * Returns the instance of the AppManager.
+   *
+   * @return AppManager
+   */
   public static AppManager getInstance() {
     if (instance == null) {
       instance = new AppManager();
@@ -40,10 +45,18 @@ public class AppManager {
     return instance;
   }
 
+  /**
+   * Callback for the web application initialization.<br>
+   * This is called by ServletContextListener#contextInitialized().
+   */
   public void onStart() {
     init();
   }
 
+  /**
+   * Callback for the web application shut down. This is called by
+   * ServletContextListener#contextDestroyed().
+   */
   public void onStop() {
     getInstance().stopIntervalTsak();
     sessionManager.onStop();
@@ -58,27 +71,58 @@ public class AppManager {
     return MODULE_NAME;
   }
 
+  /**
+   * Reload the properties and re-initialize the application.
+   */
   public void reset() {
     Log.i("Resetting app...");
     init();
   }
 
+  /**
+   * Returns whether the web application can work normally.<br>
+   * Returns false if any error occurred during initialization.
+   *
+   * @return true if the application can work normally.
+   */
   public boolean isReady() {
     return errorInfo == null;
   }
 
+  /**
+   * Returns details of any errors that occurred during initialization.
+   *
+   * @return the details of the errors. null if no error.
+   */
   public String getErrorInfo() {
     return errorInfo;
   }
 
+  /**
+   * Returns the application home path.<br>
+   * Generally it will be /home/USER/webapphome/MODULE on linux or<br>
+   * C:/Users/USER/webapphome/MODULE on Windows.
+   *
+   * @return the path
+   */
   public String getAppHomePath() {
     return appHomePath;
   }
 
+  /**
+   * Returns the workspace path for the application defined in app.properties with
+   * "workspace" key.<br>
+   * If there is no definition, returns the same as the app home path.
+   *
+   * @return the workspace path
+   */
   public String getAppWorkspacePath() {
     return appWorkspacePath;
   }
 
+  /**
+   * The implementation of the initialization.
+   */
   private void init() {
     errorInfo = null;
     try {
@@ -130,64 +174,183 @@ public class AppManager {
     asyncTaskManager = AsyncTaskManager.getInstance();
   }
 
+  /**
+   * Returns the configuration object that loaded from app.properties.
+   *
+   * @return the configuration object
+   */
   public Props getConfig() {
     return config;
   }
 
+  /**
+   * Returns the property value corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns null.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
   public String getConfigValue(String key) {
     return config.getValue(key);
   }
 
+  /**
+   * Returns the property value corresponding the specified key.
+   * 
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public String getConfigValue(String key, String defaultValue) {
     return config.getValue(key);
   }
 
+  /**
+   * Returns the property value as an integer corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.
+   *
+   * @param key
+   *          the value
+   * @return the value
+   */
   public int getConfigIntValue(String key) {
     return config.getIntValue(key);
   }
 
+  /**
+   * Returns the property value as an integer corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public int getConfigIntValue(String key, int defaultValue) {
     return config.getIntValue(key, defaultValue);
   }
 
+  /**
+   * Returns the property value as a float corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.0f.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
   public float getConfigFloatValue(String key) {
     return config.getFloatValue(key);
   }
 
+  /**
+   * Returns the property value as a float corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public float getConfigFloatValue(String key, float defaultValue) {
     return config.getFloatValue(key, defaultValue);
   }
 
+  /**
+   * Returns the property value as a double corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.0.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
   public double getConfigDoubleValue(String key) {
     return config.getDoubleValue(key);
   }
 
+  /**
+   * Returns the property value as a double corresponding the specified key.
+   * 
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public double getConfigDoubleValue(String key, double defaultValue) {
     return config.getDoubleValue(key, defaultValue);
   }
 
+  /**
+   * Returns the property value as a boolean corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @return A zero value, "false", "", null, are converted to false; any other
+   *         value is converted to true. The value is case-insensitive.
+   */
   public boolean getConfigValueAsBoolean(String key) {
     return config.getValueAsBoolean(key);
   }
 
+  /**
+   * Returns the property value as a boolean corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param valueAsTrue
+   *          the value to be true
+   * @return true if the value in this property list with the specified key value
+   *         equals valueAsTrue.
+   */
+  public boolean getConfigValueAsBoolean(String key, String valueAsTrue) {
+    return config.getValueAsBoolean(key, valueAsTrue);
+  }
+
+  /**
+   * Returns the session manager object.
+   *
+   * @return SessionManager
+   */
   public SessionManager getSessionManager() {
     return sessionManager;
   }
 
+  /**
+   * Returns the user manager object.
+   *
+   * @return UserManager
+   */
   public UserManager getUserManager() {
     return userManager;
   }
 
+  /**
+   * Returns the async task manager object.
+   *
+   * @return AsyncTaskManager
+   */
   public AsyncTaskManager getAsyncTaskManager() {
     return asyncTaskManager;
   }
 
+  /**
+   * Starts the interval tasks.
+   */
   private void startIntervalTask() {
     stopIntervalTsak();
+
+    // Sample implementation of the Interval Task.
+    // TODO Remove if not necessary
     IntervalTask task = new HeapMonitor();
     intervalTaskManager.startTask("heapmon", task, 180);
   }
 
+  /**
+   * Stops all interval tasks.
+   */
   private void stopIntervalTsak() {
     intervalTaskManager.stopAllTasks();
   }

@@ -37,11 +37,13 @@ import com.takashiharano.webapp0.user.UserInfo;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
 
+/**
+ * The context of the request processing.
+ */
 public class ProcessContext {
   private HttpServletRequest request;
   private HttpServletResponse response;
   private ServletContext servletContext;
-
   private String actionName;
   private String responseType;
   private String remoteAddr;
@@ -52,7 +54,6 @@ public class ProcessContext {
   private String localName;
   private HttpSession httpSession;
   private Cookie[] cookies;
-
   private HashMap<String, Object> info;
 
   public ProcessContext(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext) {
@@ -72,45 +73,71 @@ public class ProcessContext {
     this.userAgent = request.getHeader("User-Agent");
     this.localName = request.getLocalName();
     this.localAddr = request.getLocalAddr();
-
     this.httpSession = request.getSession();
     this.cookies = request.getCookies();
-
     request.setAttribute("context", this);
   }
 
+  /**
+   * Returns the HttpServletRequestt object of the current request.
+   *
+   * @return HttpServletRequest
+   */
   public HttpServletRequest getRequest() {
     return request;
   }
 
-  public void setRequest(HttpServletRequest request) {
-    this.request = request;
-  }
-
+  /**
+   * Returns the HttpServletResponse object of the current request.
+   *
+   * @return HttpServletResponse
+   */
   public HttpServletResponse getResponse() {
     return response;
   }
 
-  public void setResponse(HttpServletResponse response) {
-    this.response = response;
-  }
-
+  /**
+   * Returns the ServletContext object of the current request.
+   *
+   * @return ServletContext
+   */
   public ServletContext getServletContext() {
     return servletContext;
   }
 
-  public void setServletContext(ServletContext servletContext) {
-    this.servletContext = servletContext;
-  }
-
+  /**
+   * Returns the request parameter of the specified key.
+   *
+   * @param key
+   *          the key
+   * @return the value or null if the parameter does not exist.
+   */
   public String getRequestParameter(String key) {
     return request.getParameter(key);
   }
 
+  /**
+   * Returns the request parameter as an integer corresponding to the specified
+   * key.
+   *
+   * @param key
+   *          the key
+   * @return the value or 0 if the parameter does not exist.
+   */
   public int getRequestParameterAsInt(String key) {
     return getRequestParameterAsInt(key, 0);
   }
 
+  /**
+   * Returns the request parameter as an integer corresponding to the specified
+   * key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public int getRequestParameterAsInt(String key, int defaultValue) {
     String s = request.getParameter(key);
     int v;
@@ -122,10 +149,26 @@ public class ProcessContext {
     return v;
   }
 
+  /**
+   * Returns the request parameter as a long corresponding to the specified key.
+   *
+   * @param key
+   *          the key
+   * @return the value or 0L if the parameter does not exist.
+   */
   public long getRequestParameterAsLong(String key) {
     return getRequestParameterAsLong(key, 0L);
   }
 
+  /**
+   * Returns the request parameter as a long corresponding to the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public long getRequestParameterAsLong(String key, long defaultValue) {
     String s = request.getParameter(key);
     long v;
@@ -137,10 +180,26 @@ public class ProcessContext {
     return v;
   }
 
+  /**
+   * Returns the request parameter as a float corresponding to the specified key.
+   *
+   * @param key
+   *          the key
+   * @return the value or 0.0f the parameter does not exist.
+   */
   public float getRequestParameterAsFloat(String key) {
     return getRequestParameterAsFloat(key, 0);
   }
 
+  /**
+   * Returns the request parameter as a float corresponding to the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public float getRequestParameterAsFloat(String key, float defaultValue) {
     String s = request.getParameter(key);
     float v;
@@ -152,10 +211,26 @@ public class ProcessContext {
     return v;
   }
 
+  /**
+   * Returns the request parameter as a double corresponding to the specified key.
+   *
+   * @param key
+   *          the key
+   * @return the value or 0.0 the parameter does not exist.
+   */
   public double getRequestParameterAsDouble(String key) {
     return getRequestParameterAsFloat(key, 0);
   }
 
+  /**
+   * Returns the request parameter as a double corresponding to the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public double getRequestParameterAsDouble(String key, double defaultValue) {
     String s = request.getParameter(key);
     double v;
@@ -167,10 +242,32 @@ public class ProcessContext {
     return v;
   }
 
+  /**
+   * Returns the request parameter as a boolean corresponding to the specified
+   * key.
+   *
+   * @param key
+   *          the key
+   * @param trueValue
+   *          the value to be true
+   * @return true or false
+   */
   public boolean getRequestParameterAsBoolean(String key, String trueValue) {
     return getRequestParameterAsBoolean(key, trueValue, false);
   }
 
+  /**
+   * Returns the request parameter as a boolean corresponding to the specified
+   * key.
+   *
+   * @param key
+   *          the key
+   * @param trueValue
+   *          the value to be true
+   * @param caseIgnore
+   *          true if ignore the case
+   * @return trur oe false
+   */
   public boolean getRequestParameterAsBoolean(String key, String trueValue, boolean caseIgnore) {
     String s = request.getParameter(key);
     if (s == null) {
@@ -186,6 +283,13 @@ public class ProcessContext {
     return false;
   }
 
+  /**
+   * Returns the URL-decoded request parameters.
+   *
+   * @param key
+   *          the key
+   * @return the URL-decoded value
+   */
   public String getUrlDecodedRequestParameter(String key) {
     String value = getRequestParameter(key);
     String decodedValue = null;
@@ -197,6 +301,13 @@ public class ProcessContext {
     return decodedValue;
   }
 
+  /**
+   * Returns the Base64-decoded request parameters.
+   *
+   * @param key
+   *          the key
+   * @return the Base64-decoded value
+   */
   public String getBase64DecodedRequestParameter(String key) {
     String value = getRequestParameter(key);
     if (value == null) {
@@ -205,6 +316,15 @@ public class ProcessContext {
     return Base64Util.decodeToString(value);
   }
 
+  /**
+   * Returns the BSB64-decoded request parameters.<br>
+   * The number of shifts is used the value set in properties with
+   * "bab64_n_param".
+   *
+   * @param key
+   *          the key
+   * @return the BSB64-decoded value
+   */
   public String getBSB64DecodedRequestParameter(String key) {
     String value = getRequestParameter(key);
     if (value == null) {
@@ -234,38 +354,114 @@ public class ProcessContext {
     return value;
   }
 
+  /**
+   * Forwards a request from a servlet to another resource.
+   *
+   * @param path
+   *          path to forward
+   * @throws IOException
+   *           If an I/O error occurs
+   * @throws ServletException
+   *           If a Servlet error occurs
+   */
   public void forward(String path) throws IOException, ServletException {
     request.getRequestDispatcher(path).forward(request, response);
   }
 
+  /**
+   * Returns an action name for the current process.
+   *
+   * @return the action name
+   */
   public String getActionName() {
     return actionName;
   }
 
+  /**
+   * Sets the action name for the current process.
+   *
+   * @param actionName
+   *          the action name
+   */
   public void setActionName(String actionName) {
     this.actionName = actionName;
   }
 
+  /**
+   * Sets HTTP response code for the current request.
+   *
+   * @param status
+   *          the status code
+   */
   public void setResponseCode(int status) {
     response.setStatus(status);
   }
 
+  /**
+   * Sets an HTTP response header for the current request.
+   *
+   * @param name
+   *          the field name
+   * @param value
+   *          the value for the field
+   */
   public void setResponseHeader(String name, String value) {
     response.setHeader(name, value);
   }
 
-  public void sendTextResponse(String text) throws IOException {
+  /**
+   * Sends the plain text response to the client.
+   *
+   * @param text
+   *          the text to be sent
+   */
+  public void sendTextResponse(String text) {
     sendResponse("text/plain", text);
   }
 
+  /**
+   * Sends a JSON response to the client.
+   *
+   * @param json
+   *          the JSON text to be sent
+   */
   public void sendJsonResponse(String json) {
     sendResponse("application/json", json);
   }
 
+  /**
+   * Sends a JSON response to the client.
+   *
+   * @param status
+   *          the status field in JSON
+   * @param body
+   *          the body field in JSON
+   */
   public void sendJsonResponse(String status, String body) {
     sendJsonResponse(status, body, true);
   }
 
+  /**
+   * Sends a JSON response to the client.
+   *
+   * @param jb
+   *          the JsonBuilder object
+   * @throws IOException
+   */
+  public void sendJsonResponse(JsonBuilder jb) {
+    sendJsonResponse(jb.toString());
+  }
+
+  /**
+   * Sends a JSON response to the client.
+   * 
+   * @param status
+   *          the status field in JSON
+   * @param body
+   *          the body field in JSON
+   * @param isObject
+   *          true if the body is an object format
+   */
   public void sendJsonResponse(String status, String body, boolean isObject) {
     JsonBuilder jb = new JsonBuilder();
     jb.append("status", status);
@@ -277,6 +473,14 @@ public class ProcessContext {
     sendJsonResponse(jb.toString());
   }
 
+  /**
+   * Sends a response.
+   *
+   * @param contentType
+   *          the Content-Type field value
+   * @param text
+   *          the string to be sent
+   */
   public void sendResponse(String contentType, String text) {
     response.setContentType(contentType + ";charset=utf-8");
     try (PrintWriter writer = response.getWriter()) {
@@ -286,42 +490,59 @@ public class ProcessContext {
     }
   }
 
-  public void sendJson(String json) throws IOException {
-    sendJsonResponse(json);
-  }
-
-  public void sendJson(JsonBuilder jb) throws IOException {
-    sendJsonResponse(jb.toString());
-  }
-
-  public void sendJson(String status, String body) throws IOException {
-    JsonBuilder jb = new JsonBuilder();
-    jb.append("status", status);
-    jb.appendObject("body", body);
-    sendJsonResponse(jb.toString());
-  }
-
-  public void sendStatusJson(String status) throws IOException {
-    JsonBuilder jb = new JsonBuilder();
-    jb.append("status", status);
-    sendJsonResponse(jb.toString());
-  }
-
+  /**
+   * Sends a response with byte-stream to the client.
+   *
+   * @param b
+   *          the byte array to be sent
+   * @param fileName
+   *          the file name for the Content-Disposition field
+   * @throws IOException
+   *           If an IO error occurs
+   */
   public void sendByteStreamResponse(byte[] b, String fileName) throws IOException {
     setStreamResponseHeader(fileName);
     sendByteArray(b);
   }
 
+  /**
+   * Sends a response with a text as a byte-stream to the client.
+   *
+   * @param text
+   *          the text to be sent
+   * @param fileName
+   *          the file name for the Content-Disposition field
+   * @throws IOException
+   *           If an IO error occurs
+   */
   public void sendTextStreamResponse(String text, String fileName) throws IOException {
     setStreamResponseHeader(fileName);
     byte[] b = text.getBytes("UTF-8");
     sendByteArray(b);
   }
 
+  /**
+   * Sends a response with a file as a byte-stream to the client.
+   *
+   * @param path
+   *          the file path
+   * @throws IOException
+   *           If an IO error occurs
+   */
   public void sendFileResponse(String path) throws IOException {
     sendFileResponse(path, null);
   }
 
+  /**
+   * Sends a response with a file as a byte-stream to the client.
+   * 
+   * @param path
+   *          the file path
+   * @param fileName
+   *          the file name for the Content-Disposition field
+   * @throws IOException
+   *           If an IO error occurs
+   */
   public void sendFileResponse(String path, String fileName) throws IOException {
     if (fileName == null) {
       fileName = FileUtil.getFileName(path);
@@ -364,22 +585,44 @@ public class ProcessContext {
     }
   }
 
+  /**
+   * Returns the response type.
+   *
+   * @return the response type
+   */
   public String getResponseType() {
     return responseType;
   }
 
+  /**
+   * Sets a response type.
+   *
+   * @param responseType
+   *          The response type. Acceptable values are "text", "html", "json".
+   */
   public void setResponseType(String responseType) {
     this.responseType = responseType;
   }
 
+  /**
+   * Returns a value for general information.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
   public Object getInfo(String key) {
     return info.get(key);
   }
 
-  public String getStringInfo(String key) {
-    return (String) getInfo(key);
-  }
-
+  /**
+   * Sets a value for general information.
+   * 
+   * @param key
+   *          the key
+   * @param value
+   *          the value
+   */
   public void setInfo(String key, Object value) {
     info.put(key, value);
   }
@@ -571,6 +814,11 @@ public class ProcessContext {
     return userInfo.isAdmin();
   }
 
+  /**
+   * Returns the privileges for the current user in an array of the string.
+   *
+   * @return the privileges list
+   */
   public String[] getPrivileges() {
     UserInfo userInfo = getUserInfo();
     if (userInfo == null) {
@@ -579,6 +827,13 @@ public class ProcessContext {
     return userInfo.getPrivileges();
   }
 
+  /**
+   * Returns whether the current user has the specified privilege.
+   *
+   * @param privilege
+   *          the privilege to check
+   * @return true if the user has the privilege. always true if the user is admin.
+   */
   public boolean hasPrivilege(String privilege) {
     UserInfo userInfo = getUserInfo();
     if (userInfo == null) {
@@ -587,6 +842,16 @@ public class ProcessContext {
     return userInfo.hasPrivilege(privilege);
   }
 
+  /**
+   * Sends the error screen to the client.
+   *
+   * @param errorInfo
+   *          an error information string
+   * @throws ServletException
+   *           If a Servlet error occurs
+   * @throws IOException
+   *           If an IO error occurs
+   */
   public void sendErrorScreen(String errorInfo) throws ServletException, IOException {
     setInfo("errorInfo", errorInfo);
     String path = "error.jsp";
@@ -594,16 +859,38 @@ public class ProcessContext {
     forward(path);
   }
 
+  /**
+   * Returns the configuration object.
+   *
+   * @return Props
+   */
   public Props getConfig() {
     AppManager appManager = getAppManager();
     Props config = appManager.getConfig();
     return config;
   }
 
+  /**
+   * Returns the property value corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns null.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
   public String getConfigValue(String key) {
     return getConfigValue(key, null);
   }
 
+  /**
+   * Returns the property value corresponding the specified key.
+   * 
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public String getConfigValue(String key, String defaultValue) {
     Props config = getConfig();
     return config.getValue(key);
@@ -621,33 +908,92 @@ public class ProcessContext {
     return config.getValueAsBoolean(key);
   }
 
+  /**
+   * Returns the property value as an integer corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.
+   *
+   * @param key
+   *          the value
+   * @return the value
+   */
   public int getConfigIntValue(String key) {
     return getConfigIntValue(key, 0);
   }
 
+  /**
+   * Returns the property value as an integer corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public int getConfigIntValue(String key, int defaultValue) {
     Props config = getConfig();
     return config.getIntValue(key, defaultValue);
   }
 
+  /**
+   * Returns the property value as a float corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.0f.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
   public float getConfigFloatValue(String key) {
     return getConfigFloatValue(key, 0f);
   }
 
+  /**
+   * Returns the property value as a float corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public float getConfigFloatValue(String key, float defaultValue) {
     Props config = getConfig();
     return config.getFloatValue(key, defaultValue);
   }
 
+  /**
+   * Returns the property value as a double corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.0.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
   public double getConfigDoubleValue(String key) {
     return getConfigDoubleValue(key, 0);
   }
 
+  /**
+   * Returns the property value as a double corresponding the specified key.
+   * 
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
   public double getConfigDoubleValue(String key, double defaultValue) {
     Props config = getConfig();
     return config.getDoubleValue(key, defaultValue);
   }
 
+  /**
+   * Returns if the value for the specified key exists.
+   *
+   * @param key
+   *          the key for the value
+   * @return true if the key is valid and the corresponding value is not empty;
+   *         false otherwise
+   */
   public boolean hasConfigValue(String key) {
     Props config = getConfig();
     return config.hasValue(key);
@@ -726,6 +1072,9 @@ public class ProcessContext {
     return version;
   }
 
+  /**
+   * The process should be always called first when received a request.
+   */
   public void onAccess() {
     Log.setContext(this);
     SessionManager sessionManager = getSessionManager();
@@ -733,6 +1082,9 @@ public class ProcessContext {
     setSessionCookieMaxAge();
   }
 
+  /**
+   * The process should be always called at the end of request processing.
+   */
   public void onAccessEnd() {
     Log.removeContext();
   }
@@ -762,6 +1114,14 @@ public class ProcessContext {
     setSessionCookieMaxAge(sessionId, sessionTimeoutSec);
   }
 
+  /**
+   * Sets expiration date of the session cookie.
+   * 
+   * @param sessionId
+   *          the target session id
+   * @param sessionTimeoutSec
+   *          the session timeout in seconds
+   */
   public void setSessionCookieMaxAge(String sessionId, int sessionTimeoutSec) {
     SessionManager sessionManager = getSessionManager();
     String cookieName = sessionManager.getSessionCoolieName();
@@ -771,31 +1131,59 @@ public class ProcessContext {
     response.addCookie(cookie);
   }
 
+  /**
+   * Returns the application manager object.
+   *
+   * @return AppManager
+   */
   public AppManager getAppManager() {
     AppManager appManager = AppManager.getInstance();
     return appManager;
   }
 
+  /**
+   * Returns the session manager object. *
+   *
+   * @return SessionManager
+   */
   public SessionManager getSessionManager() {
     AppManager appManager = getAppManager();
     SessionManager sessionManager = appManager.getSessionManager();
     return sessionManager;
   }
 
+  /**
+   * Returns the user manager object.
+   *
+   * @return UserManager
+   */
   public UserManager getUserManager() {
     AppManager appManager = getAppManager();
     UserManager userManager = appManager.getUserManager();
     return userManager;
   }
 
+  /**
+   * Returns the async task manager object.
+   *
+   * @return AsyncTaskManager
+   */
   public AsyncTaskManager getAsyncManager() {
     AppManager appManager = getAppManager();
     AsyncTaskManager asyncTaskManager = appManager.getAsyncTaskManager();
     return asyncTaskManager;
   }
 
-  public boolean isScreenEnabled(String screenName) {
-    String key = "screen_" + screenName;
+  /**
+   * Returns whether the screen is enabled.<br>
+   * Returns true unless the config setting explicitly specifies false.
+   *
+   * @param screenId
+   *          the screen id
+   * @return true if the screen is enabled; false otherwise.
+   */
+  public boolean isScreenEnabled(String screenId) {
+    String key = "screen_" + screenId;
     if (!hasConfigValue(key) || getConfigValueAsBoolean(key)) {
       return true;
     }
