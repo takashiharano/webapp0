@@ -1,9 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" %>
+<%@ page import="com.takashiharano.webapp0.ProcessContext" %>
+<%
+ProcessContext context = (ProcessContext) request.getAttribute("context");
+%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>Screen1</title>
+<title></title>
 <jsp:include page="common/include.jsp" />
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
@@ -12,17 +16,10 @@
 <body>
 <jsp:include page="common/header.jsp" />
 <jsp:include page="common/menu.jsp" />
-<div>
-AsyncTask Sample <span id="led1"></span>
-</div>
-<input type="text" id="param-n" value="100">
-<button onclick="webapp0.screen1.startTask();">Start</button>
-<br>
-<input type="text" id="task-id" value="">
-<button onclick="webapp0.screen1.getTaskStatus();">Status</button>
-<button onclick="webapp0.screen1.getTaskResult();">Result</button>
-<button onclick="webapp0.screen1.cancelTask();">Cancel</button>
-<br>
-<div id="info"></div>
+
+<input type="text" id="text" value="Test"><button onclick="webapp0.screen1.test();">TEST</button><button onclick="webapp0.screen1.clear();">CLEAR</button>
+<span id="msg"></span>
+<pre>
+</pre>
 </body>
 </html>
