@@ -22,29 +22,42 @@ public class UserManager {
   private Map<String, UserInfo> users;
   private Authenticator authenticator;
 
+  /**
+   * Initializes the manager object and loads users info from a storage.
+   */
   public UserManager() {
     loadUsers();
   }
 
+  /**
+   * Returns the user info of specified username.
+   * 
+   * @param username
+   *          target username
+   * @return the user info
+   */
   public UserInfo getUserInfo(String username) {
     return users.get(username);
   }
 
+  /**
+   * Returns all user info map.
+   *
+   * @return the map of user info
+   */
   public Map<String, UserInfo> getAllUserInfo() {
     return users;
   }
 
-  public UserInfo[] getUserInfoList() {
-    UserInfo[] list = new UserInfo[users.size()];
-    int i = 0;
-    for (Entry<String, UserInfo> entry : users.entrySet()) {
-      UserInfo info = entry.getValue();
-      list[i] = info;
-      i++;
-    }
-    return list;
-  }
-
+  /**
+   * Authenticate the user.
+   *
+   * @param username
+   *          the target username
+   * @param pass
+   *          the password for the user.
+   * @return The result status string. "OK" or any error status.
+   */
   public String authenticate(String username, String pass) {
     if (StrUtil.isBlank(username) || StrUtil.isBlank(pass)) {
       return "EMPTY_VALUE";
@@ -57,16 +70,16 @@ public class UserManager {
 
     AppManager appManager = AppManager.getInstance();
 
-    String result;
+    String status;
     String authControl = appManager.getConfigValue("auth_control");
     if ("pseudo".equals(authControl)) {
-      result = "OK";
+      status = "OK";
     } else {
       String pwHash = HashUtil.getHashString(pass + username, "SHA-256");
-      result = authenticator.auth(username, pwHash);
+      status = authenticator.auth(username, pwHash);
     }
 
-    return result;
+    return status;
   }
 
   /**
@@ -139,7 +152,7 @@ public class UserManager {
    *           if an IO error occurres
    */
   public void saveUsers() throws IOException {
-    String header = "#Username\tName\tisAdmin\tPrivileges\tStatus\n";
+    String header = "#Username\tName\tisAdmin\tPrivileges\tStatus\tCreated\tUpdated\n";
     StringBuilder sb = new StringBuilder();
     sb.append(header);
     for (Entry<String, UserInfo> entry : users.entrySet()) {
@@ -147,9 +160,12 @@ public class UserManager {
       String username = user.getUsername();
       String fullname = user.getFullName();
       boolean isAdmin = user.isAdmin();
+      String adminFlag = (isAdmin ? "1" : "0");
       String privileges = user.getPrivilegesInOneLine();
       int status = user.getStatus();
-      String adminFlag = (isAdmin ? "1" : "0");
+      long createdDate = user.getCreatedDate();
+      long updatedDate = user.getUpdatedDate();
+
       sb.append(username);
       sb.append("\t");
       sb.append(fullname);
@@ -159,6 +175,10 @@ public class UserManager {
       sb.append(privileges);
       sb.append("\t");
       sb.append(status);
+      sb.append("\t");
+      sb.append(createdDate);
+      sb.append("\t");
+      sb.append(updatedDate);
       sb.append("\n");
     }
 
