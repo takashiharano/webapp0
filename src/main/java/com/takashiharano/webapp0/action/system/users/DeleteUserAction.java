@@ -18,6 +18,7 @@ public class DeleteUserAction extends Action {
 
     String currentUsername = context.getUsername();
     if (!context.isAdmin() || currentUsername.equals(username)) {
+      Log.w("DeleteUser: FORBIDDEN username=" + username);
       context.sendJsonResponse("FORBIDDEN:DeleteUser", null);
       return;
     }
@@ -30,6 +31,8 @@ public class DeleteUserAction extends Action {
       status = e.getMessage();
       Log.e("User delete error: " + status);
     }
+
+    Log.i("DeleteUser: " + status + " username=" + username);
 
     context.sendJsonResponse(status, null);
   }

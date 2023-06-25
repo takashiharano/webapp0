@@ -23,18 +23,25 @@ public class EditUserAction extends Action {
 
     String currentUsername = context.getUsername();
     if (!context.isAdmin() && !currentUsername.equals(username)) {
+      Log.w("EditUser: FORBIDDEN username=" + username);
       context.sendJsonResponse("FORBIDDEN:EditUser", null);
       return;
     }
 
     String status = "OK";
+    String info = null;
     try {
       UserManager userManager = context.getUserManager();
       userManager.updateUser(username, pwHash, fullname, adminFlag, privileges, userStatus);
+      if (pwHash != null) {
+        info = "PW changed";
+      }
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User regieter error: " + status);
     }
+
+    Log.i("EditUser: " + status + " username=" + username + ((info == null) ? "" : " " + info));
 
     context.sendJsonResponse(status, null);
   }

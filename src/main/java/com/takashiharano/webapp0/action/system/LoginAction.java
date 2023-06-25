@@ -32,7 +32,6 @@ public class LoginAction extends Action {
     String status;
 
     if ("OK".equals(result)) {
-      status = "OK";
       Log.i("Login: OK user=" + username);
       status = "OK";
       sessionManager.onLoggedIn(context, username);

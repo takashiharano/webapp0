@@ -22,12 +22,14 @@ public class AddUserAction extends Action {
     String userStatus = context.getRequestParameter("status");
 
     if (!context.isAdmin()) {
+      Log.i("AddUser: FORBIDDEN username=" + username);
       context.sendJsonResponse("FORBIDDEN:AddUser", null);
       return;
     }
 
     UserManager userManager = context.getUserManager();
     if (userManager.existsUser(username)) {
+      Log.i("AddUser: USER_ALREADY_EXISTS username=" + username);
       context.sendJsonResponse("USER_ALREADY_EXISTS", null);
       return;
     }
@@ -39,6 +41,8 @@ public class AddUserAction extends Action {
       status = e.getMessage();
       Log.e("User regieter error: " + status);
     }
+
+    Log.i("AddUser: " + status + " username=" + username);
 
     context.sendJsonResponse(status, null);
   }
