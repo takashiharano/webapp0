@@ -30,6 +30,14 @@ if (context.isScreenEnabled("userlist") && context.hasPrivilege("useredit")) {
 }
 %>
 
+<%
+if (context.isScreenEnabled("system") && context.isAdmin()) {
+%>
+<button id="screen-button-system" class="screen-button" onclick="app.screen('system');">System</button>
+<%
+}
+%>
+
 <button id="screen-button-_template" class="screen-button" onclick="app.screen('_template');">_Template</button>
 
 
