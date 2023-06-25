@@ -60,6 +60,21 @@ td,th {
   font-weight: bold;
 }
 
+.sort-button {
+  display: inline-block;
+  line-height: 1em;
+  color: #ccc;
+  font-size: 8px;
+}
+
+.sort-button:hover {
+  cursor: pointer;
+}
+
+.sort-active {
+  color: #555;
+}
+
 #header-right {
   position: absolute;
   right: 4px;

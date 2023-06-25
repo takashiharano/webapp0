@@ -3,6 +3,23 @@
  */
 webapp0.userlist = {};
 
+webapp0.userlist.LIST_COLUMNS = [
+  {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
+  {key: 'fullname', label: 'Full Name', style: 'min-width:15em;'},
+  {key: 'is_admin', label: 'Admin'},
+  {key: 'privileges', label: 'Privileges', style: 'min-width:20em;'},
+  {key: 'status', label: 'Status'},
+  {key: 'created_date', label: 'Created'},
+  {key: 'updated_date', label: 'Updated'}
+];
+
+webapp0.userlist.listStatus = {
+  sortIdx: 0,
+  sortOrder: 1
+};
+
+webapp0.userlist.itemList = [];
+
 webapp0.userlist.editWindow = null;
 webapp0.userlist.mode = null;
 
@@ -19,57 +36,125 @@ webapp0.userlist.getUserInfoListCb = function(xhr, res) {
     app.showInfotip(res.status);
     return;
   }
-  var currentUsername = app.getUsername();
   var infoList = res.body.userlist;
+  webapp0.userlist.itemList = infoList;
+  webapp0.userlist.drawList(infoList, 0, 1);
+};
 
-  var html = '<table>';
-  html += '<tr class="user-list-header">';
-  html += '<th class="user-list" style="min-width:10em;">Username</th>';
-  html += '<th class="user-list" style="min-width:15em;">Full Name</th>';
-  html += '<th class="user-list">Admin</th>';
-  html += '<th class="user-list" style="min-width:20em;">Privileges</th>';
-  html += '<th class="user-list">Status</th>';
-  html += '<th class="user-list">Created</th>';
-  html += '<th class="user-list">Updated</th>';
-  html += '<th class="user-list">&nbsp;</th>';
-  html += '<th class="user-list">&nbsp;</th>';
-  html += '</tr>';
-  for (var i = 0; i < infoList.length; i++) {
-    var info = infoList[i];
-    var username = info.username;
-    var fullname = info.fullname.replace(/ /g, '&nbsp');
+webapp0.userlist.drawList = function(items, sortIdx, sortOrder) {
+  if (sortIdx >= 0) {
+    if (sortOrder > 0) {
+      var srtDef = webapp0.userlist.LIST_COLUMNS[sortIdx];
+      var desc = (sortOrder == 2);
+      items = webapp0.userlist.sortList(items, srtDef.key, desc, srtDef.meta);
+    }
+  }
+
+  var currentUsername = app.getUsername();
+
+  var htmlList = '';
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var username = item.username;
+    var fullname = item.fullname.replace(/ /g, '&nbsp');
 
     var createdDate = '---------- --:--:--';
-    if (info.created_date > 0) {
-      createdDate = util.getDateTimeString(info.created_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
+    if (item.created_date > 0) {
+      createdDate = util.getDateTimeString(item.created_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
     }
 
     var updatedDate = '---------- --:--:--';
-    if (info.updated_date > 0) {
-      updatedDate = util.getDateTimeString(info.updated_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
+    if (item.updated_date > 0) {
+      updatedDate = util.getDateTimeString(item.updated_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
     }
 
-    html += '<tr class="user-list">';
-    html += '<td class="user-list">' + username + '</td>';
-    html += '<td class="user-list">' + fullname + '</td>';
-    html += '<td class="user-list" style="text-align:center;">' + (info.is_admin ? 'Y' : '') + '</td>';
-    html += '<td class="user-list">' + info.privileges + '</td>';
-    html += '<td class="user-list" style="text-align:center;">' + info.status + '</td>';
-    html += '<td class="user-list" style="text-align:center;">' + createdDate + '</td>';
-    html += '<td class="user-list" style="text-align:center;">' + updatedDate + '</td>';
-    html += '<td class="user-list"><span class="pseudo-link" style="color:#00a;text-align:center;" onclick="webapp0.userlist.editUser(\'' + username + '\');">EDIT</span></td>';
-    html += '<td class="user-list" style="text-align:center;width:1.5em;">';
+    htmlList += '<tr class="item-list">';
+    htmlList += '<td class="item-list">' + username + '</td>';
+    htmlList += '<td class="item-list">' + fullname + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + (item.is_admin ? 'Y' : '') + '</td>';
+    htmlList += '<td class="item-list">' + item.privileges + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + item.status + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
+    htmlList += '<td class="item-list"><span class="pseudo-link" style="color:#00a;text-align:center;" onclick="webapp0.userlist.editUser(\'' + username + '\');">EDIT</span></td>';
+    htmlList += '<td class="item-list" style="text-align:center;width:1.5em;">';
     if (username == currentUsername) {
-      html += '&nbsp;';
+      htmlList += '&nbsp;';
     } else {
-      html += '<span class="pseudo-link" style="color:#f88;" onclick="webapp0.userlist.deleteUser(\'' + username + '\');">X</span>';
+      htmlList += '<span class="pseudo-link" style="color:#f88;" onclick="webapp0.userlist.deleteUser(\'' + username + '\');">X</span>';
     }
-    html += '</td>';
-    html += '</tr>';
+    htmlList += '</td>';
+    htmlList += '</tr>';
   }
-  html += '</table>';
+  htmlList += '</table>';
+
+  var htmlHead = webapp0.userlist.buildListHeader(webapp0.userlist.LIST_COLUMNS, sortIdx, sortOrder);
+  var html = htmlHead + htmlList; 
+
+  webapp0.userlist.drawListContent(html);
+};
+
+webapp0.userlist.drawListContent = function(html) {
   $el('#user-list').innerHTML = html;
 };
+
+webapp0.userlist.buildListHeader = function(columns, sortIdx, sortOrder) {
+  var html = '<table>';
+  html += '<tr class="item-list-header">';
+
+  for (var i = 0; i < columns.length; i++) {
+    var column = columns[i];
+    var label = column['label'];
+
+    var sortAscClz = '';
+    var sortDescClz = '';
+    var nextSortType = 1;
+    if (i == sortIdx) {
+      if (sortOrder == 1) {
+        sortAscClz = 'sort-active';
+      } else if (sortOrder == 2) {
+        sortDescClz = 'sort-active';
+      }
+      nextSortType = sortOrder + 1;
+    }
+
+    var sortButton = '<span class="sort-button" ';
+    sortButton += ' onclick="webapp0.userlist.sortItemList(' + i + ', ' + nextSortType + ');"';
+    sortButton += '>';
+    sortButton += '<span';
+    if (sortAscClz) {
+       sortButton += ' class="' + sortAscClz + '"';
+    }
+    sortButton += '>▲</span>';
+    sortButton += '<br>';
+    sortButton += '<span';
+    if (sortDescClz) {
+       sortButton += ' class="' + sortDescClz + '"';
+    }
+    sortButton += '>▼</span>';
+    sortButton += '</span>';
+
+    html += '<th class="item-list"';
+    if (column.style) {
+      html += ' style="' + column.style + '"';
+    }
+    html += '><span>' + label + '</span> ' + sortButton + '</th>';
+  }
+  html += '<th class="item-list">&nbsp;</th>';
+  html += '<th class="item-list">&nbsp;</th>';
+  html += '</tr>';
+  return html;
+};
+
+webapp0.userlist.sortItemList = function(sortIdx, sortOrder) {
+  if (sortOrder > 2) {
+    sortOrder = 0;
+  }
+  webapp0.userlist.listStatus.sortIdx = sortIdx;
+  webapp0.userlist.listStatus.sortOrder = sortOrder;
+  webapp0.userlist.drawList(webapp0.userlist.itemList, sortIdx, sortOrder);
+};
+
 
 webapp0.userlist.newUser = function() {
   webapp0.userlist.editUser(null);
@@ -339,6 +424,15 @@ webapp0.userlist.deleteUserCb = function(xhr, res) {
   }
   app.showInfotip('OK');
   webapp0.userlist.getUserList();
+};
+
+//-----------------------------------------------------------------------------
+webapp0.userlist.sortList = function(itemList, sortKey, desc, byMetaCol) {
+  var items = util.copyObject(itemList);
+  var srcList = items;
+  var asNum = true;
+  var sortedList = util.sortObject(srcList, sortKey, desc, asNum);
+  return sortedList;
 };
 
 //-----------------------------------------------------------------------------
