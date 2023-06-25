@@ -37,6 +37,14 @@ button {
   height: calc(100vh - 17px);
 }
 
+#header {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  color: #fff;
+  font-size: 14px;
+}
+
 #login {
   position: absolute;
   display: inline-block;
@@ -56,6 +64,9 @@ var REQUESTED_URL = '<%= requestedUri %>';
 </head>
 <body>
 <div id="wrapper">
+<div id="header">
+<span id="version">v.<%= context.getAppVersion() %></span>
+</div>
   <div id="login">
     <div>
       <span id="led"></span> webapp0
