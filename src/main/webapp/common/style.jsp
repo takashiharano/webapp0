@@ -75,6 +75,10 @@ td,th {
   color: #555;
 }
 
+.dialog-content {
+  font-size: 18px;
+}
+
 #header-right {
   position: absolute;
   right: 4px;

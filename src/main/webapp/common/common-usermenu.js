@@ -12,11 +12,13 @@ webapp0.common.usermenu.openUserMenu = function() {
   util.modal.setStyle(style);
   
   var html = '';
-  html += '<b>User Menu</b>\n\n';
-  html += '<div>';
+  html += '<div class="dialog-content">';
+  html += '<b>User Menu</b>';
+  html += '<div style="margin-top:1em;">';
   html += '<div style="display:inline-block;width:160px;height:60px;text-align:left;">';
   html += '<li><span class="pseudo-link" onclick="webapp0.common.usermenu.openChangePw();">Change Password</span></li>';
-  html += '<li><span class="pseudo-link" onclick="webapp0.common.confirmLogout();">Logout</span></li>\n\n';
+  html += '<li><span class="pseudo-link" onclick="webapp0.common.confirmLogout();">Logout</span></li>\n';
+  html += '</div>';
   html += '</div>';
   html += '</div>';
   html += '<button onclick="util.dialog.close();">Close</button>';
@@ -25,7 +27,7 @@ webapp0.common.usermenu.openUserMenu = function() {
     style: {
       body: {
         'width': '300px',
-        'height': '160px'
+        'height': '120px'
       }
     },
     closeAnywhere: true,
@@ -36,9 +38,9 @@ webapp0.common.usermenu.openUserMenu = function() {
 
 webapp0.common.usermenu.openChangePw = function() {
   var html = '';
-  html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
+  html += '<div class="dialog-content" style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
 
-  html += '<table>';
+  html += '<table style="width:95%;text-align:left;">';
   html += '  <tr>';
   html += '    <td>New password</td>';
   html += '    <td><input type="password" id="pw1" style="width:100%;"></td>';
@@ -59,7 +61,7 @@ webapp0.common.usermenu.openChangePw = function() {
   var opt = {
     style: {
       body: {
-        'width': '300px',
+        'width': '340px',
         'height': '160px'
       },
       title: {
@@ -77,6 +79,10 @@ webapp0.common.usermenu.chengaPw = function() {
 
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
+  if (!pw1) {
+    app.showInfotip('Password is required', 2000);
+    return;
+  }
   if ((pw1 != '') || (pw2 != '')) {
     if (pw1 != pw2) {
       app.showInfotip('Password mismatched', 2000);
@@ -97,7 +103,7 @@ webapp0.common.usermenu.chengaPw = function() {
 
 webapp0.common.usermenu.chengaPwCb = function(xhr, res) {
   if (res.status == 'OK') {
-    var m = 'Your password has been updated.\n\nLogout?\n\n';
+    var m = 'Your password has been updated.\n\nLogout now?\n\n';
     util.dialog.closeAll();
     util.confirm('Success', m, webapp0.common.logout);
   } else {
