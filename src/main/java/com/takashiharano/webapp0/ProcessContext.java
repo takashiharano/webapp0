@@ -35,7 +35,7 @@ import com.libutil.Props;
 import com.takashiharano.webapp0.async.AsyncTaskManager;
 import com.takashiharano.webapp0.session.SessionInfo;
 import com.takashiharano.webapp0.session.SessionManager;
-import com.takashiharano.webapp0.user.UserInfo;
+import com.takashiharano.webapp0.user.User;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
 
@@ -747,7 +747,7 @@ public class ProcessContext {
    *
    * @return User info
    */
-  public UserInfo getUserInfo() {
+  public User getUserInfo() {
     SessionInfo sessionInfo = getSessionInfo();
     if (sessionInfo == null) {
       return null;
@@ -756,7 +756,7 @@ public class ProcessContext {
     String username = sessionInfo.getUsername();
 
     UserManager userManager = getUserManager();
-    UserInfo userInfo = userManager.getUserInfo(username);
+    User userInfo = userManager.getUserInfo(username);
     return userInfo;
   }
 
@@ -782,7 +782,7 @@ public class ProcessContext {
    */
   public String getUsername() {
     String username = "";
-    UserInfo userInfo = getUserInfo();
+    User userInfo = getUserInfo();
     if (userInfo != null) {
       username = userInfo.getUsername();
     }
@@ -796,7 +796,7 @@ public class ProcessContext {
    */
   public String getUserFullName() {
     String userFullName = "";
-    UserInfo userInfo = getUserInfo();
+    User userInfo = getUserInfo();
     if (userInfo != null) {
       userFullName = userInfo.getFullName();
     }
@@ -809,7 +809,7 @@ public class ProcessContext {
    * @return true if the user is administrator; false otherwise
    */
   public boolean isAdmin() {
-    UserInfo userInfo = getUserInfo();
+    User userInfo = getUserInfo();
     if (userInfo == null) {
       return false;
     }
@@ -822,7 +822,7 @@ public class ProcessContext {
    * @return the privileges list
    */
   public String[] getPrivileges() {
-    UserInfo userInfo = getUserInfo();
+    User userInfo = getUserInfo();
     if (userInfo == null) {
       return null;
     }
@@ -837,7 +837,7 @@ public class ProcessContext {
    * @return true if the user has the privilege. always true if the user is admin.
    */
   public boolean hasPrivilege(String privilege) {
-    UserInfo userInfo = getUserInfo();
+    User userInfo = getUserInfo();
     if (userInfo == null) {
       return false;
     }

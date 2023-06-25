@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import com.libutil.JsonBuilder;
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.action.Action;
-import com.takashiharano.webapp0.user.UserInfo;
+import com.takashiharano.webapp0.user.User;
 import com.takashiharano.webapp0.user.UserManager;
 
 public class GetUserInfoListAction extends Action {
@@ -25,13 +25,13 @@ public class GetUserInfoListAction extends Action {
 
     String status = "OK";
     UserManager userManager = context.getUserManager();
-    Map<String, UserInfo> users = userManager.getAllUserInfo();
+    Map<String, User> users = userManager.getAllUserInfo();
 
     JsonBuilder jb = new JsonBuilder();
     jb.openList("userlist");
 
-    for (Entry<String, UserInfo> entry : users.entrySet()) {
-      UserInfo info = entry.getValue();
+    for (Entry<String, User> entry : users.entrySet()) {
+      User info = entry.getValue();
       String user = UserInfoCommonLogic.buildUserInfoJson(info);
       jb.appendListElementAsObject(user);
     }

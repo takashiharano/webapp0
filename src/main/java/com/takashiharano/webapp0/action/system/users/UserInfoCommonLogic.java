@@ -6,11 +6,11 @@
 package com.takashiharano.webapp0.action.system.users;
 
 import com.libutil.JsonBuilder;
-import com.takashiharano.webapp0.user.UserInfo;
+import com.takashiharano.webapp0.user.User;
 
 public class UserInfoCommonLogic {
 
-  public static String buildUserInfoJson(UserInfo info) {
+  public static String buildUserInfoJson(User info) {
     JsonBuilder jb = new JsonBuilder();
     jb.append("username", info.getUsername());
     jb.append("fullname", info.getFullName());

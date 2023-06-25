@@ -319,14 +319,14 @@ webapp0.userlist.addUser = function() {
   }
   username = clnsRes.val;
 
-  var clnsRes = webapp0.userlist.cleanseFullName(fullname);
+  clnsRes = webapp0.userlist.cleanseFullName(fullname);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
   fullname = clnsRes.val;
 
-  var clnsRes = webapp0.userlist.cleansePrivilege(privileges);
+  clnsRes = webapp0.userlist.cleansePrivilege(privileges);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
@@ -429,7 +429,7 @@ webapp0.userlist.deleteUserCb = function(xhr, res) {
 };
 
 //-----------------------------------------------------------------------------
-webapp0.userlist.sortList = function(itemList, sortKey, desc, byMetaCol) {
+webapp0.userlist.sortList = function(itemList, sortKey, desc) {
   var items = util.copyObject(itemList);
   var srcList = items;
   var asNum = true;

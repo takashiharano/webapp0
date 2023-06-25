@@ -8,11 +8,11 @@ package com.takashiharano.webapp0.user;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class UserInfo {
+public class User {
   public static final int STATE_NONE = 0;
   public static final int STATE_DISABLED = 1;
   public static final int STATE_LOCKED = 1 << 1;
-  public static final int STATE_PW_CHANGE = 1 << 2;
+  public static final int STATE_NEED_PW_CHANGE = 1 << 2;
 
   private String username;
   private String fullname;
@@ -22,18 +22,18 @@ public class UserInfo {
   private long createdDate;
   private long updatedDate;
 
-  public UserInfo(String username, boolean isAdmin) {
+  public User(String username, boolean isAdmin) {
     this.username = username;
     this.admin = isAdmin;
     this.privileges = new LinkedHashSet<>();
     this.status = STATE_NONE;
   }
 
-  public UserInfo(String username, String fullname, boolean isAdmin, String privileges, int status) {
+  public User(String username, String fullname, boolean isAdmin, String privileges, int status) {
     this(username, fullname, isAdmin, privileges, status, 0L, 0L);
   }
 
-  public UserInfo(String username, String fullname, boolean isAdmin, String privileges, int status, long createdDate, long updatedDate) {
+  public User(String username, String fullname, boolean isAdmin, String privileges, int status, long createdDate, long updatedDate) {
     this.username = username;
     this.fullname = fullname;
     this.admin = isAdmin;
@@ -125,6 +125,18 @@ public class UserInfo {
 
   public void setStatus(int status) {
     this.status = status;
+  }
+
+  public void setState(int state) {
+    this.status |= state;
+  }
+
+  public void unsetState(int state) {
+    this.status &= ~state;
+  }
+
+  public boolean hasState(int state) {
+    return ((this.status & state) != 0);
   }
 
   public long getCreatedDate() {

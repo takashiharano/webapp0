@@ -20,7 +20,7 @@ public class UserManager {
   private static final String USERS_FILE_NAME = "users.txt";
   private static final String USERS_PW_FILE_NAME = "userspw.txt";
 
-  private Map<String, UserInfo> users;
+  private Map<String, User> users;
   private Authenticator authenticator;
 
   /**
@@ -37,7 +37,7 @@ public class UserManager {
    *          target username
    * @return the user info
    */
-  public UserInfo getUserInfo(String username) {
+  public User getUserInfo(String username) {
     return users.get(username);
   }
 
@@ -46,7 +46,7 @@ public class UserManager {
    *
    * @return the map of user info
    */
-  public Map<String, UserInfo> getAllUserInfo() {
+  public Map<String, User> getAllUserInfo() {
     return users;
   }
 
@@ -66,7 +66,7 @@ public class UserManager {
       return "EMPTY_VALUE";
     }
 
-    UserInfo user = getUserInfo(username);
+    User user = getUserInfo(username);
     if (user == null) {
       return "USER_NOT_FOUND";
     }
@@ -122,7 +122,7 @@ public class UserManager {
         privileges = fields[3];
       }
 
-      int status = UserInfo.STATE_NONE;
+      int status = User.STATE_NONE;
       if (fields.length > 4) {
         try {
           status = Integer.parseInt(fields[4]);
@@ -131,19 +131,19 @@ public class UserManager {
         }
       }
 
-      UserInfo userInfo = new UserInfo(username, fullname, isAdmin, privileges, status);
+      User user = new User(username, fullname, isAdmin, privileges, status);
 
       if (fields.length > 5) {
         long createdDate = StrUtil.parseLong(fields[5]);
-        userInfo.setCreatedDate(createdDate);
+        user.setCreatedDate(createdDate);
       }
 
       if (fields.length > 6) {
         long updatedDate = StrUtil.parseLong(fields[6]);
-        userInfo.setUpdatedDate(updatedDate);
+        user.setUpdatedDate(updatedDate);
       }
 
-      users.put(username, userInfo);
+      users.put(username, user);
     }
   }
 
@@ -157,8 +157,8 @@ public class UserManager {
     String header = "#Username\tName\tisAdmin\tPrivileges\tStatus\tCreated\tUpdated\n";
     StringBuilder sb = new StringBuilder();
     sb.append(header);
-    for (Entry<String, UserInfo> entry : users.entrySet()) {
-      UserInfo user = entry.getValue();
+    for (Entry<String, User> entry : users.entrySet()) {
+      User user = entry.getValue();
       String username = user.getUsername();
       String fullname = user.getFullName();
       boolean isAdmin = user.isAdmin();
@@ -210,11 +210,11 @@ public class UserManager {
    *          Privileges
    * @param userStatus
    *          user status
-   * @return UserInfo
+   * @return User
    * @throws Exception
    *           if an error occurres
    */
-  public UserInfo regieterNewUser(String username, String pwHash, String fullname, String adminFlag, String privileges, String userStatus) throws Exception {
+  public User regieterNewUser(String username, String pwHash, String fullname, String adminFlag, String privileges, String userStatus) throws Exception {
     if (users.containsKey(username)) {
       throw new Exception("USER_ALREADY_EXISTS");
     }
@@ -225,12 +225,13 @@ public class UserManager {
     }
 
     boolean isAdmin = "1".equals(adminFlag);
-    int status = StrUtil.parseInt(userStatus, UserInfo.STATE_NONE);
+    int status = StrUtil.parseInt(userStatus, User.STATE_NONE);
 
     long createdDate = System.currentTimeMillis();
     long updatedDate = createdDate;
 
-    UserInfo user = new UserInfo(username, fullname, isAdmin, privileges, status, createdDate, updatedDate);
+    User user = new User(username, fullname, isAdmin, privileges, status, createdDate, updatedDate);
+    user.setState(User.STATE_NEED_PW_CHANGE);
     users.put(username, user);
 
     try {
@@ -257,12 +258,12 @@ public class UserManager {
    *          Privileges
    * @param userStatus
    *          user status
-   * @return UserInfo
+   * @return User
    * @throws Exception
    *           if an error occurres
    */
-  public UserInfo updateUser(String username, String pwHash, String fullname, String adminFlag, String privileges, String userStatus) throws Exception {
-    UserInfo user = users.get(username);
+  public User updateUser(String username, String pwHash, String fullname, String adminFlag, String privileges, String userStatus) throws Exception {
+    User user = users.get(username);
     if (user == null) {
       throw new Exception("USER_NOT_FOUND");
     }
@@ -281,7 +282,7 @@ public class UserManager {
     }
 
     if (userStatus != null) {
-      int status = StrUtil.parseInt(userStatus, UserInfo.STATE_NONE);
+      int status = StrUtil.parseInt(userStatus, User.STATE_NONE);
       user.setStatus(status);
     }
 
@@ -293,6 +294,7 @@ public class UserManager {
       if (ret < 0) {
         throw new Exception("PW_REGISTER_ERROR");
       }
+      user.unsetState(User.STATE_NEED_PW_CHANGE);
     }
 
     try {
@@ -313,7 +315,7 @@ public class UserManager {
    *           if an error occures
    */
   public void deleteUser(String username) throws Exception {
-    UserInfo user = users.get(username);
+    User user = users.get(username);
     if (user == null) {
       throw new Exception("USER_NOT_FOUND");
     }
