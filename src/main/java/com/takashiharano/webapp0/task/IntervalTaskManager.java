@@ -70,9 +70,9 @@ public class IntervalTaskManager {
    *          task name
    * @return interval in seconds
    */
-  public int getInterval(String taskName) {
+  public int getIntervalSec(String taskName) {
     TaskContext context = taskMap.get(taskName);
-    return context.getInterval();
+    return context.getIntervalSec();
   }
 
   /**
@@ -128,20 +128,26 @@ public class IntervalTaskManager {
   private static class TaskContext implements Runnable {
     private IntervalTask task;
     private Thread thread;
-    private int interval; // in seconds
+    private int intervalSec;
     private long lastExecutedTime;
     private Throwable throwable;
 
     public TaskContext(IntervalTask task, int interval) {
       this.task = task;
       this.thread = new Thread(this);
-      this.interval = interval;
+      this.intervalSec = interval;
     }
 
+    /**
+     * Starts the task in a sub thread.
+     */
     public void start() {
       thread.start();
     }
 
+    /**
+     * Stops the task.
+     */
     public void stop() {
       thread.interrupt();
       try {
@@ -151,22 +157,47 @@ public class IntervalTaskManager {
       }
     }
 
-    public int getInterval() {
-      return interval;
+    /**
+     * Returns the interval value in seconds.
+     *
+     * @return the interval value
+     */
+    public int getIntervalSec() {
+      return intervalSec;
     }
 
+    /**
+     * Returns the last executed time in unix millis.
+     *
+     * @return the last executed time.
+     */
     public long getLastExecutedTime() {
       return lastExecutedTime;
     }
 
+    /**
+     * Returns the next execution time in unix millis.
+     *
+     * @return the next execution time
+     */
     public long getNextExecutionTime() {
-      return lastExecutedTime + interval * 1000;
+      return lastExecutedTime + intervalSec * 1000;
     }
 
+    /**
+     * Returns whether an error occurred.
+     *
+     * @return if any error occurred
+     */
     public boolean hasError() {
       return (throwable != null);
     }
 
+    /**
+     * Returns the exception during the execution.
+     *
+     * @return the exception. if any error has not occurred, returns null.
+     */
     public Throwable getException() {
       return throwable;
     }
@@ -177,7 +208,7 @@ public class IntervalTaskManager {
     }
 
     private void execTask() {
-      long intervalMillis = interval * 1000;
+      long intervalMillis = intervalSec * 1000;
       while (true) {
         if (Thread.interrupted()) {
           break;

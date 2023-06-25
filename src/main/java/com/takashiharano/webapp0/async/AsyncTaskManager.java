@@ -60,6 +60,13 @@ public class AsyncTaskManager {
     return true;
   }
 
+  /**
+   * Returns whether the task has been done.
+   *
+   * @param taskId
+   *          target task ID
+   * @return true if the task has been done
+   */
   public boolean isDone(String taskId) {
     AsyncTask asyncTask = asyncTaskMap.get(taskId);
     if (asyncTask == null) {

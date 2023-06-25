@@ -15,6 +15,17 @@ import com.takashiharano.webapp0.ProcessContext;
 
 public class ShowScreenLogic {
 
+  /**
+   * Forwards the screen.<br>
+   * Sends a JSP contents to the client.
+   *
+   * @param context
+   *          the process context
+   * @param screen
+   *          target screen ID
+   * @throws Exception
+   *           If any error occurred
+   */
   public static void process(ProcessContext context, String screen) throws Exception {
     AppManager appManager = context.getAppManager();
     if (appManager.isReady()) {

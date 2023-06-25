@@ -59,24 +59,53 @@ public class SessionManager {
     sessionInfo.setUserAgent(ua);
   }
 
+  /**
+   * Callback for the web application shut down.<br>
+   * This is called by AppManager#onStop().
+   */
   public void onStop() {
     saveSessionInfo(sessionInfoFilePath);
   }
 
+  /**
+   * Returns the cookie name for session ID.
+   *
+   * @return the cookie name
+   */
   public String getSessionCoolieName() {
     return SESSION_COOKIE_NAME;
   }
 
+  /**
+   * Registers a session info.
+   *
+   * @param info
+   *          the session info
+   */
   public void registerSessionInfo(SessionInfo info) {
     String sessionId = info.getSessionId();
     sessionMap.put(sessionId, info);
   }
 
+  /**
+   * Returns the session info corresponding to the given ID.
+   *
+   * @param sessionId
+   *          target session ID
+   * @return the session info. if it does not exist, returns null.
+   */
   public SessionInfo getSessionInfo(String sessionId) {
     SessionInfo info = sessionMap.get(sessionId);
     return info;
   }
 
+  /**
+   * Returns the session info corresponding to the current context.
+   *
+   * @param context
+   *          the request process context.
+   * @return the session info. if it does not exist, returns null.
+   */
   public SessionInfo getSessionInfo(ProcessContext context) {
     String sid = context.getSessionId();
     if (sid == null) {
@@ -85,12 +114,23 @@ public class SessionManager {
     return getSessionInfo(sid);
   }
 
+  /**
+   * Returns the session timeout in seconds.<br>
+   * The value is defined in app.properties with "session_timeout_sec" field.
+   *
+   * @return timeout in seconds
+   */
   public int getSessionTimeout() {
     AppManager appManager = AppManager.getInstance();
     int timeout = appManager.getConfigIntValue("session_timeout_sec");
     return timeout;
   }
 
+  /**
+   * Returns the session info map.
+   *
+   * @return the session info map
+   */
   public ConcurrentHashMap<String, SessionInfo> getSessionMap() {
     return sessionMap;
   }
