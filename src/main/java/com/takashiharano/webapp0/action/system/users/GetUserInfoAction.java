@@ -3,7 +3,6 @@
  */
 package com.takashiharano.webapp0.action.system.users;
 
-import com.libutil.JsonBuilder;
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.action.Action;
 import com.takashiharano.webapp0.user.UserInfo;
@@ -29,13 +28,7 @@ public class GetUserInfoAction extends Action {
       return;
     }
 
-    JsonBuilder jb = new JsonBuilder();
-    jb.append("username", userInfo.getUsername());
-    jb.append("fullname", userInfo.getFullName());
-    jb.append("isAdmin", userInfo.isAdmin());
-    jb.append("privileges", userInfo.getPrivilegesInOneLine());
-    jb.append("status", userInfo.getStatus());
-    String json = jb.toString();
+    String json = UserInfoCommonLogic.buildUserInfoJson(userInfo);
 
     context.sendJsonResponse(status, json);
   }

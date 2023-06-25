@@ -15,7 +15,7 @@ public class EditUserAction extends Action {
     String username = context.getRequestParameter("username");
     String pwHash = context.getRequestParameter("pw");
     String fullname = context.getRequestParameter("fullname");
-    String adminFlag = context.getRequestParameter("isadmin");
+    String adminFlag = context.getRequestParameter("is_admin");
     String privileges = context.getRequestParameter("privileges");
     String userStatus = context.getRequestParameter("status");
 

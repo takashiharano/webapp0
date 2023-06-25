@@ -15,7 +15,7 @@ public class AddUserAction extends Action {
     String username = context.getRequestParameter("username");
     String pwHash = context.getRequestParameter("pw");
     String fullname = context.getRequestParameter("fullname");
-    String adminFlag = context.getRequestParameter("isadmin");
+    String adminFlag = context.getRequestParameter("is_admin");
     String privileges = context.getRequestParameter("privileges");
     String userStatus = context.getRequestParameter("status");
 
@@ -32,7 +32,6 @@ public class AddUserAction extends Action {
 
     String status = "OK";
     try {
-
       userManager.regieterNewUser(username, pwHash, fullname, adminFlag, privileges, userStatus);
     } catch (Exception e) {
       status = e.getMessage();

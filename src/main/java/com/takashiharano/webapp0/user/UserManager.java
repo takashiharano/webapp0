@@ -117,6 +117,17 @@ public class UserManager {
       }
 
       UserInfo userInfo = new UserInfo(username, fullname, isAdmin, privileges, status);
+
+      if (fields.length > 5) {
+        long createdDate = StrUtil.parseLong(fields[5]);
+        userInfo.setCreatedDate(createdDate);
+      }
+
+      if (fields.length > 6) {
+        long updatedDate = StrUtil.parseLong(fields[6]);
+        userInfo.setUpdatedDate(updatedDate);
+      }
+
       users.put(username, userInfo);
     }
   }
@@ -194,7 +205,10 @@ public class UserManager {
     boolean isAdmin = "1".equals(adminFlag);
     int status = StrUtil.parseInt(userStatus, UserInfo.STATE_NONE);
 
-    UserInfo user = new UserInfo(username, fullname, isAdmin, privileges, status);
+    long createdDate = System.currentTimeMillis();
+    long updatedDate = createdDate;
+
+    UserInfo user = new UserInfo(username, fullname, isAdmin, privileges, status, createdDate, updatedDate);
     users.put(username, user);
 
     try {
@@ -248,6 +262,9 @@ public class UserManager {
       int status = StrUtil.parseInt(userStatus, UserInfo.STATE_NONE);
       user.setStatus(status);
     }
+
+    long updatedDate = System.currentTimeMillis();
+    user.setUpdatedDate(updatedDate);
 
     if (pwHash != null) {
       int ret = authenticator.registerByHash(username, pwHash);

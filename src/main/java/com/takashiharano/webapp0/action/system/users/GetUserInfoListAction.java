@@ -30,24 +30,13 @@ public class GetUserInfoListAction extends Action {
 
     for (Entry<String, UserInfo> entry : users.entrySet()) {
       UserInfo info = entry.getValue();
-      String user = buildUserInfoJson(info);
+      String user = UserInfoCommonLogic.buildUserInfoJson(info);
       jb.appendListElementAsObject(user);
     }
 
     jb.closeList();
     String json = jb.toString();
     context.sendJsonResponse(status, json);
-  }
-
-  private String buildUserInfoJson(UserInfo info) {
-    JsonBuilder jb = new JsonBuilder();
-    jb.append("username", info.getUsername());
-    jb.append("fullname", info.getFullName());
-    jb.append("isAdmin", info.isAdmin());
-    jb.append("privileges", info.getPrivilegesInOneLine());
-    jb.append("status", info.getStatus());
-    String json = jb.toString();
-    return json;
   }
 
 }

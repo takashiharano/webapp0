@@ -29,18 +29,34 @@ webapp0.userlist.getUserInfoListCb = function(xhr, res) {
   html += '<th class="user-list">Admin</th>';
   html += '<th class="user-list" style="min-width:20em;">Privileges</th>';
   html += '<th class="user-list">Status</th>';
+  html += '<th class="user-list">Created</th>';
+  html += '<th class="user-list">Updated</th>';
   html += '<th class="user-list">&nbsp;</th>';
   html += '<th class="user-list">&nbsp;</th>';
   html += '</tr>';
   for (var i = 0; i < infoList.length; i++) {
     var info = infoList[i];
     var username = info.username;
-    html += '<tr>';
+    var fullname = info.fullname.replace(/ /g, '&nbsp');
+
+    var createdDate = '---------- --:--:--';
+    if (info.created_date > 0) {
+      createdDate = util.getDateTimeString(info.created_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
+    }
+
+    var updatedDate = '---------- --:--:--';
+    if (info.updated_date > 0) {
+      updatedDate = util.getDateTimeString(info.updated_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
+    }
+
+    html += '<tr class="user-list">';
     html += '<td class="user-list">' + username + '</td>';
-    html += '<td class="user-list">' + info.fullname + '</td>';
-    html += '<td class="user-list" style="text-align:center;">' + (info.isAdmin ? 'Y' : '') + '</td>';
+    html += '<td class="user-list">' + fullname + '</td>';
+    html += '<td class="user-list" style="text-align:center;">' + (info.is_admin ? 'Y' : '') + '</td>';
     html += '<td class="user-list">' + info.privileges + '</td>';
     html += '<td class="user-list" style="text-align:center;">' + info.status + '</td>';
+    html += '<td class="user-list" style="text-align:center;">' + createdDate + '</td>';
+    html += '<td class="user-list" style="text-align:center;">' + updatedDate + '</td>';
     html += '<td class="user-list"><span class="pseudo-link" style="color:#00a;text-align:center;" onclick="webapp0.userlist.editUser(\'' + username + '\');">EDIT</span></td>';
     html += '<td class="user-list" style="text-align:center;width:1.5em;">';
     if (username == currentUsername) {
@@ -176,7 +192,7 @@ webapp0.userlist.setUserInfoToEditor = function(info) {
     $el('#username').removeClass('edit-disabled');
   }
   $el('#fullname').value = info.fullname;
-  $el('#isadmin').checked = info.isAdmin;
+  $el('#isadmin').checked = info.is_admin;
   $el('#privileges').value = info.privileges;
   $el('#status').value = info.status;
 };
@@ -185,7 +201,7 @@ webapp0.userlist.clearUserInfoEditor = function() {
   var info = {
     username: '',
     fullname: '',
-    isAdmin: false,
+    is_admin: false,
     privileges: '',
     status: ''
   };
@@ -203,7 +219,7 @@ webapp0.userlist.saveUserInfo = function() {
 webapp0.userlist.addUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
-  var isadmin = ($el('#isadmin').checked ? '1' : '0');
+  var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var privileges = $el('#privileges').value;
   var status = $el('#status').value.trim();
   var pw1 = $el('#pw1').value;
@@ -243,7 +259,7 @@ webapp0.userlist.addUser = function() {
   var params = {
     username: username,
     fullname: fullname,
-    isadmin: isadmin,
+    is_admin: isAdmin,
     privileges: privileges,
     status: status,
     pw: pwHash
@@ -264,7 +280,7 @@ webapp0.userlist.addUserCb = function(xhr, res) {
 webapp0.userlist.updateUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
-  var isadmin = ($el('#isadmin').checked ? '1' : '0');
+  var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var privileges = $el('#privileges').value;
   var status = $el('#status').value;
   var pw1 = $el('#pw1').value;
@@ -282,7 +298,7 @@ webapp0.userlist.updateUser = function() {
   var params = {
     username: username,
     fullname: fullname,
-    isadmin: isadmin,
+    is_admin: isAdmin,
     privileges: privileges,
     status: status,
     pw: pwHash

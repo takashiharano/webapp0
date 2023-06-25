@@ -17,6 +17,8 @@ public class UserInfo {
   private boolean admin;
   private Set<String> privileges;
   private int status;
+  private long createdDate;
+  private long updatedDate;
 
   public UserInfo(String username, boolean isAdmin) {
     this.username = username;
@@ -26,11 +28,17 @@ public class UserInfo {
   }
 
   public UserInfo(String username, String fullname, boolean isAdmin, String privileges, int status) {
+    this(username, fullname, isAdmin, privileges, status, 0L, 0L);
+  }
+
+  public UserInfo(String username, String fullname, boolean isAdmin, String privileges, int status, long createdDate, long updatedDate) {
     this.username = username;
     this.fullname = fullname;
     this.admin = isAdmin;
     setPrivileges(privileges);
     this.status = status;
+    this.createdDate = createdDate;
+    this.updatedDate = updatedDate;
   }
 
   public String getUsername() {
@@ -115,6 +123,22 @@ public class UserInfo {
 
   public void setStatus(int status) {
     this.status = status;
+  }
+
+  public long getCreatedDate() {
+    return createdDate;
+  }
+
+  public void setCreatedDate(long createdDate) {
+    this.createdDate = createdDate;
+  }
+
+  public long getUpdatedDate() {
+    return updatedDate;
+  }
+
+  public void setUpdatedDate(long updatedDate) {
+    this.updatedDate = updatedDate;
   }
 
 }

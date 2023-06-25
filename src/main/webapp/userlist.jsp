@@ -22,6 +22,10 @@ td.user-list,th.user-list {
   white-space: nowrap;
 }
 
+tr.user-list:hover {
+  background: #ecfaff;
+}
+
 .edit-disabled {
   border: none !important;
   background: transparent;
