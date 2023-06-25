@@ -3,9 +3,16 @@
  */
 webapp0.login = {};
 
+webapp0.login.MESSAGES = {
+  login_ok: 'Welcome!',
+  login_ng: 'Failed. Please try again.',
+};
+
 webapp0.login.led = null;
 
 $onReady = function() {
+  app.setMessageList(webapp0.login.MESSAGES);
+
   var opt = {
    speed: 125
   };
@@ -33,9 +40,10 @@ webapp0.login.loginCb = function(xhr, res) {
       cursor: 2,
       oncomplete: webapp0.login.onLoginOk
     };
-    $el('#message').textseq('Welcome!', textseqOpt);
+    var m = app.getMessage('login_ok', $el('#id').value);
+    $el('#message').textseq(m, textseqOpt);
   } else {
-    var m = 'Incorrect username or password.';
+    m = app.getMessage('login_ng');
     if (res.status == 'ERROR') {
       m = 'Server Error';
       log.e(m + ' ' + res.body);
