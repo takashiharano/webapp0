@@ -301,6 +301,12 @@ public class ProcessContext {
     sendJsonResponse(jb.toString());
   }
 
+  public void sendStatusJson(String status) throws IOException {
+    JsonBuilder jb = new JsonBuilder();
+    jb.append("status", status);
+    sendJsonResponse(jb.toString());
+  }
+
   public void sendByteStreamResponse(byte[] b, String fileName) throws IOException {
     setStreamResponseHeader(fileName);
     sendByteArray(b);
