@@ -16,7 +16,7 @@ public class StartAsyncTaskAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    int n = context.getRequestParameterAsInt("n");
+    int n = context.getRequestParameterAsInteger("n");
 
     AsyncTaskManager asyncTaskManager = context.getAsyncManager();
 

@@ -122,7 +122,7 @@ public class SessionManager {
    */
   public int getSessionTimeout() {
     AppManager appManager = AppManager.getInstance();
-    int timeout = appManager.getConfigIntValue("session_timeout_sec");
+    int timeout = appManager.getConfigValueAsInteger("session_timeout_sec");
     return timeout;
   }
 
@@ -332,7 +332,7 @@ public class SessionManager {
   public void cleanInvalidatedSessionInfo() {
     long now = System.currentTimeMillis();
     AppManager appManager = AppManager.getInstance();
-    int sessionTimeoutSec = appManager.getConfigIntValue("session_timeout_sec");
+    int sessionTimeoutSec = appManager.getConfigValueAsInteger("session_timeout_sec");
     long timeoutMillis = sessionTimeoutSec * 1000;
     int count = 0;
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {

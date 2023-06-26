@@ -211,81 +211,6 @@ public class AppManager {
   }
 
   /**
-   * Returns the property value as an integer corresponding the specified key.<br>
-   * If the key is not found in the properties file, returns 0.
-   *
-   * @param key
-   *          the value
-   * @return the value
-   */
-  public int getConfigIntValue(String key) {
-    return config.getIntValue(key);
-  }
-
-  /**
-   * Returns the property value as an integer corresponding the specified key.
-   *
-   * @param key
-   *          the key
-   * @param defaultValue
-   *          the default value in case of the key not found
-   * @return the value
-   */
-  public int getConfigIntValue(String key, int defaultValue) {
-    return config.getIntValue(key, defaultValue);
-  }
-
-  /**
-   * Returns the property value as a float corresponding the specified key.<br>
-   * If the key is not found in the properties file, returns 0.0f.
-   *
-   * @param key
-   *          the key
-   * @return the value
-   */
-  public float getConfigFloatValue(String key) {
-    return config.getFloatValue(key);
-  }
-
-  /**
-   * Returns the property value as a float corresponding the specified key.
-   *
-   * @param key
-   *          the key
-   * @param defaultValue
-   *          the default value in case of the key not found
-   * @return the value
-   */
-  public float getConfigFloatValue(String key, float defaultValue) {
-    return config.getFloatValue(key, defaultValue);
-  }
-
-  /**
-   * Returns the property value as a double corresponding the specified key.<br>
-   * If the key is not found in the properties file, returns 0.0.
-   *
-   * @param key
-   *          the key
-   * @return the value
-   */
-  public double getConfigDoubleValue(String key) {
-    return config.getDoubleValue(key);
-  }
-
-  /**
-   * Returns the property value as a double corresponding the specified key.
-   * 
-   * @param key
-   *          the key
-   * @param defaultValue
-   *          the default value in case of the key not found
-   * @return the value
-   */
-  public double getConfigDoubleValue(String key, double defaultValue) {
-    return config.getDoubleValue(key, defaultValue);
-  }
-
-  /**
    * Returns the property value as a boolean corresponding the specified key.
    *
    * @param key
@@ -309,6 +234,106 @@ public class AppManager {
    */
   public boolean getConfigValueAsBoolean(String key, String valueAsTrue) {
     return config.getValueAsBoolean(key, valueAsTrue);
+  }
+
+  /**
+   * Returns the property value as a double corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.0.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
+  public double getConfigValueAsDouble(String key) {
+    return config.getValueAsDouble(key);
+  }
+
+  /**
+   * Returns the property value as a double corresponding the specified key.
+   * 
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
+  public double getConfigValueAsDouble(String key, double defaultValue) {
+    return config.getValueAsDouble(key, defaultValue);
+  }
+
+  /**
+   * Returns the property value as a float corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.0f.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
+  public float getConfigValueAsFloat(String key) {
+    return config.getValueAsFloat(key);
+  }
+
+  /**
+   * Returns the property value as a float corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
+  public float getConfigValueAsFloat(String key, float defaultValue) {
+    return config.getValueAsFloat(key, defaultValue);
+  }
+
+  /**
+   * Returns the property value as an integer corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.
+   *
+   * @param key
+   *          the value
+   * @return the value
+   */
+  public int getConfigValueAsInteger(String key) {
+    return config.getValueAsInteger(key);
+  }
+
+  /**
+   * Returns the property value as an integer corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
+  public int getConfigValueAsInteger(String key, int defaultValue) {
+    return config.getValueAsInteger(key, defaultValue);
+  }
+
+  /**
+   * Returns the property value as a long corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.
+   *
+   * @param key
+   *          the value
+   * @return the value
+   */
+  public long getConfigValueAsLong(String key) {
+    return config.getValueAsLong(key);
+  }
+
+  /**
+   * Returns the property value as a long corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
+  public long getConfigValueAsLong(String key, long defaultValue) {
+    return config.getValueAsLong(key, defaultValue);
   }
 
   /**

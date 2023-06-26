@@ -7,7 +7,7 @@ String screenId = (String) context.getInfo("screenId");
 User user = context.getUserInfo();
 String username = context.getUsername();
 AppManager appManager = AppManager.getInstance();
-int n = appManager.getConfigIntValue("bab64_n_param", 1);
+int n = appManager.getConfigValueAsInteger("bab64_n_param", 1);
 %>
 <script>
 var BSB64N = <%= n %>;

@@ -126,8 +126,8 @@ public class ProcessContext {
    *          the key
    * @return the value or 0 if the parameter does not exist.
    */
-  public int getRequestParameterAsInt(String key) {
-    return getRequestParameterAsInt(key, 0);
+  public int getRequestParameterAsInteger(String key) {
+    return getRequestParameterAsInteger(key, 0);
   }
 
   /**
@@ -140,7 +140,7 @@ public class ProcessContext {
    *          the default value in case of the key not found
    * @return the value
    */
-  public int getRequestParameterAsInt(String key, int defaultValue) {
+  public int getRequestParameterAsInteger(String key, int defaultValue) {
     String s = request.getParameter(key);
     int v;
     try {
@@ -332,7 +332,7 @@ public class ProcessContext {
     if (value == null) {
       return null;
     }
-    int n = getConfigIntValue("bab64_n_param", 1);
+    int n = getConfigValueAsInteger("bab64_n_param", 1);
     return BSB64.decodeString(value, n);
   }
 
@@ -911,58 +911,6 @@ public class ProcessContext {
   }
 
   /**
-   * Returns the property value as an integer corresponding the specified key.<br>
-   * If the key is not found in the properties file, returns 0.
-   *
-   * @param key
-   *          the value
-   * @return the value
-   */
-  public int getConfigIntValue(String key) {
-    return getConfigIntValue(key, 0);
-  }
-
-  /**
-   * Returns the property value as an integer corresponding the specified key.
-   *
-   * @param key
-   *          the key
-   * @param defaultValue
-   *          the default value in case of the key not found
-   * @return the value
-   */
-  public int getConfigIntValue(String key, int defaultValue) {
-    Props config = getConfig();
-    return config.getIntValue(key, defaultValue);
-  }
-
-  /**
-   * Returns the property value as a float corresponding the specified key.<br>
-   * If the key is not found in the properties file, returns 0.0f.
-   *
-   * @param key
-   *          the key
-   * @return the value
-   */
-  public float getConfigFloatValue(String key) {
-    return getConfigFloatValue(key, 0f);
-  }
-
-  /**
-   * Returns the property value as a float corresponding the specified key.
-   *
-   * @param key
-   *          the key
-   * @param defaultValue
-   *          the default value in case of the key not found
-   * @return the value
-   */
-  public float getConfigFloatValue(String key, float defaultValue) {
-    Props config = getConfig();
-    return config.getFloatValue(key, defaultValue);
-  }
-
-  /**
    * Returns the property value as a double corresponding the specified key.<br>
    * If the key is not found in the properties file, returns 0.0.
    *
@@ -970,8 +918,8 @@ public class ProcessContext {
    *          the key
    * @return the value
    */
-  public double getConfigDoubleValue(String key) {
-    return getConfigDoubleValue(key, 0);
+  public double getConfigValueAsDouble(String key) {
+    return getConfigValueAsDouble(key, 0);
   }
 
   /**
@@ -983,9 +931,99 @@ public class ProcessContext {
    *          the default value in case of the key not found
    * @return the value
    */
-  public double getConfigDoubleValue(String key, double defaultValue) {
+  public double getConfigValueAsDouble(String key, double defaultValue) {
     Props config = getConfig();
-    return config.getDoubleValue(key, defaultValue);
+    return config.getValueAsDouble(key, defaultValue);
+  }
+
+  /**
+   * Returns the property value as a float corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.0f.
+   *
+   * @param key
+   *          the key
+   * @return the value
+   */
+  public float getConfigValueAsFloat(String key) {
+    return getConfigValueAsFloat(key, 0f);
+  }
+
+  /**
+   * Returns the property value as a float corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
+  public float getConfigValueAsFloat(String key, float defaultValue) {
+    Props config = getConfig();
+    return config.getValueAsFloat(key, defaultValue);
+  }
+
+  /**
+   * Returns the property value as an integer corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.
+   *
+   * @param key
+   *          the value
+   * @return the value
+   */
+  public int getConfigValueAsInteger(String key) {
+    return getConfigValueAsInteger(key, 0);
+  }
+
+  /**
+   * Returns the property value as an integer corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
+  public int getConfigValueAsInteger(String key, int defaultValue) {
+    Props config = getConfig();
+    return config.getValueAsInteger(key, defaultValue);
+  }
+
+  /**
+   * Returns the property value as a long corresponding the specified key.<br>
+   * If the key is not found in the properties file, returns 0.
+   *
+   * @param key
+   *          the value
+   * @return the value
+   */
+  public long getConfigValueAsLong(String key) {
+    return getConfigValueAsLong(key, 0);
+  }
+
+  /**
+   * Returns the property value as a long corresponding the specified key.
+   *
+   * @param key
+   *          the key
+   * @param defaultValue
+   *          the default value in case of the key not found
+   * @return the value
+   */
+  public long getConfigValueAsLong(String key, long defaultValue) {
+    Props config = getConfig();
+    return config.getValueAsLong(key, defaultValue);
+  }
+
+  /**
+   * Returns if the specified key exists in the app configuration.
+   *
+   * @param key
+   *          the key
+   * @return true if the key is valid; false otherwise
+   */
+  public boolean hasConfigKey(String key) {
+    Props config = getConfig();
+    return config.containsKey(key);
   }
 
   /**
@@ -1112,7 +1150,7 @@ public class ProcessContext {
     if (sessionId == null) {
       return;
     }
-    int sessionTimeoutSec = getConfigIntValue("session_timeout_sec", 86400);
+    int sessionTimeoutSec = getConfigValueAsInteger("session_timeout_sec", 86400);
     setSessionCookieMaxAge(sessionId, sessionTimeoutSec);
   }
 
