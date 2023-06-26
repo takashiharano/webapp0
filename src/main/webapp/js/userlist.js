@@ -163,9 +163,9 @@ webapp0.userlist.newUser = function() {
 };
 
 webapp0.userlist.editUser = function(username) {
-  webapp0.userlist.mode = (username ? 'edit' : 'add');
+  webapp0.userlist.mode = (username ? 'edit' : 'new');
   if (!webapp0.userlist.editWindow) {
-    webapp0.userlist.editWindow = webapp0.userlist.openUserInfoEditorWindow();
+    webapp0.userlist.editWindow = webapp0.userlist.openUserInfoEditorWindow(webapp0.userlist.mode);
   }
   webapp0.userlist.clearUserInfoEditor();
   if (username) {
@@ -178,7 +178,7 @@ webapp0.userlist.editUser = function(username) {
   }
 };
 
-webapp0.userlist.openUserInfoEditorWindow = function() {
+webapp0.userlist.openUserInfoEditorWindow = function(mode) {
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
   html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:230px;text-align:left;">';
@@ -244,7 +244,7 @@ webapp0.userlist.openUserInfoEditorWindow = function() {
     hidden: false,
     modal: false,
     title: {
-      text: 'Edit User'
+      text: ((mode == 'new') ? 'New' : 'Edit') +' User'
     },
     body: {
       style: {
@@ -296,7 +296,7 @@ webapp0.userlist.clearUserInfoEditor = function() {
 };
 
 webapp0.userlist.saveUserInfo = function() {
-  if (webapp0.userlist.mode == 'add') {
+  if (webapp0.userlist.mode == 'new') {
     webapp0.userlist.addUser();
   } else {
     webapp0.userlist.updateUser();
