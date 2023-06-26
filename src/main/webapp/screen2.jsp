@@ -11,7 +11,9 @@
 </head>
 <body>
 <jsp:include page="common/header.jsp" />
+<div id="contents">
 <jsp:include page="common/menu.jsp" />
+
 <div>
 AsyncTask Sample <span id="led1"></span>
 </div>
@@ -24,5 +26,8 @@ AsyncTask Sample <span id="led1"></span>
 <button onclick="webapp0.screen2.cancelTask();">Cancel</button>
 <br>
 <div id="info"></div>
+
+</div>
+<jsp:include page="common/footer.jsp" />
 </body>
 </html>

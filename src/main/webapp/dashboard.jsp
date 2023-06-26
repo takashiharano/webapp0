@@ -21,12 +21,15 @@ String appVersion = context.getAppVersion();
 </head>
 <body>
 <jsp:include page="common/header.jsp" />
+<div id="contents">
 <jsp:include page="common/menu.jsp" />
-<div style="margin-top:10px;">
+
 <pre>
 Hello, world!
 <%= datetime %> (<%= timestamp %>)
 </pre>
+
 </div>
+<jsp:include page="common/footer.jsp" />
 </body>
 </html>

@@ -2,7 +2,9 @@
 body {
   box-sizing: border-box;
   width: 100%;
-  height: calc(100vh - 24px);
+  height: calc(100vh - 10px);
+  margin: 0;
+  padding: 0;
   margin: 0;
   padding: 0;
   font-size: 14px;
@@ -79,18 +81,62 @@ td,th {
   font-size: 18px;
 }
 
-#header-right {
-  position: absolute;
-  right: 4px;
-}
-
 #clock {
   margin-left: 1em;
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
 }
 
-#version {
-  margin-left: .5em;
+#header {
+  display: table;
+  position: relative;
+  width: 100%;
+  height: 46px;
+  table-layout: fixed;
+  white-space: nowrap;
+  color: #fff;
+  background: #01a0e9;
+}
+
+#header-content {
+  display: table-cell;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+#contents {
+  width: calc(100% - 8px);
+  position: relative;
+  min-height: calc(100% - 92px);
+  padding: 4px;
+}
+
+#footer {
+  display: table;
+  position: relative;
+  width: 100%;
+  height: 46px;
+  table-layout: fixed;
+  white-space: nowrap;
+  color: #8b949d;
+  background: #0d1117;
+}
+
+#footer-content {
+  display: table-cell;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 </style>

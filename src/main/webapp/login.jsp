@@ -37,7 +37,7 @@ button {
   height: calc(100vh - 17px);
 }
 
-#header {
+#top {
   position: absolute;
   top: 2px;
   right: 4px;
@@ -64,9 +64,9 @@ var REQUESTED_URL = '<%= requestedUri %>';
 </head>
 <body>
 <div id="wrapper">
-<div id="header">
-<span id="version">v.<%= context.getAppVersion() %></span>
-</div>
+  <div id="top">
+    <span id="version">v.<%= context.getAppVersion() %></span>
+  </div>
   <div id="login">
     <div>
       <span id="led"></span> webapp0

@@ -15,11 +15,13 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 </head>
 <body>
 <jsp:include page="common/header.jsp" />
+<div id="contents">
 <jsp:include page="common/menu.jsp" />
 
 <input type="text" id="text" value="Test"><button onclick="webapp0.screen1.test();">TEST</button><button onclick="webapp0.screen1.clear();">CLEAR</button>
 <span id="msg"></span>
-<pre>
-</pre>
+
+</div>
+<jsp:include page="common/footer.jsp" />
 </body>
 </html>

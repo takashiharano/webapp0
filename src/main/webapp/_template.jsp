@@ -15,9 +15,12 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 </head>
 <body>
 <jsp:include page="common/header.jsp" />
+<div id="contents">
 <jsp:include page="common/menu.jsp" />
 
-Helo, world!
+Hello, world!
 
+</div>
+<jsp:include page="common/footer.jsp" />
 </body>
 </html>

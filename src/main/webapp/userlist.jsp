@@ -34,12 +34,15 @@ tr.item-list:hover {
 </head>
 <body>
 <jsp:include page="common/header.jsp" />
+<div id="contents">
 <jsp:include page="common/menu.jsp" />
-<div style="margin-top:20px;">
+
 <div style="margin-bottom:4px;">
 <button onclick="webapp0.userlist.newUser();">+</button>
 </div>
 <div id="user-list"></div>
+
 </div>
+<jsp:include page="common/footer.jsp" />
 </body>
 </html>

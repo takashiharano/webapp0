@@ -15,11 +15,14 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 </head>
 <body>
 <jsp:include page="common/header.jsp" />
+<div id="contents">
 <jsp:include page="common/menu.jsp" />
 
-<div>
 <button onclick="webapp0.system.resetApp();">RESET</button>
 <div id="message"></div>
+
 </div>
+<jsp:include page="common/footer.jsp" />
 </body>
 </html>
+
