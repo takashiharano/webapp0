@@ -23,6 +23,7 @@ app.onReady = function() {
   $el('.screen-button').removeClass('screen-button-active');
   $el('#screen-button-' + app.screenId).addClass('screen-button-active');
   app.callInitFunctions();
+  app.onScreenReady();
 };
 
 /**
