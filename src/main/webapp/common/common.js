@@ -6,8 +6,16 @@
 var webapp0 = {};
 webapp0.common = {};
 
+webapp0.common.MESSAGES = {
+  confirm_logout: 'Logout?'
+};
+
+webapp0.common.init = function() {
+  app.addMessages(webapp0.common.MESSAGES);
+};
+
 webapp0.common.confirmLogout = function() {
-  util.confirm('Logout?', webapp0.common.logout);
+  util.confirm(app.getMessage('confirm_logout'), webapp0.common.logout);
 };
 
 webapp0.common.logout = function() {
@@ -27,3 +35,5 @@ webapp0.common.getHash = function(algorithm, src, salt) {
   var hash = shaObj.getHash('HEX');
   return hash;
 };
+
+app.registerInitFunction(webapp0.common.init);

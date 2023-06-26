@@ -13,7 +13,7 @@ webapp0.login.MESSAGES = {
 webapp0.login.led = null;
 
 $onReady = function() {
-  app.setMessageList(webapp0.login.MESSAGES);
+  app.setMessages(webapp0.login.MESSAGES);
 
   var opt = {
    speed: 125
@@ -46,7 +46,7 @@ webapp0.login.loginCb = function(xhr, res) {
       cursor: 2,
       oncomplete: webapp0.login.onLoginOk
     };
-    var m = app.getMessage('login_ok', $el('#id').value);
+    var m = app.getMessage('login_ok');
     $el('#message').textseq(m, textseqOpt);
   } else {
     m = app.getMessage('login_ng');

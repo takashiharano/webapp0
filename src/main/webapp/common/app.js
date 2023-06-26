@@ -6,7 +6,8 @@
 app = {};
 
 app.language = 'en';
-app.msglist = null;
+app.messages = {};
+app.initFns = [];
 
 /**
  * App initialize function.
@@ -21,7 +22,25 @@ app.onReady = function() {
   util.clock('#clock');
   $el('.screen-button').removeClass('screen-button-active');
   $el('#screen-button-' + app.screenId).addClass('screen-button-active');
-  app.onScreenReady();
+  app.callInitFunctions();
+};
+
+/**
+ * Call the init functions for each script files.
+ */
+app.callInitFunctions = function() {
+  for (var i = 0; i < app.initFns.length; i++) {
+    var f = app.initFns[i];
+    f();
+  }
+};
+
+/**
+ * Registers init functions.
+ * The given functions will be called from app.onReady().
+ */
+app.registerInitFunction = function(f) {
+  app.initFns.push(f);
 };
 
 /**
@@ -110,25 +129,34 @@ app.setLanguage = function(lang) {
 };
 
 /**
- * Sets the message list for the screen.
+ * Sets messages for the screen.
  * It must be called first when the screen is initialized.
  *
- * msglist = {
+ * msgs = {
  *  msg1: 'aaa', // always return 'aaa'
  *  msg2: {en: 'Hello', ja: 'こんにちは'} // returns corresponding to app.language
  * }
  */
-app.setMessageList = function(msglist) {
-  app.msglist = msglist;
+app.setMessages = function(msgs) {
+  app.messages = msgs;
 };
 
 /**
- * Returns a message corresponding to the msgid.
+ * Adds messages to an existing messages.
+ */
+app.addMessages = function(msgs) {
+  for (var k in msgs) {
+    app.messages[k] = msgs[k];
+  }
+};
+
+/**
+ * Returns a message corresponding to the id.
  * msg: 'Hello {0}!', a0='John'
  * -> 'Hello John!'
  */
-app.getMessage = function(msgid, a0, a1, a2, a3) {
-  var m = app._getMessage(msgid);
+app.getMessage = function(id, a0, a1, a2, a3) {
+  var m = app._getMessage(id);
   if (!m) return m;
   m = m.replace(/\{0\}/g, a0);
   m = m.replace(/\{1\}/g, a1);
@@ -140,14 +168,13 @@ app.getMessage = function(msgid, a0, a1, a2, a3) {
 };
 
 /**
- * Returns a message corresponding to the msgid and the language.
+ * Returns a message corresponding to the id and the language.
  * If the message for the language is not defined, it will return the message for 'en'.
  *
- * See the description of app.setMessageList() for the list format.
+ * See the description of app.setMessages() for the list format.
  */
-app._getMessage = function(msgid) {
-  if (!app.msglist) return null;
-  var o = app.msglist[msgid];
+app._getMessage = function(id) {
+  var o = app.messages[id];
   if (!o) return null;
   if (typeof o == 'string') return o;
   var m = o[app.language];
