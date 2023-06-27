@@ -3,30 +3,34 @@
  * The template is released under the MIT license.
  * Copyright 2023 Takashi Harano
  */
-package com.takashiharano.webapp0.action.sample;
+package com.takashiharano.webapp0.action.sample.async;
 
 import com.libutil.JsonBuilder;
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.action.Action;
+import com.takashiharano.webapp0.async.AsyncTask;
 import com.takashiharano.webapp0.async.AsyncTaskManager;
-import com.takashiharano.webapp0.async.task.SampleAsynkTask;
-import com.takashiharano.webapp0.util.Log;
 
-public class StartAsyncTaskAction extends Action {
+public class GetAsyncTaskInfoAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    int n = context.getRequestParameterAsInteger("n");
+    String taskId = context.getRequestParameter("taskId");
 
     AsyncTaskManager asyncTaskManager = context.getAsyncManager();
+    AsyncTask task = asyncTaskManager.getAsyncTask(taskId);
+    if (task == null) {
+      context.sendJsonResponse("NO_TASK_DATA", null);
+      return;
+    }
 
-    SampleAsynkTask task = new SampleAsynkTask(context, n);
-    String taskId = asyncTaskManager.registerTask(task);
-    Log.i("AsyncTask start: taskId=" + taskId);
-    task.exec();
+    String info = (String) task.getTaskInfo();
+    boolean isDone = task.isDone();
 
     JsonBuilder jb = new JsonBuilder();
     jb.append("taskId", taskId);
+    jb.append("isDone", isDone);
+    jb.append("info", info);
 
     String json = jb.toString();
 

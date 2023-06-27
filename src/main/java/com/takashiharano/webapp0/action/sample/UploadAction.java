@@ -3,7 +3,7 @@
  * The template is released under the MIT license.
  * Copyright 2023 Takashi Harano
  */
-package com.takashiharano.webapp0.action;
+package com.takashiharano.webapp0.action.sample;
 
 import java.util.Collection;
 import java.util.Date;
@@ -15,6 +15,7 @@ import javax.servlet.http.Part;
 import com.libutil.FileUtil;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
+import com.takashiharano.webapp0.action.Action;
 import com.takashiharano.webapp0.util.Log;
 
 public class UploadAction extends Action {

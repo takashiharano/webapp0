@@ -3,19 +3,18 @@
  * The template is released under the MIT license.
  * Copyright 2023 Takashi Harano
  */
-package com.takashiharano.webapp0.action;
+package com.takashiharano.webapp0.action.sample;
 
 import com.takashiharano.webapp0.ProcessContext;
-import com.takashiharano.webapp0.util.Log;
+import com.takashiharano.webapp0.action.Action;
 
-public class HelloAction extends Action {
+public class SendByteStreamAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    String s = context.getRequestParameter("text");
-    String msg = "Hello! " + s;
-    Log.i(msg);
-    context.sendJsonResponse("OK", msg, false);
+    byte[] b = { 0x41, 0x42, 0x43 };
+    String fileName = "file.txt";
+    context.sendByteStreamResponse(b, fileName);
   }
 
 }
