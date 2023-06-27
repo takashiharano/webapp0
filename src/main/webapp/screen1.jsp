@@ -18,7 +18,7 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 <div id="contents">
 <jsp:include page="common/menu.jsp" />
 
-<input type="text" id="text" value="Test"><button onclick="webapp0.screen1.test();">TEST</button><button onclick="webapp0.screen1.clear();">CLEAR</button>
+<input type="text" id="text" value="Test"><button onclick="app.screen1.test();">TEST</button><button onclick="app.screen1.clear();">CLEAR</button>
 <span id="msg"></span>
 
 </div>

@@ -18,12 +18,12 @@
 AsyncTask Sample <span id="led1"></span>
 </div>
 <input type="text" id="param-n" value="100">
-<button onclick="webapp0.screen2.startTask();">Start</button>
+<button onclick="app.screen2.startTask();">Start</button>
 <br>
 <input type="text" id="task-id" value="">
-<button onclick="webapp0.screen2.getTaskStatus();">Status</button>
-<button onclick="webapp0.screen2.getTaskResult();">Result</button>
-<button onclick="webapp0.screen2.cancelTask();">Cancel</button>
+<button onclick="app.screen2.getTaskStatus();">Status</button>
+<button onclick="app.screen2.getTaskResult();">Result</button>
+<button onclick="app.screen2.cancelTask();">Cancel</button>
 <br>
 <div id="info"></div>
 

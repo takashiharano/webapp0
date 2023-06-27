@@ -18,7 +18,7 @@ app.onScreenReady = function() {
 <%
 if (!"login".equals(screenId) && (user != null) && (user.hasState(User.STATE_NEED_PW_CHANGE))) {
 %>
-  webapp0.common.usermenu.openChangePw();
+  app.common.usermenu.openChangePw();
 <%
 }
 %>

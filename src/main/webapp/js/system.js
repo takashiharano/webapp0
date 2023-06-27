@@ -1,14 +1,14 @@
-webapp0.system = {};
+app.system = {};
 
-webapp0.system.resetApp = function() {
-  util.confirm('Reset WebApp?', webapp0.system.reset);
+app.system.resetApp = function() {
+  util.confirm('Reset WebApp?', app.system.reset);
 };
 
-webapp0.system.reset = function() {
-  app.callServerApi('reset', null, webapp0.system.resetCb);
+app.system.reset = function() {
+  app.callServerApi('reset', null, app.system.resetCb);
 };
 
-webapp0.system.resetCb = function(xhr, res) {
+app.system.resetCb = function(xhr, res) {
   var msg;
   if (res.status == 'OK') {
     msg = 'OK: The system has been restarted successfully.';

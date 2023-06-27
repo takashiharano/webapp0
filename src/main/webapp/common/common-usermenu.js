@@ -3,9 +3,9 @@
  * The template is released under the MIT license.
  * Copyright 2023 Takashi Harano
  */
-webapp0.common.usermenu = {};
+app.common.usermenu = {};
 
-webapp0.common.usermenu.openUserMenu = function() {
+app.common.usermenu.openUserMenu = function() {
   var style = {
     background: 'rgba(0,0,0,0.3)'
   };
@@ -16,8 +16,8 @@ webapp0.common.usermenu.openUserMenu = function() {
   html += '<b>User Menu</b>';
   html += '<div style="margin-top:1em;">';
   html += '<div style="display:inline-block;width:160px;height:60px;text-align:left;">';
-  html += '<li><span class="pseudo-link" onclick="webapp0.common.usermenu.openChangePw();">Change Password</span></li>';
-  html += '<li><span class="pseudo-link" onclick="webapp0.common.confirmLogout();">Logout</span></li>\n';
+  html += '<li><span class="pseudo-link" onclick="app.common.usermenu.openChangePw();">Change Password</span></li>';
+  html += '<li><span class="pseudo-link" onclick="app.common.confirmLogout();">Logout</span></li>\n';
   html += '</div>';
   html += '</div>';
   html += '</div>';
@@ -36,7 +36,7 @@ webapp0.common.usermenu.openUserMenu = function() {
   util.dialog.open(html, opt);
 };
 
-webapp0.common.usermenu.openChangePw = function() {
+app.common.usermenu.openChangePw = function() {
   var html = '';
   html += '<div class="dialog-content" style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
 
@@ -52,7 +52,7 @@ webapp0.common.usermenu.openChangePw = function() {
   html += '<table>';
 
   html += '<div style="margin-top:24px;text-align:center;">';
-  html += '<button onclick="webapp0.common.usermenu.chengaPw();">OK</button>'
+  html += '<button onclick="app.common.usermenu.chengaPw();">OK</button>'
   html += '<button style="margin-left:8px;" onclick="util.dialog.close();">Cancel</button>'
   html += '</div>';
 
@@ -74,7 +74,7 @@ webapp0.common.usermenu.openChangePw = function() {
   $el('#pw1').focus();
 };
 
-webapp0.common.usermenu.chengaPw = function() {
+app.common.usermenu.chengaPw = function() {
   var username = app.getUsername();
 
   var pw1 = $el('#pw1').value;
@@ -91,21 +91,21 @@ webapp0.common.usermenu.chengaPw = function() {
   }
 
   var salt = username;
-  pwHash = webapp0.common.getHash('SHA-256', pw1, salt);
+  pwHash = app.common.getHash('SHA-256', pw1, salt);
 
   var params = {
     username: username,
     pw: pwHash
   };
 
-  app.callServerApi('EditUser', params, webapp0.common.usermenu.chengaPwCb);
+  app.callServerApi('EditUser', params, app.common.usermenu.chengaPwCb);
 };
 
-webapp0.common.usermenu.chengaPwCb = function(xhr, res) {
+app.common.usermenu.chengaPwCb = function(xhr, res) {
   if (res.status == 'OK') {
     var m = 'Your password has been updated.\n\nLogout now?\n\n';
     util.dialog.closeAll();
-    util.confirm('Success', m, webapp0.common.logout);
+    util.confirm('Success', m, app.common.logout);
   } else {
     m = 'ERROR: ' + res.status;
     util.alert(m);

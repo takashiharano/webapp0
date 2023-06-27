@@ -1,4 +1,4 @@
-webapp0._template = {};
+app._template = {};
 
 $onReady = function() {
 };

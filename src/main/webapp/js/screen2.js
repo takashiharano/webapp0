@@ -1,75 +1,75 @@
-webapp0.screen2 = {};
+app.screen2 = {};
 
-webapp0.screen2.timerId = 0;
-webapp0.screen2.led1 = null;
+app.screen2.timerId = 0;
+app.screen2.led1 = null;
 
 $onReady = function() {
-  webapp0.screen2.led1 = new util.Led('#led1');
+  app.screen2.led1 = new util.Led('#led1');
 };
 
-webapp0.screen2.startTask = function() {
+app.screen2.startTask = function() {
   var n = $el('#param-n').value;
   var params = {
     n: n
   };
-  app.callServerApi('StartAsyncTask', params, webapp0.screen2.startAsyncTaskCb);
+  app.callServerApi('StartAsyncTask', params, app.screen2.startAsyncTaskCb);
 };
 
-webapp0.screen2.startAsyncTaskCb = function(xhr, res) {
+app.screen2.startAsyncTaskCb = function(xhr, res) {
   if (res.status != 'OK') {
-    webapp0.screen2.showInfo('ERROR: ' + res.status);
+    app.screen2.showInfo('ERROR: ' + res.status);
     return;
   }
 
   var data = res.body;
   var taskId = data.taskId;
   var s = 'taskId = ' + taskId;
-  webapp0.screen2.showInfo(s);
+  app.screen2.showInfo(s);
 
   $el('#task-id').value = taskId;
 
-  webapp0.screen2.startWatchStatus();
+  app.screen2.startWatchStatus();
 };
 
-webapp0.screen2.startWatchStatus = function() {
-  webapp0.screen2.led1.on();
-  webapp0.screen2.watchStatus();
+app.screen2.startWatchStatus = function() {
+  app.screen2.led1.on();
+  app.screen2.watchStatus();
 };
 
-webapp0.screen2.stopWatchStatus = function() {
-  if (webapp0.screen2.timerId > 0) {
-    clearTimeout(webapp0.screen2.timerId);
-    webapp0.screen2.timerId = 0;
+app.screen2.stopWatchStatus = function() {
+  if (app.screen2.timerId > 0) {
+    clearTimeout(app.screen2.timerId);
+    app.screen2.timerId = 0;
   }
-  webapp0.screen2.led1.off();
+  app.screen2.led1.off();
 };
 
-webapp0.screen2.watchStatus = function() {
-  webapp0.screen2.getTaskStatus(webapp0.screen2.watchStatusPostProc);
+app.screen2.watchStatus = function() {
+  app.screen2.getTaskStatus(app.screen2.watchStatusPostProc);
 };
 
-webapp0.screen2.watchStatusPostProc = function(isDone) {
+app.screen2.watchStatusPostProc = function(isDone) {
   if (isDone) {
-    webapp0.screen2.stopWatchStatus();
+    app.screen2.stopWatchStatus();
   } else {
-    webapp0.screen2.timerId = setTimeout(webapp0.screen2.watchStatus, 1000);
+    app.screen2.timerId = setTimeout(app.screen2.watchStatus, 1000);
   }
 };
 
 //-----------------------------------------------------------------------------
-webapp0.screen2.getTaskStatus = function(postProc) {
+app.screen2.getTaskStatus = function(postProc) {
   var taskId = $el('#task-id').value;
   var params = {
     taskId: taskId
   };
-  var req = app.callServerApi('GetAsyncTaskInfo', params, webapp0.screen2.getTaskStatusCb);
+  var req = app.callServerApi('GetAsyncTaskInfo', params, app.screen2.getTaskStatusCb);
   req.postProc = postProc;
 
-  webapp0.screen2.showInfo('getTaskStatus');
+  app.screen2.showInfo('getTaskStatus');
 };
-webapp0.screen2.getTaskStatusCb = function(xhr, res, req) {
+app.screen2.getTaskStatusCb = function(xhr, res, req) {
   if (res.status != 'OK') {
-    webapp0.screen2.showInfo('ERROR: ' + res.status);
+    app.screen2.showInfo('ERROR: ' + res.status);
     if (req.postProc) {
       req.postProc(true);
     }
@@ -82,7 +82,7 @@ webapp0.screen2.getTaskStatusCb = function(xhr, res, req) {
   var info = data.info;
 
   var s = taskId + ': isDone=' + isDone + ' : ' + info;
-  webapp0.screen2.showInfo(s);
+  app.screen2.showInfo(s);
 
   if (req.postProc) {
     req.postProc(isDone);
@@ -90,18 +90,18 @@ webapp0.screen2.getTaskStatusCb = function(xhr, res, req) {
 };
 
 //-----------------------------------------------------------------------------
-webapp0.screen2.getTaskResult = function() {
+app.screen2.getTaskResult = function() {
   var taskId = $el('#task-id').value;
   var params = {
     taskId: taskId
   };
-  app.callServerApi('GetAsyncTaskResult', params, webapp0.screen2.getTaskResultCb);
+  app.callServerApi('GetAsyncTaskResult', params, app.screen2.getTaskResultCb);
 
-  webapp0.screen2.showInfo('getTaskResult');
+  app.screen2.showInfo('getTaskResult');
 };
-webapp0.screen2.getTaskResultCb = function(xhr, res) {
+app.screen2.getTaskResultCb = function(xhr, res) {
   if (res.status != 'OK') {
-    webapp0.screen2.showInfo('ERROR: ' + res.status);
+    app.screen2.showInfo('ERROR: ' + res.status);
     return;
   }
 
@@ -110,22 +110,22 @@ webapp0.screen2.getTaskResultCb = function(xhr, res) {
   var result = data.result;
 
   var s = taskId + ': ' + result;
-  webapp0.screen2.showInfo(s);
+  app.screen2.showInfo(s);
 };
 
 //-----------------------------------------------------------------------------
-webapp0.screen2.cancelTask = function() {
+app.screen2.cancelTask = function() {
   var taskId = $el('#task-id').value;
   var params = {
     taskId: taskId
   };
-  app.callServerApi('CancelAsyncTask', params, webapp0.screen2.cancelTaskCb);
+  app.callServerApi('CancelAsyncTask', params, app.screen2.cancelTaskCb);
 
-  webapp0.screen2.showInfo('CancelAsyncTask');
+  app.screen2.showInfo('CancelAsyncTask');
 };
-webapp0.screen2.cancelTaskCb = function(xhr, res) {
+app.screen2.cancelTaskCb = function(xhr, res) {
   if (res.status != 'OK') {
-    webapp0.screen2.showInfo('ERROR: ' + res.status);
+    app.screen2.showInfo('ERROR: ' + res.status);
     return;
   }
 
@@ -133,10 +133,10 @@ webapp0.screen2.cancelTaskCb = function(xhr, res) {
   var taskId = data.taskId;
   var canceled = data.canceled;
   var s = taskId + ': canceled=' + canceled;
-  webapp0.screen2.showInfo(s);
+  app.screen2.showInfo(s);
 };
 
 //-----------------------------------------------------------------------------
-webapp0.screen2.showInfo = function(s) {
+app.screen2.showInfo = function(s) {
   $el('#info').innerHTML = s;
 };

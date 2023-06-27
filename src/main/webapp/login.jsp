@@ -81,7 +81,7 @@ var REQUESTED_URL = '<%= requestedUri %>';
       <span id="message"></span><br>
     </div>
     <div style="margin-top:10px;">
-      <button onclick="webapp0.login.login();">LOGIN</button>
+      <button onclick="app.login.login();">LOGIN</button>
     </div>
   </div>
 </div>

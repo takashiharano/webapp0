@@ -3,9 +3,9 @@
  * The template is released under the MIT license.
  * Copyright 2023 Takashi Harano
  */
-webapp0.userlist = {};
+app.userlist = {};
 
-webapp0.userlist.LIST_COLUMNS = [
+app.userlist.LIST_COLUMNS = [
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
   {key: 'fullname', label: 'Full Name', style: 'min-width:15em;'},
   {key: 'is_admin', label: 'Admin'},
@@ -15,40 +15,40 @@ webapp0.userlist.LIST_COLUMNS = [
   {key: 'updated_date', label: 'Updated'}
 ];
 
-webapp0.userlist.listStatus = {
+app.userlist.listStatus = {
   sortIdx: 0,
   sortOrder: 1
 };
 
-webapp0.userlist.itemList = [];
+app.userlist.itemList = [];
 
-webapp0.userlist.editWindow = null;
-webapp0.userlist.mode = null;
+app.userlist.editWindow = null;
+app.userlist.mode = null;
 
 $onReady = function() {
-  webapp0.userlist.getUserList();
+  app.userlist.getUserList();
 };
 
-webapp0.userlist.getUserList = function() {
-  app.callServerApi('GetUserInfoList', null, webapp0.userlist.getUserInfoListCb);
+app.userlist.getUserList = function() {
+  app.callServerApi('GetUserInfoList', null, app.userlist.getUserInfoListCb);
 };
 
-webapp0.userlist.getUserInfoListCb = function(xhr, res) {
+app.userlist.getUserInfoListCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
   }
   var infoList = res.body.userlist;
-  webapp0.userlist.itemList = infoList;
-  webapp0.userlist.drawList(infoList, 0, 1);
+  app.userlist.itemList = infoList;
+  app.userlist.drawList(infoList, 0, 1);
 };
 
-webapp0.userlist.drawList = function(items, sortIdx, sortOrder) {
+app.userlist.drawList = function(items, sortIdx, sortOrder) {
   if (sortIdx >= 0) {
     if (sortOrder > 0) {
-      var srtDef = webapp0.userlist.LIST_COLUMNS[sortIdx];
+      var srtDef = app.userlist.LIST_COLUMNS[sortIdx];
       var desc = (sortOrder == 2);
-      items = webapp0.userlist.sortList(items, srtDef.key, desc, srtDef.meta);
+      items = app.userlist.sortList(items, srtDef.key, desc, srtDef.meta);
     }
   }
 
@@ -78,29 +78,29 @@ webapp0.userlist.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list" style="text-align:center;">' + item.status + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
-    htmlList += '<td class="item-list"><span class="pseudo-link" style="color:#00a;text-align:center;" onclick="webapp0.userlist.editUser(\'' + username + '\');">EDIT</span></td>';
+    htmlList += '<td class="item-list"><span class="pseudo-link" style="color:#00a;text-align:center;" onclick="app.userlist.editUser(\'' + username + '\');">EDIT</span></td>';
     htmlList += '<td class="item-list" style="text-align:center;width:1.5em;">';
     if (username == currentUsername) {
       htmlList += '&nbsp;';
     } else {
-      htmlList += '<span class="pseudo-link" style="color:#f88;" onclick="webapp0.userlist.deleteUser(\'' + username + '\');">X</span>';
+      htmlList += '<span class="pseudo-link" style="color:#f88;" onclick="app.userlist.deleteUser(\'' + username + '\');">X</span>';
     }
     htmlList += '</td>';
     htmlList += '</tr>';
   }
   htmlList += '</table>';
 
-  var htmlHead = webapp0.userlist.buildListHeader(webapp0.userlist.LIST_COLUMNS, sortIdx, sortOrder);
+  var htmlHead = app.userlist.buildListHeader(app.userlist.LIST_COLUMNS, sortIdx, sortOrder);
   var html = htmlHead + htmlList; 
 
-  webapp0.userlist.drawListContent(html);
+  app.userlist.drawListContent(html);
 };
 
-webapp0.userlist.drawListContent = function(html) {
+app.userlist.drawListContent = function(html) {
   $el('#user-list').innerHTML = html;
 };
 
-webapp0.userlist.buildListHeader = function(columns, sortIdx, sortOrder) {
+app.userlist.buildListHeader = function(columns, sortIdx, sortOrder) {
   var html = '<table>';
   html += '<tr class="item-list-header">';
 
@@ -121,7 +121,7 @@ webapp0.userlist.buildListHeader = function(columns, sortIdx, sortOrder) {
     }
 
     var sortButton = '<span class="sort-button" ';
-    sortButton += ' onclick="webapp0.userlist.sortItemList(' + i + ', ' + nextSortType + ');"';
+    sortButton += ' onclick="app.userlist.sortItemList(' + i + ', ' + nextSortType + ');"';
     sortButton += '>';
     sortButton += '<span';
     if (sortAscClz) {
@@ -148,37 +148,37 @@ webapp0.userlist.buildListHeader = function(columns, sortIdx, sortOrder) {
   return html;
 };
 
-webapp0.userlist.sortItemList = function(sortIdx, sortOrder) {
+app.userlist.sortItemList = function(sortIdx, sortOrder) {
   if (sortOrder > 2) {
     sortOrder = 0;
   }
-  webapp0.userlist.listStatus.sortIdx = sortIdx;
-  webapp0.userlist.listStatus.sortOrder = sortOrder;
-  webapp0.userlist.drawList(webapp0.userlist.itemList, sortIdx, sortOrder);
+  app.userlist.listStatus.sortIdx = sortIdx;
+  app.userlist.listStatus.sortOrder = sortOrder;
+  app.userlist.drawList(app.userlist.itemList, sortIdx, sortOrder);
 };
 
 //-----------------------------------------------------------------------------
-webapp0.userlist.newUser = function() {
-  webapp0.userlist.editUser(null);
+app.userlist.newUser = function() {
+  app.userlist.editUser(null);
 };
 
-webapp0.userlist.editUser = function(username) {
-  webapp0.userlist.mode = (username ? 'edit' : 'new');
-  if (!webapp0.userlist.editWindow) {
-    webapp0.userlist.editWindow = webapp0.userlist.openUserInfoEditorWindow(webapp0.userlist.mode);
+app.userlist.editUser = function(username) {
+  app.userlist.mode = (username ? 'edit' : 'new');
+  if (!app.userlist.editWindow) {
+    app.userlist.editWindow = app.userlist.openUserInfoEditorWindow(app.userlist.mode);
   }
-  webapp0.userlist.clearUserInfoEditor();
+  app.userlist.clearUserInfoEditor();
   if (username) {
     var params = {
       username: username
     };
-    app.callServerApi('GetUserInfo', params, webapp0.userlist.GetUserInfoCb);
+    app.callServerApi('GetUserInfo', params, app.userlist.GetUserInfoCb);
   } else {
     $el('#username').focus();
   }
 };
 
-webapp0.userlist.openUserInfoEditorWindow = function(mode) {
+app.userlist.openUserInfoEditorWindow = function(mode) {
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
   html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:230px;text-align:left;">';
@@ -224,8 +224,8 @@ webapp0.userlist.openUserInfoEditorWindow = function(mode) {
   html += '<table>';
 
   html += '<div style="margin-top:24px;text-align:center;">';
-  html += '<button onclick="webapp0.userlist.saveUserInfo();">OK</button>'
-  html += '<button style="margin-left:8px;" onclick="webapp0.userlist.editWindow.close();">Cancel</button>'
+  html += '<button onclick="app.userlist.saveUserInfo();">OK</button>'
+  html += '<button style="margin-left:8px;" onclick="app.userlist.editWindow.close();">Cancel</button>'
   html += '</div>';
 
   html += '</div>';
@@ -251,7 +251,7 @@ webapp0.userlist.openUserInfoEditorWindow = function(mode) {
         background: '#fff'
       }
     },
-    onclose: webapp0.userlist.onEditWindowClose,
+    onclose: app.userlist.onEditWindowClose,
     content: html
   };
 
@@ -259,16 +259,16 @@ webapp0.userlist.openUserInfoEditorWindow = function(mode) {
   return win;
 };
 
-webapp0.userlist.GetUserInfoCb = function(xhr, res) {
+app.userlist.GetUserInfoCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
   }
   var info = res.body;
-  webapp0.userlist.setUserInfoToEditor(info);
+  app.userlist.setUserInfoToEditor(info);
 };
 
-webapp0.userlist.setUserInfoToEditor = function(info) {
+app.userlist.setUserInfoToEditor = function(info) {
   var username = info.username;
   $el('#username').value = username;
   if (username) {
@@ -284,7 +284,7 @@ webapp0.userlist.setUserInfoToEditor = function(info) {
   $el('#status').value = info.status;
 };
 
-webapp0.userlist.clearUserInfoEditor = function() {
+app.userlist.clearUserInfoEditor = function() {
   var info = {
     username: '',
     fullname: '',
@@ -292,19 +292,19 @@ webapp0.userlist.clearUserInfoEditor = function() {
     privileges: '',
     status: ''
   };
-  webapp0.userlist.setUserInfoToEditor(info);
+  app.userlist.setUserInfoToEditor(info);
 };
 
-webapp0.userlist.saveUserInfo = function() {
-  if (webapp0.userlist.mode == 'new') {
-    webapp0.userlist.addUser();
+app.userlist.saveUserInfo = function() {
+  if (app.userlist.mode == 'new') {
+    app.userlist.addUser();
   } else {
-    webapp0.userlist.updateUser();
+    app.userlist.updateUser();
   }
 };
 
 //-----------------------------------------------------------------------------
-webapp0.userlist.addUser = function() {
+app.userlist.addUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
@@ -313,28 +313,28 @@ webapp0.userlist.addUser = function() {
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
-  var clnsRes = webapp0.userlist.cleanseUsername(username);
+  var clnsRes = app.userlist.cleanseUsername(username);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
   username = clnsRes.val;
 
-  clnsRes = webapp0.userlist.cleanseFullName(fullname);
+  clnsRes = app.userlist.cleanseFullName(fullname);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
   fullname = clnsRes.val;
 
-  clnsRes = webapp0.userlist.cleansePrivilege(privileges);
+  clnsRes = app.userlist.cleansePrivilege(privileges);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
   privileges = clnsRes.val;
 
-  clnsRes = webapp0.userlist.cleansePW(pw1, pw2, 'new');
+  clnsRes = app.userlist.cleansePW(pw1, pw2, 'new');
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
@@ -350,23 +350,23 @@ webapp0.userlist.addUser = function() {
   };
   if (pw) {
     var salt = username;
-    params.pw = webapp0.common.getHash('SHA-256', pw, salt);
+    params.pw = app.common.getHash('SHA-256', pw, salt);
   }
 
-  app.callServerApi('AddUser', params, webapp0.userlist.addUserCb);
+  app.callServerApi('AddUser', params, app.userlist.addUserCb);
 };
 
-webapp0.userlist.addUserCb = function(xhr, res) {
+app.userlist.addUserCb = function(xhr, res) {
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
-  webapp0.userlist.editWindow.close();
-  webapp0.userlist.getUserList();
+  app.userlist.editWindow.close();
+  app.userlist.getUserList();
 };
 
 //-----------------------------------------------------------------------------
-webapp0.userlist.updateUser = function() {
+app.userlist.updateUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
@@ -375,7 +375,7 @@ webapp0.userlist.updateUser = function() {
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
-  var clnsRes = webapp0.userlist.cleansePW(pw1, pw2, 'edit');
+  var clnsRes = app.userlist.cleansePW(pw1, pw2, 'edit');
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
@@ -392,49 +392,49 @@ webapp0.userlist.updateUser = function() {
 
   if (pw) {
     var salt = username;
-    params.pw = webapp0.common.getHash('SHA-256', pw, salt);
+    params.pw = app.common.getHash('SHA-256', pw, salt);
   }
 
-  app.callServerApi('EditUser', params, webapp0.userlist.updateUserCb);
+  app.callServerApi('EditUser', params, app.userlist.updateUserCb);
 };
 
-webapp0.userlist.updateUserCb = function(xhr, res) {
+app.userlist.updateUserCb = function(xhr, res) {
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
-  webapp0.userlist.editWindow.close();
-  webapp0.userlist.getUserList();
+  app.userlist.editWindow.close();
+  app.userlist.getUserList();
 };
 
 //-----------------------------------------------------------------------------
-webapp0.userlist.deleteUser = function(username) {
+app.userlist.deleteUser = function(username) {
   var opt = {
     data: username
   };
-  util.confirm('Delete ' + username + ' ?', webapp0.userlist._deleteUser, opt);
+  util.confirm('Delete ' + username + ' ?', app.userlist._deleteUser, opt);
 };
-webapp0.userlist._deleteUser = function(username) {
+app.userlist._deleteUser = function(username) {
   if (!username) {
     return;
   }
   var params = {
     username: username,
   };
-  app.callServerApi('DeleteUser', params, webapp0.userlist.deleteUserCb);
+  app.callServerApi('DeleteUser', params, app.userlist.deleteUserCb);
 };
 
-webapp0.userlist.deleteUserCb = function(xhr, res) {
+app.userlist.deleteUserCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
   }
   app.showInfotip('OK');
-  webapp0.userlist.getUserList();
+  app.userlist.getUserList();
 };
 
 //-----------------------------------------------------------------------------
-webapp0.userlist.sortList = function(itemList, sortKey, desc) {
+app.userlist.sortList = function(itemList, sortKey, desc) {
   var items = util.copyObject(itemList);
   var srcList = items;
   var asNum = true;
@@ -443,7 +443,7 @@ webapp0.userlist.sortList = function(itemList, sortKey, desc) {
 };
 
 //-----------------------------------------------------------------------------
-webapp0.userlist.cleanseCommon = function(s) {
+app.userlist.cleanseCommon = function(s) {
   s = s.trim();
   s = s.replace(/\t/g, ' ');
   var res = {
@@ -453,8 +453,8 @@ webapp0.userlist.cleanseCommon = function(s) {
   return res;
 };
 
-webapp0.userlist.cleanseUsername = function(s) {
-  var res = webapp0.userlist.cleanseCommon(s);
+app.userlist.cleanseUsername = function(s) {
+  var res = app.userlist.cleanseCommon(s);
   if (res.msg) {
     return res;
   }
@@ -468,8 +468,8 @@ webapp0.userlist.cleanseUsername = function(s) {
   return res;
 };
 
-webapp0.userlist.cleanseFullName = function(s) {
-  var res = webapp0.userlist.cleanseCommon(s);
+app.userlist.cleanseFullName = function(s) {
+  var res = app.userlist.cleanseCommon(s);
   if (res.msg) {
     return res;
   }
@@ -480,7 +480,7 @@ webapp0.userlist.cleanseFullName = function(s) {
   return res;
 };
 
-webapp0.userlist.cleansePW = function(pw1, pw2, mode) {
+app.userlist.cleansePW = function(pw1, pw2, mode) {
   var msg = null;
   if (mode == 'new') {
     if (pw1 == '') {
@@ -499,8 +499,8 @@ webapp0.userlist.cleansePW = function(pw1, pw2, mode) {
   return res;
 };
 
-webapp0.userlist.cleansePrivilege = function(s) {
-  var res = webapp0.userlist.cleanseCommon(s);
+app.userlist.cleansePrivilege = function(s) {
+  var res = app.userlist.cleanseCommon(s);
   if (res.msg) {
     return res;
   }
@@ -513,11 +513,11 @@ webapp0.userlist.cleansePrivilege = function(s) {
 };
 
 //-----------------------------------------------------------------------------
-webapp0.userlist.onEditWindowClose = function() {
-  webapp0.userlist.editWindow = null;
-  webapp0.userlist.mode = null;
+app.userlist.onEditWindowClose = function() {
+  app.userlist.editWindow = null;
+  app.userlist.mode = null;
 };
 
 $onBeforeUnload = function(e) {
-  if (webapp0.userlist.editWindow) e.returnValue = '';
+  if (app.userlist.editWindow) e.returnValue = '';
 };

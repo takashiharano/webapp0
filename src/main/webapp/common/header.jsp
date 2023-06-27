@@ -12,7 +12,7 @@ if ((fullname == null) || "".equals(fullname)) {
 <div id="header-content">
 webapp0
 <span style="position:absolute;right:10px;">
-<span id="user" class="pseudo-link" onclick="webapp0.common.usermenu.openUserMenu();"><%= fullname %></span>
+<span id="user" class="pseudo-link" onclick="app.common.usermenu.openUserMenu();"><%= fullname %></span>
 <span id="clock"></span>
 </span>
 </div>

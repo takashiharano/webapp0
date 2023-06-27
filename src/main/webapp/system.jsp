@@ -18,7 +18,7 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 <div id="contents">
 <jsp:include page="common/menu.jsp" />
 
-<button onclick="webapp0.system.resetApp();">RESET</button>
+<button onclick="app.system.resetApp();">RESET</button>
 <div id="message"></div>
 
 </div>
