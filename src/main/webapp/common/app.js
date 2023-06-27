@@ -4,7 +4,7 @@
  * Copyright 2023 Takashi Harano
  */
 app = {};
-
+app.status = 0;
 app.language = 'en';
 app.messages = {};
 app.initFns = [];
@@ -182,6 +182,34 @@ app._getMessage = function(id) {
   if (!m) m = o['en'];
   if (!m) m = null;
   return m;
+};
+
+/**
+ * Returns app status.
+ */
+app.getStatus = function() {
+  return app.status;
+};
+
+/**
+ * Sets app status.
+ */
+app.setStatus = function(st) {
+  app.status = st;
+};
+
+/**
+ * Sets the state to app status.
+ */
+app.setState = function(st) {
+  app.status |= st;
+};
+
+/**
+ * Unsets the state from app status.
+ */
+app.unsetState = function(st) {
+  app.status &= ~st;
 };
 
 window.addEventListener('DOMContentLoaded', app.onReady, true);
