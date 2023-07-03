@@ -16,6 +16,7 @@ public class UserInfoCommonLogic {
     jb.append("fullname", info.getFullName());
     jb.append("localfullname", info.getLocalFullName());
     jb.append("is_admin", info.isAdmin());
+    jb.append("groups", info.getGroupsInOneLine());
     jb.append("privileges", info.getPrivilegesInOneLine());
     jb.append("status", info.getStatus());
     jb.append("created_date", info.getCreatedDate());

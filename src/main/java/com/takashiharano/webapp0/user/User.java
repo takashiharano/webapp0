@@ -21,6 +21,7 @@ public class User {
   private String fullname;
   private String localFullName;
   private boolean admin;
+  private Set<String> groups;
   private Set<String> privileges;
   private int status;
   private long createdDate;
@@ -29,19 +30,21 @@ public class User {
   public User(String username, boolean isAdmin) {
     this.username = username;
     this.admin = isAdmin;
+    this.groups = new LinkedHashSet<>();
     this.privileges = new LinkedHashSet<>();
     this.status = STATE_NONE;
   }
 
-  public User(String username, String fullname, String localFullName, boolean isAdmin, String privileges, int status) {
-    this(username, fullname, localFullName, isAdmin, privileges, status, 0L, 0L);
+  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, int status) {
+    this(username, fullname, localFullName, isAdmin, groups, privileges, status, 0L, 0L);
   }
 
-  public User(String username, String fullname, String localFullName, boolean isAdmin, String privileges, int status, long createdDate, long updatedDate) {
+  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, int status, long createdDate, long updatedDate) {
     this.username = username;
     this.fullname = fullname;
     this.localFullName = localFullName;
     this.admin = isAdmin;
+    setGroups(groups);
     setPrivileges(privileges);
     this.status = status;
     this.createdDate = createdDate;
@@ -115,6 +118,97 @@ public class User {
   }
 
   /**
+   * Return the user groups as array.
+   *
+   * @return the user groups.
+   */
+  public String[] getGroups() {
+    return groups.toArray(new String[0]);
+  }
+
+  /**
+   * Sets the user groups.
+   *
+   * @param groups
+   *          the user groups
+   */
+  public void setGroups(LinkedHashSet<String> groups) {
+    this.groups = groups;
+  }
+
+  /**
+   * Sets the user groups by string.<br>
+   *
+   * @param groups
+   *          the user groups. "group1 group2 group3..."
+   */
+  public void setGroups(String groups) {
+    this.groups = new LinkedHashSet<>();
+    if (groups == null) {
+      return;
+    }
+    String[] p = groups.trim().split(" ");
+    for (int i = 0; i < p.length; i++) {
+      String group = p[i];
+      this.groups.add(group);
+    }
+  }
+
+  /**
+   * Adds a user group.
+   *
+   * @param group
+   *          a group name
+   */
+  public void addGroup(String group) {
+    groups.add(group);
+  }
+
+  /**
+   * Removes a user group.
+   *
+   * @param group
+   *          a group name
+   */
+  public void removeGroup(String group) {
+    groups.remove(group);
+  }
+
+  /**
+   * Returns whether the user belongs to the group.
+   *
+   * @param group
+   *          target group name
+   * @return true if the user belongs to the group
+   */
+  public boolean belongToGroup(String group) {
+    if (isAdmin()) {
+      return true;
+    }
+    return groups.contains(group);
+  }
+
+  /**
+   * Returns the user groups in one line in string.
+   *
+   * @return the groups in the format "group1 group2 group3..."
+   */
+  public String getGroupsInOneLine() {
+    return getGroupsInOneLine(" ");
+  }
+
+  /**
+   * Returns the user groups in one line with the given separator in string.
+   *
+   * @param separator
+   *          the separator between group names
+   * @return the groups in the format "group1[SEP]group2[SEP]group3..."
+   */
+  public String getGroupsInOneLine(String separator) {
+    return convertSetToOneLineString(groups, separator);
+  }
+
+  /**
    * Return the user privileges as array.
    *
    * @return the user privileges.
@@ -157,7 +251,7 @@ public class User {
    * @param privilege
    *          a privilege name
    */
-  public void addPrivileges(String privilege) {
+  public void addPrivilege(String privilege) {
     privileges.add(privilege);
   }
 
@@ -202,16 +296,7 @@ public class User {
    * @return the privileges in the format "priv1[SEP]priv2[SEP]priv3..."
    */
   public String getPrivilegesInOneLine(String separator) {
-    StringBuilder sb = new StringBuilder();
-    int cnt = 0;
-    for (String p : privileges) {
-      if (cnt > 0) {
-        sb.append(separator);
-      }
-      sb.append(p);
-      cnt++;
-    }
-    return sb.toString();
+    return convertSetToOneLineString(privileges, separator);
   }
 
   /**
@@ -300,6 +385,19 @@ public class User {
    */
   public void setUpdatedDate(long updatedDate) {
     this.updatedDate = updatedDate;
+  }
+
+  private String convertSetToOneLineString(Set<String> items, String separator) {
+    StringBuilder sb = new StringBuilder();
+    int cnt = 0;
+    for (String item : items) {
+      if (cnt > 0) {
+        sb.append(separator);
+      }
+      sb.append(item);
+      cnt++;
+    }
+    return sb.toString();
   }
 
 }

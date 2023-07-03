@@ -10,6 +10,7 @@ app.userlist.LIST_COLUMNS = [
   {key: 'fullname', label: 'Full Name', style: 'min-width:13em;'},
   {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
   {key: 'is_admin', label: 'Admin'},
+  {key: 'groups', label: 'Groups', style: 'min-width:15em;'},
   {key: 'privileges', label: 'Privileges', style: 'min-width:20em;'},
   {key: 'status', label: 'Status'},
   {key: 'created_date', label: 'Created'},
@@ -77,6 +78,7 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list">' + fullname + '</td>';
     htmlList += '<td class="item-list">' + localfullname + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + (item.is_admin ? 'Y' : '') + '</td>';
+    htmlList += '<td class="item-list">' + item.groups + '</td>';
     htmlList += '<td class="item-list">' + item.privileges + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + item.status + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
@@ -207,6 +209,10 @@ app.userlist.openUserInfoEditorWindow = function(mode) {
   html += '    </td>';
   html += '  </tr>';
   html += '  <tr>';
+  html += '    <td>Groups</td>';
+  html += '    <td><input type="text" id="groups" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '  <tr>';
   html += '    <td>Privileges</td>';
   html += '    <td><input type="text" id="privileges" style="width:100%;"></td>';
   html += '  </tr>';
@@ -288,6 +294,7 @@ app.userlist.setUserInfoToEditor = function(info) {
   $el('#fullname').value = info.fullname;
   $el('#localfullname').value = info.localfullname;
   $el('#isadmin').checked = info.is_admin;
+  $el('#groups').value = info.groups;
   $el('#privileges').value = info.privileges;
   $el('#status').value = info.status;
 };
@@ -298,6 +305,7 @@ app.userlist.clearUserInfoEditor = function() {
     fullname: '',
     localfullname: '',
     is_admin: false,
+    groups: '',
     privileges: '',
     status: ''
   };
@@ -318,6 +326,7 @@ app.userlist.addUser = function() {
   var fullname = $el('#fullname').value;
   var localfullname = $el('#localfullname').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
+  var groups = $el('#groups').value;
   var privileges = $el('#privileges').value;
   var status = $el('#status').value.trim();
   var pw1 = $el('#pw1').value;
@@ -344,7 +353,14 @@ app.userlist.addUser = function() {
   }
   localfullname = clnsRes.val;
 
-  clnsRes = app.userlist.cleansePrivilege(privileges);
+  clnsRes = app.userlist.cleanseGroups(groups);
+  if (clnsRes.msg) {
+    app.showInfotip(clnsRes.msg, 2000);
+    return;
+  }
+  groups = clnsRes.val;
+
+  clnsRes = app.userlist.cleansePrivileges(privileges);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
@@ -363,6 +379,7 @@ app.userlist.addUser = function() {
     fullname: fullname,
     localfullname: localfullname,
     is_admin: isAdmin,
+    groups: groups,
     privileges: privileges,
     status: status,
   };
@@ -389,6 +406,7 @@ app.userlist.updateUser = function() {
   var fullname = $el('#fullname').value;
   var localfullname = $el('#localfullname').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
+  var groups = $el('#groups').value;
   var privileges = $el('#privileges').value;
   var status = $el('#status').value;
   var pw1 = $el('#pw1').value;
@@ -406,6 +424,7 @@ app.userlist.updateUser = function() {
     fullname: fullname,
     localfullname: localfullname,
     is_admin: isAdmin,
+    groups: groups,
     privileges: privileges,
     status: status,
   };
@@ -531,7 +550,20 @@ app.userlist.cleansePW = function(pw1, pw2, mode) {
   return res;
 };
 
-app.userlist.cleansePrivilege = function(s) {
+app.userlist.cleanseGroups = function(s) {
+  var res = app.userlist.cleanseCommon(s);
+  if (res.msg) {
+    return res;
+  }
+  var msg = null;
+  s = res.val;
+  s = s.replace(/\s{2,}/g, ' ');
+  res.val = s;
+  res.msg = msg;
+  return res;
+};
+
+app.userlist.cleansePrivileges = function(s) {
   var res = app.userlist.cleanseCommon(s);
   if (res.msg) {
     return res;

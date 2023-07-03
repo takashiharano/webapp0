@@ -19,6 +19,7 @@ public class AddUserAction extends Action {
     String fullname = context.getRequestParameter("fullname");
     String localFullName = context.getRequestParameter("localfullname");
     String adminFlag = context.getRequestParameter("is_admin");
+    String groups = context.getRequestParameter("groups");
     String privileges = context.getRequestParameter("privileges");
     String userStatus = context.getRequestParameter("status");
 
@@ -37,7 +38,7 @@ public class AddUserAction extends Action {
 
     String status = "OK";
     try {
-      userManager.regieterNewUser(username, pwHash, fullname, localFullName, adminFlag, privileges, userStatus);
+      userManager.regieterNewUser(username, pwHash, fullname, localFullName, adminFlag, groups, privileges, userStatus);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User regieter error: " + status);
