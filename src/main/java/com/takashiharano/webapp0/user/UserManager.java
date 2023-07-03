@@ -110,28 +110,33 @@ public class UserManager {
         fullname = fields[1];
       }
 
+      String localFullName = null;
+      if (fields.length > 2) {
+        localFullName = fields[2];
+      }
+
       String adminFlag = "";
       boolean isAdmin = false;
-      if (fields.length > 2) {
-        adminFlag = fields[2];
+      if (fields.length > 3) {
+        adminFlag = fields[3];
         isAdmin = "1".equals(adminFlag);
       }
 
       String privileges = null;
-      if (fields.length > 3) {
-        privileges = fields[3];
+      if (fields.length > 4) {
+        privileges = fields[4];
       }
 
       int status = User.STATE_NONE;
-      if (fields.length > 4) {
+      if (fields.length > 5) {
         try {
-          status = Integer.parseInt(fields[4]);
+          status = Integer.parseInt(fields[5]);
         } catch (Exception e) {
           // nop
         }
       }
 
-      User user = new User(username, fullname, isAdmin, privileges, status);
+      User user = new User(username, fullname, localFullName, isAdmin, privileges, status);
 
       if (fields.length > 5) {
         long createdDate = StrUtil.parseLong(fields[5]);
@@ -154,13 +159,14 @@ public class UserManager {
    *           if an IO error occurres
    */
   public void saveUsers() throws IOException {
-    String header = "#Username\tName\tisAdmin\tPrivileges\tStatus\tCreated\tUpdated\n";
+    String header = "#Username\tName\tLocalFullName\tisAdmin\tPrivileges\tStatus\tCreated\tUpdated\n";
     StringBuilder sb = new StringBuilder();
     sb.append(header);
     for (Entry<String, User> entry : users.entrySet()) {
       User user = entry.getValue();
       String username = user.getUsername();
       String fullname = user.getFullName();
+      String localFullName = user.getLocalFullName();
       boolean isAdmin = user.isAdmin();
       String adminFlag = (isAdmin ? "1" : "0");
       String privileges = user.getPrivilegesInOneLine();
@@ -171,6 +177,8 @@ public class UserManager {
       sb.append(username);
       sb.append("\t");
       sb.append(fullname);
+      sb.append("\t");
+      sb.append(localFullName);
       sb.append("\t");
       sb.append(adminFlag);
       sb.append("\t");
@@ -204,6 +212,8 @@ public class UserManager {
    *          Password hash
    * @param fullname
    *          Full name
+   * @param localFullName
+   *          Local full name
    * @param adminFlag
    *          Administrator flag. 1=admin / 0=otherwise
    * @param privileges
@@ -214,7 +224,7 @@ public class UserManager {
    * @throws Exception
    *           if an error occurres
    */
-  public User regieterNewUser(String username, String pwHash, String fullname, String adminFlag, String privileges, String userStatus) throws Exception {
+  public User regieterNewUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String privileges, String userStatus) throws Exception {
     if (users.containsKey(username)) {
       throw new Exception("USER_ALREADY_EXISTS");
     }
@@ -230,7 +240,7 @@ public class UserManager {
     long createdDate = System.currentTimeMillis();
     long updatedDate = createdDate;
 
-    User user = new User(username, fullname, isAdmin, privileges, status, createdDate, updatedDate);
+    User user = new User(username, fullname, localFullName, isAdmin, privileges, status, createdDate, updatedDate);
     user.setState(User.STATE_NEED_PW_CHANGE);
     users.put(username, user);
 
@@ -252,6 +262,8 @@ public class UserManager {
    *          Password hash
    * @param fullname
    *          Full name
+   * @param localFullName
+   *          Local full name
    * @param adminFlag
    *          Administrator flag. 1=admin / 0=otherwise
    * @param privileges
@@ -262,7 +274,7 @@ public class UserManager {
    * @throws Exception
    *           if an error occurres
    */
-  public User updateUser(String username, String pwHash, String fullname, String adminFlag, String privileges, String userStatus) throws Exception {
+  public User updateUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String privileges, String userStatus) throws Exception {
     User user = users.get(username);
     if (user == null) {
       throw new Exception("USER_NOT_FOUND");
@@ -275,6 +287,10 @@ public class UserManager {
 
     if (fullname != null) {
       user.setFullName(fullname);
+    }
+
+    if (localFullName != null) {
+      user.setLocalFullName(localFullName);
     }
 
     if (privileges != null) {

@@ -7,7 +7,8 @@ app.userlist = {};
 
 app.userlist.LIST_COLUMNS = [
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
-  {key: 'fullname', label: 'Full Name', style: 'min-width:15em;'},
+  {key: 'fullname', label: 'Full Name', style: 'min-width:13em;'},
+  {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
   {key: 'is_admin', label: 'Admin'},
   {key: 'privileges', label: 'Privileges', style: 'min-width:20em;'},
   {key: 'status', label: 'Status'},
@@ -59,6 +60,7 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     var item = items[i];
     var username = item.username;
     var fullname = item.fullname.replace(/ /g, '&nbsp');
+    var localfullname = item.localfullname.replace(/ /g, '&nbsp');
 
     var createdDate = '---------- --:--:--';
     if (item.created_date > 0) {
@@ -73,6 +75,7 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<tr class="item-list">';
     htmlList += '<td class="item-list">' + username + '</td>';
     htmlList += '<td class="item-list">' + fullname + '</td>';
+    htmlList += '<td class="item-list">' + localfullname + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + (item.is_admin ? 'Y' : '') + '</td>';
     htmlList += '<td class="item-list">' + item.privileges + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + item.status + '</td>';
@@ -181,7 +184,7 @@ app.userlist.editUser = function(username) {
 app.userlist.openUserInfoEditorWindow = function(mode) {
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
-  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:230px;text-align:left;">';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:260px;text-align:left;">';
 
   html += '<table>';
   html += '  <tr>';
@@ -193,6 +196,10 @@ app.userlist.openUserInfoEditorWindow = function(mode) {
   html += '  <tr>';
   html += '    <td>Full name</td>';
   html += '    <td><input type="text" id="fullname" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '  <tr>';
+  html += '    <td>Local Full name</td>';
+  html += '    <td><input type="text" id="localfullname" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>isAdmin</td>';
@@ -236,10 +243,10 @@ app.userlist.openUserInfoEditorWindow = function(mode) {
     resizable: true,
     pos: 'c',
     closeButton: true,
-    width: 400,
-    height: 300,
-    minWidth: 400,
-    minHeight: 300,
+    width: 480,
+    height: 360,
+    minWidth: 480,
+    minHeight: 360,
     scale: 1,
     hidden: false,
     modal: false,
@@ -279,6 +286,7 @@ app.userlist.setUserInfoToEditor = function(info) {
     $el('#username').removeClass('edit-disabled');
   }
   $el('#fullname').value = info.fullname;
+  $el('#localfullname').value = info.localfullname;
   $el('#isadmin').checked = info.is_admin;
   $el('#privileges').value = info.privileges;
   $el('#status').value = info.status;
@@ -288,6 +296,7 @@ app.userlist.clearUserInfoEditor = function() {
   var info = {
     username: '',
     fullname: '',
+    localfullname: '',
     is_admin: false,
     privileges: '',
     status: ''
@@ -307,6 +316,7 @@ app.userlist.saveUserInfo = function() {
 app.userlist.addUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
+  var localfullname = $el('#localfullname').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var privileges = $el('#privileges').value;
   var status = $el('#status').value.trim();
@@ -327,6 +337,13 @@ app.userlist.addUser = function() {
   }
   fullname = clnsRes.val;
 
+  clnsRes = app.userlist.cleanseFullName(localfullname);
+  if (clnsRes.msg) {
+    app.showInfotip(clnsRes.msg, 2000);
+    return;
+  }
+  localfullname = clnsRes.val;
+
   clnsRes = app.userlist.cleansePrivilege(privileges);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
@@ -344,6 +361,7 @@ app.userlist.addUser = function() {
   var params = {
     username: username,
     fullname: fullname,
+    localfullname: localfullname,
     is_admin: isAdmin,
     privileges: privileges,
     status: status,
@@ -369,6 +387,7 @@ app.userlist.addUserCb = function(xhr, res) {
 app.userlist.updateUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
+  var localfullname = $el('#localfullname').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var privileges = $el('#privileges').value;
   var status = $el('#status').value;
@@ -385,6 +404,7 @@ app.userlist.updateUser = function() {
   var params = {
     username: username,
     fullname: fullname,
+    localfullname: localfullname,
     is_admin: isAdmin,
     privileges: privileges,
     status: status,
@@ -469,6 +489,18 @@ app.userlist.cleanseUsername = function(s) {
 };
 
 app.userlist.cleanseFullName = function(s) {
+  var res = app.userlist.cleanseCommon(s);
+  if (res.msg) {
+    return res;
+  }
+  var msg = null;
+  s = res.val;
+  res.val = s;
+  res.msg = msg;
+  return res;
+};
+
+app.userlist.cleanseLocalFullName = function(s) {
   var res = app.userlist.cleanseCommon(s);
   if (res.msg) {
     return res;

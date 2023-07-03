@@ -14,6 +14,7 @@ public class UserInfoCommonLogic {
     JsonBuilder jb = new JsonBuilder();
     jb.append("username", info.getUsername());
     jb.append("fullname", info.getFullName());
+    jb.append("localfullname", info.getLocalFullName());
     jb.append("is_admin", info.isAdmin());
     jb.append("privileges", info.getPrivilegesInOneLine());
     jb.append("status", info.getStatus());

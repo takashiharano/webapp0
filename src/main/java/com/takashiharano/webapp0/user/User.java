@@ -19,6 +19,7 @@ public class User {
 
   private String username;
   private String fullname;
+  private String localFullName;
   private boolean admin;
   private Set<String> privileges;
   private int status;
@@ -32,13 +33,14 @@ public class User {
     this.status = STATE_NONE;
   }
 
-  public User(String username, String fullname, boolean isAdmin, String privileges, int status) {
-    this(username, fullname, isAdmin, privileges, status, 0L, 0L);
+  public User(String username, String fullname, String localFullName, boolean isAdmin, String privileges, int status) {
+    this(username, fullname, localFullName, isAdmin, privileges, status, 0L, 0L);
   }
 
-  public User(String username, String fullname, boolean isAdmin, String privileges, int status, long createdDate, long updatedDate) {
+  public User(String username, String fullname, String localFullName, boolean isAdmin, String privileges, int status, long createdDate, long updatedDate) {
     this.username = username;
     this.fullname = fullname;
+    this.localFullName = localFullName;
     this.admin = isAdmin;
     setPrivileges(privileges);
     this.status = status;
@@ -72,6 +74,25 @@ public class User {
    */
   public void setFullName(String fullname) {
     this.fullname = fullname;
+  }
+
+  /**
+   * Returns local full name.
+   *
+   * @return Local full name
+   */
+  public String getLocalFullName() {
+    return localFullName;
+  }
+
+  /**
+   * Sets local full name.
+   *
+   * @param local
+   *          Local full name
+   */
+  public void setLocalFullName(String localFullName) {
+    this.localFullName = localFullName;
   }
 
   /**
