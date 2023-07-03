@@ -53,7 +53,7 @@ public class ProcessContext {
   private String xForwardedFor;
   private String userAgent;
   private String localAddr;
-  private String localName;
+  private String localHostName;
   private HttpSession httpSession;
   private Cookie[] cookies;
   private HashMap<String, Object> info;
@@ -73,7 +73,7 @@ public class ProcessContext {
     this.remoteHost = request.getRemoteHost();
     this.xForwardedFor = request.getHeader("X-Forwarded-For");
     this.userAgent = request.getHeader("User-Agent");
-    this.localName = request.getLocalName();
+    this.localHostName = request.getLocalName();
     this.localAddr = request.getLocalAddr();
     this.httpSession = request.getSession();
     this.cookies = request.getCookies();
@@ -704,8 +704,8 @@ public class ProcessContext {
    *
    * @return the host name
    */
-  public String getLocalName() {
-    return localName;
+  public String getLocaHostlName() {
+    return localHostName;
   }
 
   /**
@@ -795,12 +795,26 @@ public class ProcessContext {
    * @return user full name
    */
   public String getUserFullName() {
-    String userFullName = "";
+    String name = "";
     User userInfo = getUserInfo();
     if (userInfo != null) {
-      userFullName = userInfo.getFullName();
+      name = userInfo.getFullName();
     }
-    return userFullName;
+    return name;
+  }
+
+  /**
+   * Returns current user local full name.
+   *
+   * @return user local full name
+   */
+  public String getUserLocalFullName() {
+    String name = "";
+    User userInfo = getUserInfo();
+    if (userInfo != null) {
+      name = userInfo.getLocalFullName();
+    }
+    return name;
   }
 
   /**
@@ -814,6 +828,34 @@ public class ProcessContext {
       return false;
     }
     return userInfo.isAdmin();
+  }
+
+  /**
+   * Returns the groups for the current user in an array of the string.
+   *
+   * @return the groups list
+   */
+  public String[] getGroups() {
+    User userInfo = getUserInfo();
+    if (userInfo == null) {
+      return null;
+    }
+    return userInfo.getGroups();
+  }
+
+  /**
+   * Returns whether the user belongs to the group.
+   *
+   * @param group
+   *          target group name
+   * @return true if the user belongs to the group
+   */
+  public boolean isBelongToGroup(String group) {
+    User userInfo = getUserInfo();
+    if (userInfo == null) {
+      return false;
+    }
+    return userInfo.isBelongToGroup(group);
   }
 
   /**

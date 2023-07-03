@@ -181,7 +181,7 @@ public class User {
    *          target group name
    * @return true if the user belongs to the group
    */
-  public boolean belongToGroup(String group) {
+  public boolean isBelongToGroup(String group) {
     if (isAdmin()) {
       return true;
     }
