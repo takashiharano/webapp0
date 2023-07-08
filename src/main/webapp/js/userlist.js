@@ -14,7 +14,8 @@ app.userlist.LIST_COLUMNS = [
   {key: 'privileges', label: 'Privileges', style: 'min-width:20em;'},
   {key: 'status', label: 'Status'},
   {key: 'created_date', label: 'Created'},
-  {key: 'updated_date', label: 'Updated'}
+  {key: 'updated_date', label: 'Updated'},
+  {key: 'pw_changed_date', label: 'PwChanged'}
 ];
 
 app.userlist.listStatus = {
@@ -73,6 +74,11 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
       updatedDate = util.getDateTimeString(item.updated_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
     }
 
+    var pwChangedDate = '---------- --:--:--';
+    if (item.pw_changed_date > 0) {
+      pwChangedDate = util.getDateTimeString(item.pw_changed_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
+    }
+
     htmlList += '<tr class="item-list">';
     htmlList += '<td class="item-list">' + username + '</td>';
     htmlList += '<td class="item-list">' + fullname + '</td>';
@@ -83,6 +89,7 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list" style="text-align:center;">' + item.status + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + pwChangedDate + '</td>';
     htmlList += '<td class="item-list"><span class="pseudo-link" style="color:#00a;text-align:center;" onclick="app.userlist.editUser(\'' + username + '\');">EDIT</span></td>';
     htmlList += '<td class="item-list" style="text-align:center;width:1.5em;">';
     if (username == currentUsername) {

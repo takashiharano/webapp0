@@ -189,6 +189,11 @@ public class UserManager {
         user.setUpdatedDate(updatedDate);
       }
 
+      if (fields.length > 9) {
+        long pwChangedDate = StrUtil.parseLong(fields[9]);
+        user.setPwChangedDate(pwChangedDate);
+      }
+
       users.put(username, user);
     }
   }
@@ -200,7 +205,7 @@ public class UserManager {
    *           if an IO error occurres
    */
   public void saveUsers() throws IOException {
-    String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tStatus\tCreated\tUpdated\n";
+    String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tStatus\tCreated\tUpdated\tPwChanged\n";
     StringBuilder sb = new StringBuilder();
     sb.append(header);
     for (Entry<String, User> entry : users.entrySet()) {
@@ -215,6 +220,7 @@ public class UserManager {
       int status = user.getStatus();
       long createdDate = user.getCreatedDate();
       long updatedDate = user.getUpdatedDate();
+      long pwChangedDate = user.getPwChangedDate();
 
       sb.append(username);
       sb.append("\t");
@@ -233,6 +239,8 @@ public class UserManager {
       sb.append(createdDate);
       sb.append("\t");
       sb.append(updatedDate);
+      sb.append("\t");
+      sb.append(pwChangedDate);
       sb.append("\n");
     }
 
@@ -328,40 +336,51 @@ public class UserManager {
       throw new Exception("USER_NOT_FOUND");
     }
 
+    boolean updated = false;
+
     if (adminFlag != null) {
       boolean isAdmin = "1".equals(adminFlag);
       user.setAdmin(isAdmin);
+      updated = true;
     }
 
     if (fullname != null) {
       user.setFullName(fullname);
+      updated = true;
     }
 
     if (localFullName != null) {
       user.setLocalFullName(localFullName);
+      updated = true;
     }
 
     if (groups != null) {
       user.setGroups(groups);
+      updated = true;
     }
 
     if (privileges != null) {
       user.setPrivileges(privileges);
+      updated = true;
     }
 
     if (userStatus != null) {
       int status = StrUtil.parseInt(userStatus, User.STATE_NONE);
       user.setStatus(status);
+      updated = true;
     }
 
-    long updatedDate = System.currentTimeMillis();
-    user.setUpdatedDate(updatedDate);
+    long now = System.currentTimeMillis();
+    if (updated) {
+      user.setUpdatedDate(now);
+    }
 
     if (pwHash != null) {
       int ret = authenticator.registerByHash(username, pwHash);
       if (ret < 0) {
         throw new Exception("PW_REGISTER_ERROR");
       }
+      user.setPwChangedDate(now);
       user.unsetState(User.STATE_NEED_PW_CHANGE);
     }
 

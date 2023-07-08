@@ -21,6 +21,7 @@ public class UserInfoCommonLogic {
     jb.append("status", info.getStatus());
     jb.append("created_date", info.getCreatedDate());
     jb.append("updated_date", info.getUpdatedDate());
+    jb.append("pw_changed_date", info.getPwChangedDate());
     String json = jb.toString();
     return json;
   }

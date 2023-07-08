@@ -26,6 +26,7 @@ public class User {
   private int status;
   private long createdDate;
   private long updatedDate;
+  private long pwChangedDate;
 
   public User(String username, boolean isAdmin) {
     this.username = username;
@@ -403,6 +404,25 @@ public class User {
    */
   public void setUpdatedDate(long updatedDate) {
     this.updatedDate = updatedDate;
+  }
+
+  /**
+   * Returns the date the user last changed their password.
+   *
+   * @return the last changed date in unix millis.
+   */
+  public long getPwChangedDate() {
+    return pwChangedDate;
+  }
+
+  /**
+   * Sets the date the user last changed their password.
+   *
+   * @param updatedDate
+   *          the last changed date in unix millis.
+   */
+  public void setPwChangedDate(long pwChangedDate) {
+    this.pwChangedDate = pwChangedDate;
   }
 
   private String convertSetToOneLineString(Set<String> items, String separator) {
