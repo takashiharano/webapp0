@@ -14,8 +14,8 @@ import java.util.Set;
 public class User {
   public static final int STATE_NONE = 0;
   public static final int STATE_DISABLED = 1;
-  public static final int STATE_LOCKED = 1 << 1;
-  public static final int STATE_NEED_PW_CHANGE = 1 << 2;
+  public static final int STATE_NEED_PW_CHANGE = 1 << 1;
+  public static final int STATE_LOCKED = 1 << 2;
 
   private String username;
   private String fullname;
@@ -127,30 +127,20 @@ public class User {
   }
 
   /**
-   * Sets the user groups.
-   *
-   * @param groups
-   *          the user groups
-   */
-  public void setGroups(LinkedHashSet<String> groups) {
-    this.groups = groups;
-  }
-
-  /**
    * Sets the user groups by string.<br>
    *
    * @param groups
    *          the user groups. "group1 group2 group3..."
    */
   public void setGroups(String groups) {
-    this.groups = new LinkedHashSet<>();
     if (groups == null) {
       return;
     }
+    this.groups = new LinkedHashSet<>();
     String[] p = groups.trim().split(" ");
     for (int i = 0; i < p.length; i++) {
-      String group = p[i];
-      this.groups.add(group);
+      String groupName = p[i];
+      this.groups.add(groupName);
     }
   }
 
@@ -211,7 +201,7 @@ public class User {
   /**
    * Return the user privileges as array.
    *
-   * @return the user privileges.
+   * @return the user privileges
    */
   public String[] getPrivileges() {
     return privileges.toArray(new String[0]);
@@ -297,6 +287,34 @@ public class User {
    */
   public String getPrivilegesInOneLine(String separator) {
     return convertSetToOneLineString(privileges, separator);
+  }
+
+  /**
+   * Returns whether the current user has the specified privilege.<br>
+   * True if the user or a group to which the user belongs has the privilege.
+   *
+   * @param privilege
+   *          the privilege to check
+   * @return true if the user has the privilege. always true if the user is admin.
+   */
+  public boolean isPermitted(String privilege) {
+    boolean has = hasPrivilege(privilege);
+    if (has) {
+      return true;
+    }
+
+    UserManager um = UserManager.getInstance();
+    for (String groupName : groups) {
+      Group group = um.getGroupInfo(groupName);
+      if (group == null) {
+        continue;
+      }
+      has = group.hasPrivilege(privilege);
+      if (has) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

@@ -872,18 +872,19 @@ public class ProcessContext {
   }
 
   /**
-   * Returns whether the current user has the specified privilege.
+   * Returns whether the current user has the specified privilege.<br>
+   * True if the user or a group to which the user belongs has the privilege.
    *
    * @param privilege
    *          the privilege to check
    * @return true if the user has the privilege. always true if the user is admin.
    */
-  public boolean hasPrivilege(String privilege) {
+  public boolean isPermitted(String privilege) {
     User userInfo = getUserInfo();
     if (userInfo == null) {
       return false;
     }
-    return userInfo.hasPrivilege(privilege);
+    return userInfo.isPermitted(privilege);
   }
 
   /**

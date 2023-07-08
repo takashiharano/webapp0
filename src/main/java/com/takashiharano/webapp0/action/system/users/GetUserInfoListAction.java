@@ -18,7 +18,7 @@ public class GetUserInfoListAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    if (!context.isAdmin()) {
+    if (!context.isPermitted("useredit")) {
       context.sendJsonResponse("FORBIDDEN:GetUserInfoList", null);
       return;
     }

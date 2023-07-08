@@ -17,7 +17,7 @@ public class GetUserInfoAction extends Action {
     String username = context.getRequestParameter("username");
 
     String currentUsername = context.getUsername();
-    if (!context.isAdmin() && !currentUsername.equals(username)) {
+    if (!context.isPermitted("useredit") && !currentUsername.equals(username)) {
       context.sendJsonResponse("FORBIDDEN:GetUserInfo", null);
       return;
     }

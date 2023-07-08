@@ -17,7 +17,7 @@ public class DeleteUserAction extends Action {
     String username = context.getRequestParameter("username");
 
     String currentUsername = context.getUsername();
-    if (!context.isAdmin() || currentUsername.equals(username)) {
+    if (!context.isPermitted("useredit") || currentUsername.equals(username)) {
       Log.w("DeleteUser: FORBIDDEN username=" + username);
       context.sendJsonResponse("FORBIDDEN:DeleteUser", null);
       return;

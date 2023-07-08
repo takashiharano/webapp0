@@ -159,7 +159,8 @@ public class AppManager {
     }
     Log.i("WebAppWorkspace: " + appWorkspacePath);
 
-    userManager = new UserManager();
+    userManager = UserManager.getInstance();
+    userManager.init();
 
     if (sessionManager == null) {
       String sessionPath = FileUtil.joinPath(getAppWorkspacePath(), "sessions.txt");

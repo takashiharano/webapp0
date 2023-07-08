@@ -19,14 +19,30 @@ public class UserManager {
 
   private static final String USERS_FILE_NAME = "users.txt";
   private static final String USERS_PW_FILE_NAME = "userspw.txt";
+  private static final String GROUPS_FILE_NAME = "groups.txt";
+
+  private static UserManager instance;
 
   private Map<String, User> users;
+  private Map<String, Group> groups;
   private Authenticator authenticator;
 
   /**
    * Initializes the manager object and loads users info from a storage.
    */
   public UserManager() {
+    init();
+  }
+
+  public static UserManager getInstance() {
+    if (instance == null) {
+      instance = new UserManager();
+    }
+    return instance;
+  }
+
+  public void init() {
+    loadGroups();
     loadUsers();
   }
 
@@ -48,6 +64,26 @@ public class UserManager {
    */
   public Map<String, User> getAllUserInfo() {
     return users;
+  }
+
+  /**
+   * Returns the group info of specified group name.
+   * 
+   * @param groupName
+   *          target group name
+   * @return the group info
+   */
+  public Group getGroupInfo(String groupName) {
+    return groups.get(groupName);
+  }
+
+  /**
+   * Returns all group info map.
+   *
+   * @return the map of group info
+   */
+  public Map<String, Group> getAllGroupInfo() {
+    return groups;
   }
 
   /**
@@ -371,6 +407,40 @@ public class UserManager {
    */
   public boolean existsUser(String username) {
     return users.containsKey(username);
+  }
+
+  /**
+   * Load user info from a storage.
+   */
+  public void loadGroups() {
+    groups = new LinkedHashMap<>();
+    String dataPath = getDataPath();
+    String groupsFile = FileUtil.joinPath(dataPath, GROUPS_FILE_NAME);
+
+    String[] text = FileUtil.readTextAsArray(groupsFile);
+    if (text == null) {
+      // group definition file not found
+      return;
+    }
+
+    for (int i = 0; i < text.length; i++) {
+      String line = text[i];
+      if (line.startsWith("#")) {
+        continue;
+      }
+
+      String[] fields = line.split("\t");
+
+      String groupName = fields[0];
+
+      String privileges = null;
+      if (fields.length > 1) {
+        privileges = fields[1];
+      }
+
+      Group group = new Group(groupName, privileges);
+      groups.put(groupName, group);
+    }
   }
 
   private String getDataPath() {
