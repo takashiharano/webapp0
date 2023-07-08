@@ -5,7 +5,7 @@
  * https://libutil.com/
  */
 var util = util || {};
-util.v = '202307020007';
+util.v = '202307082307';
 
 util.SYSTEM_ZINDEX_BASE = 0x7ffffff0;
 util.DFLT_FADE_SPEED = 500;
@@ -829,14 +829,17 @@ util.timecounter.start = function(el, t0, opt) {
 /**
  * Stop displaying the time difference
  */
-util.timecounter.stop = function(el) {
+util.timecounter.stop = function(el, t0, opt) {
   var v = 0;
   var o = util.timecounter.getObj(el);
-  if (o) {
-    v = o.update(o);
-    o.stop();
-    delete util.timecounter.objs[o.id];
+  if (!o) {
+    o = new util.TimeCounter(el, t0, opt);
+    util.timecounter.objs[o.id] = o;
   }
+  if (t0 != undefined) o.t0 = t0;
+  v = o.update(o);
+  o.stop();
+  delete util.timecounter.objs[o.id];
   return v;
 };
 
@@ -2425,17 +2428,20 @@ util.http.listeners = {
 //---------------------------------------------------------
 // Element
 //---------------------------------------------------------
-var $el = function(target, idx) {
-  var el = util.getElement(target, idx);
+var $el = function(tgt, idx) {
+  var el = util.getElement(tgt, idx);
   if (el) {
     for (var k in $el.fn) {
       if (el[k] == undefined) el[k] = $el.fn[k];
     }
+    el.notFound = false;
   } else {
-    el = {notExists: true, style: {}};
+    el = {style: {}};
     for (k in $el.fn) {
       el[k] = util.nop;
     }
+    el.exists = function() {return false;};
+    el.notFound = true;
   }
   return el;
 };
@@ -2532,19 +2538,34 @@ $el.fn = {
   scrollY: function(y) {
     return util.callFn4El(util.scrollY, this, y);
   },
+  scrollToTop: function() {
+    return util.callFn4El(util.scrollToTop, this);
+  },
+  scrollToRight: function() {
+    return util.callFn4El(util.scrollToRight, this);
+  },
+  scrollToBottom: function() {
+    return util.callFn4El(util.scrollToBottom, this);
+  },
+  scrollToLeft: function() {
+    return util.callFn4El(util.scrollToLeft, this);
+  },
   prev: function() {
     return util.prevElement(this);
   },
   next: function() {
     return util.nextElement(this);
+  },
+  exists: function() {
+    return true;
   }
 };
 
-util.getElement = function(target, idx) {
-  var el = target;
-  if (typeof target == 'string') {
-    el = document.querySelectorAll(target);
-    if (target.charAt(0) == '#') idx = 0;
+util.getElement = function(tgt, idx) {
+  var el = tgt;
+  if (typeof tgt == 'string') {
+    el = document.querySelectorAll(tgt);
+    if (tgt.charAt(0) == '#') idx = 0;
     if (idx != undefined) el = el.item(idx);
   }
   return el;
@@ -2779,6 +2800,18 @@ util.scrollY = function(el, y) {
   }
   el.scrollTop = y;
   return el.scrollTop;
+};
+util.scrollToTop = function(el) {
+  el.scrollTop = 0;
+};
+util.scrollToRight = function(el) {
+  el.scrollLeft = el.scrollWidth;
+};
+util.scrollToBottom = function(el) {
+  el.scrollTop = el.scrollHeight;
+};
+util.scrollToLeft = function(el) {
+  el.scrollLeft = 0;
 };
 
 util.escHtml = function(s) {
@@ -3198,18 +3231,18 @@ util.updateTextAreaInfo = function(textarea) {
     listener(data);
   }
 };
-util.textarea._adqdLIstener = function(target) {
-  target.addEventListener('input', util.textarea.onInput);
-  target.addEventListener('change', util.textarea.onInput);
-  target.addEventListener('keydown', util.textarea.onInput);
-  target.addEventListener('keyup', util.textarea.onInput);
-  target.addEventListener('click', util.textarea.onInput);
+util.textarea._adqdLIstener = function(tgt) {
+  tgt.addEventListener('input', util.textarea.onInput);
+  tgt.addEventListener('change', util.textarea.onInput);
+  tgt.addEventListener('keydown', util.textarea.onInput);
+  tgt.addEventListener('keyup', util.textarea.onInput);
+  tgt.addEventListener('click', util.textarea.onInput);
 };
 util.textarea.onInput = function(e) {
   util.updateTextAreaInfo(e.target);
 };
-util.textarea.addListener = function(target, f) {
-  var el = util.getElement(target);
+util.textarea.addListener = function(tgt, f) {
+  var el = util.getElement(tgt);
   if (el) {
     el.listener = f;
     util.textarea._adqdLIstener(el);
@@ -3228,9 +3261,9 @@ util.textarea.addListener = function(target, f) {
  * util.writeHTML('#id', '');
  * util.writeHTML('#id', '', 200);
  */
-util.writeHTML = function(target, html, speed) {
-  var el = target;
-  if (typeof target == 'string') el = document.querySelector(target);
+util.writeHTML = function(tgt, html, speed) {
+  var el = tgt;
+  if (typeof tgt == 'string') el = document.querySelector(tgt);
   if (!el) return;
   if (speed == 0) {
     el.innerHTML = html;
@@ -3258,10 +3291,10 @@ util.__writeHTML = function(cbData) {
 /**
  * Fade out and clear
  */
-util.clearHTML = function(target, speed) {
+util.clearHTML = function(tgt, speed) {
   var DFLT_SPEED = 200;
   if ((speed == undefined) || (speed < 0)) speed = DFLT_SPEED;
-  util.fadeOut(target, speed, util._clearHTML, target);
+  util.fadeOut(tgt, speed, util._clearHTML, tgt);
 };
 util._clearHTML = function(el) {
   el.innerHTML = '';
@@ -3574,6 +3607,25 @@ util.STYLE = function() {/*
 .dialog {
   background: #fff;
   color: #000;
+}
+.led {
+  text-shadow: 0 0 5px !important;
+}
+.led:before {content:"\025CF"}
+.led-on {
+  color: #0f0 !important;
+}
+.led-off {
+  color: #888 !important;
+}
+.led-red {
+  color: #f88 !important;
+}
+.led-orange {
+  color: #f80 !important;
+}
+.led-blue {
+  color: #4cf !important;
 }
 */};
 
@@ -5830,7 +5882,7 @@ util.confirm = function(a1, a2, a3, a4, a5) {
 // Meter
 //---------------------------------------------------------
 /**
- * target: element / selector
+ * tgt: element / selector
  * opt = {
  *  min
  *  max
@@ -5865,12 +5917,12 @@ util.confirm = function(a1, a2, a3, a4, a5) {
  * <div id="meter1"></div>
  * var m = new util.Meter('#meter1', opt);
  */
-util.initMeter = function(target, opt) {
-  return new util.Meter(target, opt);
+util.initMeter = function(tgt, opt) {
+  return new util.Meter(tgt, opt);
 };
-util.Meter = function(target, opt) {
-  target = util.getElement(target);
-  target.innerHTML = '';
+util.Meter = function(tgt, opt) {
+  tgt = util.getElement(tgt);
+  tgt.innerHTML = '';
 
   var min = 0;
   var max = 100;
@@ -5917,7 +5969,7 @@ util.Meter = function(target, opt) {
     if (optimum < min) optimum = min;
     if (optimum > max) optimum = max;
   }
-  var base = target;
+  var base = tgt;
   base.className = 'meter';
   var style = {
     display: 'inline-block',
@@ -6188,8 +6240,8 @@ util._resetMeterSpeed = function(c) {
  *   active: true
  * };
  */
-util.Led = function(target, opt) {
-  var baseEl = util.getElement(target);
+util.Led = function(tgt, opt) {
+  var baseEl = util.getElement(tgt);
   if (!opt) opt = {};
   util.copyDefaultProps(util.Led.DFLTOPT, opt);
   var active = opt.active ? true : false;
@@ -6204,7 +6256,7 @@ util.Led = function(target, opt) {
   };
   if (opt.shadow) style['text-shadow'] = opt.shadow;
   util.setStyle(ledEl, style);
-  ledEl.innerHTML = '&#x25CF;';
+  baseEl.innerHTML = '';
   baseEl.appendChild(ledEl);
 
   this.opt = opt;
