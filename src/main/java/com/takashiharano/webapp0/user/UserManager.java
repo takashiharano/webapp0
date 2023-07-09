@@ -291,10 +291,12 @@ public class UserManager {
     boolean isAdmin = "1".equals(adminFlag);
     int status = StrUtil.parseInt(userStatus, User.STATE_NONE);
 
-    long createdDate = System.currentTimeMillis();
-    long updatedDate = createdDate;
+    long now = System.currentTimeMillis();
+    long createdDate = now;
+    long updatedDate = now;
+    long pwChangedDate = now;
 
-    User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, status, createdDate, updatedDate);
+    User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, status, createdDate, updatedDate, pwChangedDate);
     if (StrUtil.isEmpty(userStatus)) {
       user.setState(User.STATE_NEED_PW_CHANGE);
     }

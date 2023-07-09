@@ -37,10 +37,10 @@ public class User {
   }
 
   public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, int status) {
-    this(username, fullname, localFullName, isAdmin, groups, privileges, status, 0L, 0L);
+    this(username, fullname, localFullName, isAdmin, groups, privileges, status, 0L, 0L, 0L);
   }
 
-  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, int status, long createdDate, long updatedDate) {
+  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, int status, long createdDate, long updatedDate, long pwChangedDate) {
     this.username = username;
     this.fullname = fullname;
     this.localFullName = localFullName;
@@ -50,6 +50,7 @@ public class User {
     this.status = status;
     this.createdDate = createdDate;
     this.updatedDate = updatedDate;
+    this.pwChangedDate = pwChangedDate;
   }
 
   /**
@@ -92,7 +93,7 @@ public class User {
   /**
    * Sets local full name.
    *
-   * @param local
+   * @param localFullName
    *          Local full name
    */
   public void setLocalFullName(String localFullName) {
@@ -418,7 +419,7 @@ public class User {
   /**
    * Sets the date the user last changed their password.
    *
-   * @param updatedDate
+   * @param pwChangedDate
    *          the last changed date in unix millis.
    */
   public void setPwChangedDate(long pwChangedDate) {
