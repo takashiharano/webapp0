@@ -295,7 +295,9 @@ public class UserManager {
     long updatedDate = createdDate;
 
     User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, status, createdDate, updatedDate);
-    user.setState(User.STATE_NEED_PW_CHANGE);
+    if (StrUtil.isEmpty(userStatus)) {
+      user.setState(User.STATE_NEED_PW_CHANGE);
+    }
     users.put(username, user);
 
     try {
