@@ -30,6 +30,10 @@ tr.item-list:hover {
   border: none !important;
   background: transparent;
 }
+
+#user-list {
+  font-size: 12px;
+}
 </style>
 </head>
 <body>
