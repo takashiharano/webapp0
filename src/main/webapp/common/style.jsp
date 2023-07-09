@@ -2,6 +2,7 @@
 body {
   box-sizing: border-box;
   width: 100%;
+  min-width: 1000px;
   height: calc(100vh - 10px);
   margin: 0;
   padding: 0;
@@ -114,6 +115,7 @@ td,th {
   position: relative;
   min-height: calc(100% - 92px);
   padding: 4px;
+  overflow: auto;
 }
 
 #footer {
