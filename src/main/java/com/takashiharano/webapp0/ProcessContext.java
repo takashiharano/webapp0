@@ -448,7 +448,6 @@ public class ProcessContext {
    *
    * @param jb
    *          the JsonBuilder object
-   * @throws IOException
    */
   public void sendJsonResponse(JsonBuilder jb) {
     sendJsonResponse(jb.toString());
