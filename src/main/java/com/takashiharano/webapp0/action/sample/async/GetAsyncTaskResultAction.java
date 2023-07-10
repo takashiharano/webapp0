@@ -28,7 +28,12 @@ public class GetAsyncTaskResultAction extends Action {
     AsyncTaskResult taskResult = asyncTaskManager.getTaskResult(taskId);
     String result = "";
     if (taskResult != null) {
-      result = (String) taskResult.getResult();
+      if (taskResult.hasError()) {
+        Throwable t = taskResult.getException();
+        result = t.toString();
+      } else {
+        result = (String) taskResult.getResult();
+      }
     }
 
     JsonBuilder jb = new JsonBuilder();
