@@ -596,14 +596,14 @@ app.userlist.getGroups = function() {
 app.userlist.getGroupsCb = function(xhr, res) {
   app.userlist.drawGroupStatus('');
   var s = util.decodeBase64(res.body);
-  $el('#groups').value = s;
+  $el('#groups-text').value = s;
 };
 
 app.userlist.confirmSaveGroups = function() {
   util.confirm('Save?', app.userlist.saveGroups);
 };
 app.userlist.saveGroups = function() {
-  var s = $el('#groups').value;
+  var s = $el('#groups-text').value;
   var b64 = util.encodeBase64(s);
   var params = {
     text: b64
@@ -622,7 +622,7 @@ app.userlist.onEditWindowClose = function() {
 };
 
 $onCtrlS = function(e) {
-  if ($el('#groups').hasFocus()) {
+  if ($el('#groups-text').hasFocus()) {
     app.userlist.confirmSaveGroups();
   }
 };

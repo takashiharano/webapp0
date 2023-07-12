@@ -35,7 +35,7 @@ tr.item-list:hover {
   font-size: 12px;
 }
 
-#groups {
+#groups-text {
   width: calc(100% - 17px);
   height: 200px;
 }
@@ -53,7 +53,7 @@ tr.item-list:hover {
 
 <div style="margin-top:20px;">
 Groups<button style="margin-left:8px;" onclick="app.userlist.confirmSaveGroups();">SAVE</button><span id="groups-status" style="margin-left:8px;"></span><br>
-<textarea id="groups"></textarea>
+<textarea id="groups-text"></textarea>
 </div>
 
 </div>
