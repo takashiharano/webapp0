@@ -13,8 +13,8 @@ import java.util.Set;
  */
 public class User {
   public static final int STATE_NONE = 0;
-  public static final int STATE_DISABLED = 1;
-  public static final int STATE_NEED_PW_CHANGE = 1 << 1;
+  public static final int STATE_NEED_PW_CHANGE = 1;
+  public static final int STATE_DISABLED = 1 << 1;
   public static final int STATE_LOCKED = 1 << 2;
 
   private String username;
