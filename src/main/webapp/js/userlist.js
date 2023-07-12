@@ -30,6 +30,7 @@ app.userlist.mode = null;
 
 $onReady = function() {
   app.userlist.getUserList();
+  app.userlist.getGroups();
 };
 
 app.userlist.getUserList = function() {
@@ -583,10 +584,47 @@ app.userlist.cleansePrivileges = function(s) {
   return res;
 };
 
+
+//-----------------------------------------------------------------------------
+app.userlist.drawGroupStatus = function(s) {
+  $el('#groups-status').innerHTML = s;
+};
+
+app.userlist.getGroups = function() {
+  app.callServerApi('GetGroupsDefinition', null, app.userlist.getGroupsCb);
+};
+app.userlist.getGroupsCb = function(xhr, res) {
+  app.userlist.drawGroupStatus('');
+  var s = util.decodeBase64(res.body);
+  $el('#groups').value = s;
+};
+
+app.userlist.confirmSaveGroups = function() {
+  util.confirm('Save?', app.userlist.saveGroups);
+};
+app.userlist.saveGroups = function() {
+  var s = $el('#groups').value;
+  var b64 = util.encodeBase64(s);
+  var params = {
+    text: b64
+  }
+  app.callServerApi('SaveGroupsDefinition', params, app.userlist.saveGroupsCb);
+};
+app.userlist.saveGroupsCb = function(xhr, res) {
+  app.showInfotip('OK');
+};
+
+
 //-----------------------------------------------------------------------------
 app.userlist.onEditWindowClose = function() {
   app.userlist.editWindow = null;
   app.userlist.mode = null;
+};
+
+$onCtrlS = function(e) {
+  if ($el('#groups').hasFocus()) {
+    app.userlist.confirmSaveGroups();
+  }
 };
 
 $onBeforeUnload = function(e) {

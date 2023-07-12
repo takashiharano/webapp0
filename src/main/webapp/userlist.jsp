@@ -34,6 +34,11 @@ tr.item-list:hover {
 #user-list {
   font-size: 12px;
 }
+
+#groups {
+  width: calc(100% - 17px);
+  height: 200px;
+}
 </style>
 </head>
 <body>
@@ -45,6 +50,11 @@ tr.item-list:hover {
 <button onclick="app.userlist.newUser();">+</button>
 </div>
 <div id="user-list"></div>
+
+<div style="margin-top:20px;">
+Groups<button style="margin-left:8px;" onclick="app.userlist.confirmSaveGroups();">SAVE</button><span id="groups-status" style="margin-left:8px;"></span><br>
+<textarea id="groups"></textarea>
+</div>
 
 </div>
 <jsp:include page="common/footer.jsp" />

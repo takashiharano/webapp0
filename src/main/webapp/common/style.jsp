@@ -42,6 +42,11 @@ input[type="checkbox"] {
   top: 2px;
 }
 
+textarea {
+  outline: none;
+  font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
+}
+
 pre {
   margin: 2px 0;
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
