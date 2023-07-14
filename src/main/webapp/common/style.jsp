@@ -37,6 +37,11 @@ input[type="text"],input[type="password"] {
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
 }
 
+input:-webkit-autofill {
+  -webkit-transition: all 86400s;
+  transition: all 86400s;
+}
+
 input[type="checkbox"] {
   position: relative;
   top: 2px;
