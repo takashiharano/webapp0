@@ -919,7 +919,7 @@ public class ProcessContext {
   /**
    * Returns the workspace path for the application defined in app.properties with
    * "workspace" key.<br>
-   * If there is no definition, returns the same as the app home path.
+   * If there is no definition, returns the same path as the app home.
    *
    * @return the workspace path
    */
