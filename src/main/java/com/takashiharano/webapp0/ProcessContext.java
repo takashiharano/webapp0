@@ -904,6 +904,32 @@ public class ProcessContext {
   }
 
   /**
+   * Returns the application home path.<br>
+   * Generally it will be /home/USER/webapphome/MODULE on linux or<br>
+   * C:/Users/USER/webapphome/MODULE on Windows.
+   *
+   * @return the path
+   */
+  public String getAppHomePath() {
+    AppManager appManager = getAppManager();
+    String path = appManager.getAppHomePath();
+    return path;
+  }
+
+  /**
+   * Returns the workspace path for the application defined in app.properties with
+   * "workspace" key.<br>
+   * If there is no definition, returns the same as the app home path.
+   *
+   * @return the workspace path
+   */
+  public String getAppWorkspacePath() {
+    AppManager appManager = getAppManager();
+    String path = appManager.getAppWorkspacePath();
+    return path;
+  }
+
+  /**
    * Returns the configuration object.
    *
    * @return Props
