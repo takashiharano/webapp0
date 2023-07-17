@@ -1,3 +1,7 @@
+<%@ page import="com.takashiharano.webapp0.ProcessContext"%>
+<%
+ProcessContext context = (ProcessContext) request.getAttribute("context");
+%>
 <style>
 body {
   box-sizing: border-box;
@@ -9,7 +13,9 @@ body {
   margin: 0;
   padding: 0;
   font-size: 14px;
-  font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
+  font-family: Meiryo;
+  color: <%= context.getConfigValue("contents_fg_color") %>;
+  background: <%= context.getConfigValue("contents_bg_color") %>;
 }
 
 button, input[type="button"], input[type="submit"] {
@@ -18,8 +24,8 @@ button, input[type="button"], input[type="submit"] {
   border: none;
   border-radius: 2px;
   outline: none;
-  color: #fff;
-  background: #0068cc;
+  color: <%= context.getConfigValue("button_fg_color") %>;
+  background: <%= context.getConfigValue("button_bg_color") %>;
   transition: all 0.2s ease;
 }
 
@@ -101,11 +107,11 @@ td,th {
   display: table;
   position: relative;
   width: 100%;
-  height: 46px;
+  height: 32px;
   table-layout: fixed;
   white-space: nowrap;
-  color: #fff;
-  background: #01a0e9;
+  color: <%= context.getConfigValue("header_fg_color") %>;
+  background: <%= context.getConfigValue("header_bg_color") %>;
 }
 
 #header-content {
@@ -123,7 +129,7 @@ td,th {
 #contents {
   width: calc(100% - 8px);
   position: relative;
-  min-height: calc(100% - 92px);
+  min-height: calc(100% - 64px);
   padding: 4px;
   overflow: auto;
 }
@@ -132,11 +138,11 @@ td,th {
   display: table;
   position: relative;
   width: 100%;
-  height: 46px;
+  height: 32px;
   table-layout: fixed;
   white-space: nowrap;
-  color: #8b949d;
-  background: #0d1117;
+  color: <%= context.getConfigValue("footer_fg_color") %>;
+  background: <%= context.getConfigValue("footer_bg_color") %>;
 }
 
 #footer-content {
