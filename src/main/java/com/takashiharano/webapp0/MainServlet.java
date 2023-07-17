@@ -34,7 +34,7 @@ public class MainServlet extends HttpServlet {
     context.onAccess();
 
     try {
-      _service(context);
+      process(context);
     } catch (Throwable t) {
       DefaultErrorHandler.handle(context, t);
     }
@@ -42,7 +42,7 @@ public class MainServlet extends HttpServlet {
     context.onAccessEnd();
   }
 
-  protected void _service(ProcessContext context) throws Throwable {
+  protected void process(ProcessContext context) throws Throwable {
     String method = context.getRequest().getMethod();
     if (checkMethod(method) == false) {
       context.setResponseCode(405); // Method Not Allowed
