@@ -11,7 +11,8 @@ app.userlist.LIST_COLUMNS = [
   {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
   {key: 'is_admin', label: 'Admin'},
   {key: 'groups', label: 'Groups', style: 'min-width:15em;'},
-  {key: 'privileges', label: 'Privileges', style: 'min-width:20em;'},
+  {key: 'privileges', label: 'Privileges', style: 'min-width:15em;'},
+  {key: 'description', label: 'Description', style: 'min-width:15em;'},
   {key: 'status', label: 'Status'},
   {key: 'created_date', label: 'Created'},
   {key: 'updated_date', label: 'Updated'},
@@ -80,6 +81,14 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
       pwChangedDate = util.getDateTimeString(item.pw_changed_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
     }
 
+    var desc = (item.description ? item.description : '');
+    var escDesc = util.escHtml(desc);
+    var dispDesc = '<span style="display:inline-block;width:100%;overflow:hidden;text-overflow:ellipsis;"';
+    if (util.lenW(desc) > 35) {
+      dispDesc += ' data-tooltip="' + escDesc + '"';
+    }
+    dispDesc += '>' + escDesc + '</span>';
+
     htmlList += '<tr class="item-list">';
     htmlList += '<td class="item-list">' + username + '</td>';
     htmlList += '<td class="item-list">' + fullname + '</td>';
@@ -87,6 +96,7 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list" style="text-align:center;">' + (item.is_admin ? 'Y' : '') + '</td>';
     htmlList += '<td class="item-list">' + item.groups + '</td>';
     htmlList += '<td class="item-list">' + item.privileges + '</td>';
+    htmlList += '<td class="item-list" style="max-width:20em">' + dispDesc + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + item.status + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
@@ -194,7 +204,7 @@ app.userlist.editUser = function(username) {
 app.userlist.openUserInfoEditorWindow = function(mode) {
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
-  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:260px;text-align:left;">';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:350px;text-align:left;">';
 
   html += '<table>';
   html += '  <tr>';
@@ -223,6 +233,10 @@ app.userlist.openUserInfoEditorWindow = function(mode) {
   html += '  <tr>';
   html += '    <td>Privileges</td>';
   html += '    <td><input type="text" id="privileges" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '  <tr>';
+  html += '    <td>Description</td>';
+  html += '    <td><input type="text" id="description" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Status</td>';
@@ -258,7 +272,7 @@ app.userlist.openUserInfoEditorWindow = function(mode) {
     pos: 'c',
     closeButton: true,
     width: 480,
-    height: 360,
+    height: 450,
     minWidth: 480,
     minHeight: 360,
     scale: 1,
@@ -304,6 +318,7 @@ app.userlist.setUserInfoToEditor = function(info) {
   $el('#isadmin').checked = info.is_admin;
   $el('#groups').value = info.groups;
   $el('#privileges').value = info.privileges;
+  $el('#description').value = info.description;
   $el('#status').value = info.status;
 };
 
@@ -315,6 +330,7 @@ app.userlist.clearUserInfoEditor = function() {
     is_admin: false,
     groups: '',
     privileges: '',
+    description: '',
     status: ''
   };
   app.userlist.setUserInfoToEditor(info);
@@ -336,6 +352,7 @@ app.userlist.addUser = function() {
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var groups = $el('#groups').value;
   var privileges = $el('#privileges').value;
+  var description = $el('#description').value;
   var status = $el('#status').value.trim();
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
@@ -389,6 +406,7 @@ app.userlist.addUser = function() {
     is_admin: isAdmin,
     groups: groups,
     privileges: privileges,
+    description: description,
     status: status,
   };
   if (pw) {
@@ -416,6 +434,7 @@ app.userlist.updateUser = function() {
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var groups = $el('#groups').value;
   var privileges = $el('#privileges').value;
+  var description = $el('#description').value;
   var status = $el('#status').value;
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
@@ -434,6 +453,7 @@ app.userlist.updateUser = function() {
     is_admin: isAdmin,
     groups: groups,
     privileges: privileges,
+    description : description,
     status: status,
   };
 

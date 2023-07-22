@@ -173,29 +173,34 @@ public class UserManager {
         privileges = fields[5];
       }
 
-      int status = User.STATE_NONE;
+      String description = null;
       if (fields.length > 6) {
+        description = fields[6];
+      }
+
+      int status = User.STATE_NONE;
+      if (fields.length > 7) {
         try {
-          status = Integer.parseInt(fields[6]);
+          status = Integer.parseInt(fields[7]);
         } catch (Exception e) {
           // nop
         }
       }
 
-      User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, status);
+      User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, status);
 
-      if (fields.length > 7) {
-        long createdDate = StrUtil.parseLong(fields[7]);
+      if (fields.length > 8) {
+        long createdDate = StrUtil.parseLong(fields[8]);
         user.setCreatedDate(createdDate);
       }
 
-      if (fields.length > 8) {
-        long updatedDate = StrUtil.parseLong(fields[8]);
+      if (fields.length > 9) {
+        long updatedDate = StrUtil.parseLong(fields[9]);
         user.setUpdatedDate(updatedDate);
       }
 
-      if (fields.length > 9) {
-        long pwChangedDate = StrUtil.parseLong(fields[9]);
+      if (fields.length > 10) {
+        long pwChangedDate = StrUtil.parseLong(fields[10]);
         user.setPwChangedDate(pwChangedDate);
       }
 
@@ -210,7 +215,7 @@ public class UserManager {
    *           if an IO error occurres
    */
   public void saveUsers() throws IOException {
-    String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tStatus\tCreated\tUpdated\tPwChanged\n";
+    String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tDescription\tStatus\tCreated\tUpdated\tPwChanged\n";
     StringBuilder sb = new StringBuilder();
     sb.append(header);
     for (Entry<String, User> entry : users.entrySet()) {
@@ -222,6 +227,7 @@ public class UserManager {
       String adminFlag = (isAdmin ? "1" : "0");
       String groups = user.getGroupsInOneLine();
       String privileges = user.getPrivilegesInOneLine();
+      String description = user.getDescription();
       int status = user.getStatus();
       long createdDate = user.getCreatedDate();
       long updatedDate = user.getUpdatedDate();
@@ -238,6 +244,8 @@ public class UserManager {
       sb.append(groups);
       sb.append("\t");
       sb.append(privileges);
+      sb.append("\t");
+      sb.append(description);
       sb.append("\t");
       sb.append(status);
       sb.append("\t");
@@ -277,13 +285,15 @@ public class UserManager {
    *          Groups
    * @param privileges
    *          Privileges
+   * @param description
+   *          user description
    * @param userStatus
    *          user status
    * @return User
    * @throws Exception
    *           if an error occurres
    */
-  public User regieterNewUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String userStatus) throws Exception {
+  public User regieterNewUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String description, String userStatus) throws Exception {
     if (users.containsKey(username)) {
       throw new Exception("USER_ALREADY_EXISTS");
     }
@@ -301,7 +311,7 @@ public class UserManager {
     long updatedDate = now;
     long pwChangedDate = now;
 
-    User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, status, createdDate, updatedDate, pwChangedDate);
+    User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, status, createdDate, updatedDate, pwChangedDate);
     if (StrUtil.isEmpty(userStatus)) {
       user.setState(User.STATE_NEED_PW_CHANGE);
     }
@@ -333,13 +343,15 @@ public class UserManager {
    *          Groups
    * @param privileges
    *          Privileges
+   * @param description
+   *          user description
    * @param userStatus
    *          user status
    * @return User
    * @throws Exception
    *           if an error occurres
    */
-  public User updateUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String userStatus) throws Exception {
+  public User updateUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String description, String userStatus) throws Exception {
     User user = users.get(username);
     if (user == null) {
       throw new Exception("USER_NOT_FOUND");
@@ -370,6 +382,11 @@ public class UserManager {
 
     if (privileges != null) {
       user.setPrivileges(privileges);
+      updated = true;
+    }
+
+    if (description != null) {
+      user.setDescription(description);
       updated = true;
     }
 

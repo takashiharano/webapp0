@@ -212,4 +212,127 @@ app.unsetState = function(st) {
   app.status &= ~st;
 };
 
+
+//app.processingDots.show('Loading...');
+//app.processingDots.hide();
+
+//-----------------------------------------------------------------------------
+// 処理中表示
+//-----------------------------------------------------------------------------
+/**
+ * 処理中画像表示を開始します。
+ */
+app.processingDots = {};
+app.processingDots.modal = null;
+app.processingDots.baseEl = null;
+app.processingDots.msg = null;
+app.processingDots.show = function(message) {
+  if (app.processingDots.modal) {
+    // 既に表示中
+    var msg = app.processingDots.msg;
+    if (message) {
+      if (!msg) {
+        msg = app.processingDots.appendMessageArea(app.processingDots.baseEl);
+        app.processingDots.msg = msg;
+      }
+      msg.innerHTML = message;
+      util.setStyle(msg, 'opacity', '1');
+    } else {
+      if (msg) {
+        msg.innerText = '';
+        util.setStyle(msg, 'opacity', '0');
+      }
+    }
+    return false;
+  }
+
+  var outerWrapper = document.createElement('div');
+  var styles = {
+    'display': 'table',
+    'position': 'absolute',
+    'width': '100%',
+    'height': '100%',
+    'top': '0',
+    'right': '0',
+    'bottom': '0',
+    'left': '0',
+    'margin': 'auto'
+  };
+  util.setStyle(outerWrapper, styles);
+
+  var wrapper = document.createElement('div');
+  styles = {
+    'display': 'table-cell',
+    'position': 'relative',
+    'width': '100%',
+    'height': '100%',
+    'text-align': 'center',
+    'vertical-align': 'middle'
+  };
+  util.setStyle(wrapper, styles);
+  app.processingDots.baseEl = wrapper;
+  outerWrapper.appendChild(wrapper);
+
+  if (message && !app.processingDots.msg) {
+    msg = app.processingDots.appendMessageArea(wrapper);
+    msg.innerHTML = message;
+    app.processingDots.msg = msg;
+  }
+
+  styles = {
+    background: 'rgba(0,0,0,0.3)'
+  };
+  var closeAnywhere = false;
+  var modal = util.modal.show(outerWrapper, closeAnywhere, styles);
+  app.processingDots.modal = modal;
+  util.setStyle(document.body, 'cursor', 'progress');
+
+  return true;
+};
+
+/**
+ * 処理中画像表示を終了します。
+ */
+app.processingDots.hide = function() {
+  if (app.processingDots.modal) {
+    app.processingDots.modal.hide();
+    app.processingDots.msg = null;
+    app.processingDots.baseEl = null;
+    app.processingDots.modal = null;
+    util.setStyle(document.body, 'cursor', '');
+    return true;
+  } else {
+    // 表示されていない状態で呼ばれた
+    return false;
+  }
+};
+
+app.processingDots.appendMessageArea = function(baseEl) {
+  var msg = app.processingDots.createMessageArea();
+  var br = document.createElement('br');
+  baseEl.appendChild(br);
+  baseEl.appendChild(msg);
+  return msg;
+};
+
+app.processingDots.createMessageArea= function() {
+  var el = document.createElement('pre');
+  var styles = {
+    'display': 'inline-block',
+    'position': 'relative',
+    'width': 'auto',
+    'height': 'auto',
+    'top': '0',
+    'border-radius': '4px',
+    'background': 'rgba(0,0,0,0.5)',
+    'padding': '0.5em 1em',
+    'color': '#fff',
+    'font-size': '14px'
+  };
+  util.setStyle(el, styles);
+  return el;
+};
+
+
+
 window.addEventListener('DOMContentLoaded', app.onReady, true);

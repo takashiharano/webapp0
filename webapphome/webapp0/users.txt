@@ -1,4 +1,2 @@
-#Username	Name	LocalFullName	isAdmin	Groups	Privileges	Status	Created	Updated
-admin	Administrator		1			0	0	0
-user1	User1		0		aaa	0	0	0
-user2	User2		0		aaa bbb	0	0	0
+#Username	Name	LocalFullName	isAdmin	Groups	Privileges	Description	Status	Created	Updated	PwChanged
+admin	Administrator		1				0	0	0	0

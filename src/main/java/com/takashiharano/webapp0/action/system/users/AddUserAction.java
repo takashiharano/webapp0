@@ -21,6 +21,7 @@ public class AddUserAction extends Action {
     String adminFlag = context.getRequestParameter("is_admin");
     String groups = context.getRequestParameter("groups");
     String privileges = context.getRequestParameter("privileges");
+    String description = context.getRequestParameter("description");
     String userStatus = context.getRequestParameter("status");
 
     if (!context.isPermitted("useredit")) {
@@ -38,7 +39,7 @@ public class AddUserAction extends Action {
 
     String status = "OK";
     try {
-      userManager.regieterNewUser(username, pwHash, fullname, localFullName, adminFlag, groups, privileges, userStatus);
+      userManager.regieterNewUser(username, pwHash, fullname, localFullName, adminFlag, groups, privileges, description, userStatus);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User regieter error: " + status);
