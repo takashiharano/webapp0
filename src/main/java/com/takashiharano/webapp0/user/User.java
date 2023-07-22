@@ -8,6 +8,8 @@ package com.takashiharano.webapp0.user;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.libutil.JsonBuilder;
+
 /**
  * User Entity.
  */
@@ -445,6 +447,28 @@ public class User {
    */
   public void setPwChangedDate(long pwChangedDate) {
     this.pwChangedDate = pwChangedDate;
+  }
+
+  /**
+   * Returns all properties in JSON.
+   *
+   * @return JSON string
+   */
+  public String toJSON() {
+    JsonBuilder jb = new JsonBuilder();
+    jb.append("username", getUsername());
+    jb.append("fullname", getFullName());
+    jb.append("localfullname", getLocalFullName());
+    jb.append("is_admin", isAdmin());
+    jb.append("groups", getGroupsInOneLine());
+    jb.append("privileges", getPrivilegesInOneLine());
+    jb.append("description", getDescription());
+    jb.append("status", getStatus());
+    jb.append("created_date", getCreatedDate());
+    jb.append("updated_date", getUpdatedDate());
+    jb.append("pw_changed_date", getPwChangedDate());
+    String json = jb.toString();
+    return json;
   }
 
   private String convertSetToOneLineString(Set<String> items, String separator) {

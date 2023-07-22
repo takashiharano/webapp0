@@ -30,7 +30,7 @@ public class GetUserInfoAction extends Action {
       return;
     }
 
-    String json = UserInfoCommonLogic.buildUserInfoJson(user);
+    String json = user.toJSON();
 
     context.sendJsonResponse(status, json);
   }
