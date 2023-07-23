@@ -212,4 +212,19 @@ app.unsetState = function(st) {
   app.status &= ~st;
 };
 
+/**
+ * Show loading screen
+ */
+app.loadingScreen = {};
+app.loadingScreen.show = function(m, html) {
+  util.loadingScreen.show(m, html);
+};
+
+/**
+ * Hide loading screen
+ */
+app.loadingScreen.hide = function() {
+  util.loadingScreen.hide();
+};
+
 window.addEventListener('DOMContentLoaded', app.onReady, true);
