@@ -50,7 +50,7 @@ public class User {
     this.admin = isAdmin;
     setGroups(groups);
     setPrivileges(privileges);
-    this.description = description;
+    setDescription(description);
     this.status = status;
     this.createdDate = createdDate;
     this.updatedDate = updatedDate;
@@ -339,6 +339,10 @@ public class User {
    *          the user description
    */
   public void setDescription(String description) {
+    if (description == null) {
+      description = "";
+    }
+    description = description.replaceAll("\\t|\\r\\n|\\n", " ");
     this.description = description;
   }
 
