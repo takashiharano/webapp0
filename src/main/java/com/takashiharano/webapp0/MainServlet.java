@@ -54,7 +54,7 @@ public class MainServlet extends HttpServlet {
     Action action = Action.getActionInstance(context, actionName);
     if (action == null) {
       Log.e("ACTION_NOT_FOUND: " + actionName);
-      context.sendJsonResponse("ACTION_NOT_FOUND", actionName);
+      context.sendJsonResponse("ACTION_NOT_FOUND", actionName, false);
       return;
     }
 
