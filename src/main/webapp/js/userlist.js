@@ -90,7 +90,7 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     dispDesc += '>' + escDesc + '</span>';
 
     htmlList += '<tr class="item-list">';
-    htmlList += '<td class="item-list">' + username + '</td>';
+    htmlList += '<td class="item-list"><span class="pseudo-link link-button" style="text-align:center;" onclick="app.userlist.editUser(\'' + username + '\');" data-tooltip="Edit">' + username + '</span></td>';
     htmlList += '<td class="item-list">' + fullname + '</td>';
     htmlList += '<td class="item-list">' + localfullname + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + (item.is_admin ? 'Y' : '') + '</td>';
@@ -101,7 +101,6 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + pwChangedDate + '</td>';
-    htmlList += '<td class="item-list"><span class="pseudo-link" style="color:#00a;text-align:center;" onclick="app.userlist.editUser(\'' + username + '\');">EDIT</span></td>';
     htmlList += '<td class="item-list" style="text-align:center;width:1.5em;">';
     if (username == currentUsername) {
       htmlList += '&nbsp;';
@@ -165,7 +164,6 @@ app.userlist.buildListHeader = function(columns, sortIdx, sortOrder) {
     }
     html += '><span>' + label + '</span> ' + sortButton + '</th>';
   }
-  html += '<th class="item-list">&nbsp;</th>';
   html += '<th class="item-list">&nbsp;</th>';
   html += '</tr>';
   return html;

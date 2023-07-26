@@ -75,6 +75,10 @@ td,th {
   min-width: 7em;
 }
 
+.link-button {
+  color: #00a;
+}
+
 .screen-button-active {
   font-weight: bold;
 }
