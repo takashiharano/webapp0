@@ -71,12 +71,12 @@ td,th {
   padding: 2px 4px;
 }
 
-.screen-button {
-  min-width: 7em;
-}
-
 .link-button {
   color: #00a;
+}
+
+.screen-button {
+  min-width: 7em;
 }
 
 .screen-button-active {
