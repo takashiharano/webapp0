@@ -36,6 +36,10 @@ button:hover, input[type="button"]:hover, input[type="submit"]:hover {
   transition: all 0.2s ease;
 }
 
+button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled {
+  background: #888;
+}
+
 input[type="text"],input[type="password"] {
   border: none;
   border-bottom: 1px solid #000;
