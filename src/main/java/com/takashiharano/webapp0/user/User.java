@@ -303,7 +303,7 @@ public class User {
    *          the privilege to check
    * @return true if the user has the privilege. always true if the user is admin.
    */
-  public boolean isPermitted(String privilege) {
+  public boolean hasPermission(String privilege) {
     boolean has = hasPrivilege(privilege);
     if (has) {
       return true;

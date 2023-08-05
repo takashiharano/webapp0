@@ -25,7 +25,7 @@ public class EditUserAction extends Action {
     String userStatus = context.getRequestParameter("status");
 
     String currentUsername = context.getUsername();
-    if (!context.isPermitted("useredit") && !currentUsername.equals(username)) {
+    if (!context.hasPermission("sysadmin") && !currentUsername.equals(username)) {
       Log.w("EditUser: FORBIDDEN username=" + username);
       context.sendJsonResponse("FORBIDDEN:EditUser", null);
       return;

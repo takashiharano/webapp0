@@ -13,7 +13,7 @@ public class SaveGroupsDefinitionAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    if (!context.isPermitted("useredit")) {
+    if (!context.hasPermission("sysadmin")) {
       context.sendJsonResponse("FORBIDDEN:GetGroupsDefinition", null);
       return;
     }

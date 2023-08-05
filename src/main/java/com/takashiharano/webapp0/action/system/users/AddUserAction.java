@@ -24,7 +24,7 @@ public class AddUserAction extends Action {
     String description = context.getRequestParameter("description");
     String userStatus = context.getRequestParameter("status");
 
-    if (!context.isPermitted("useredit")) {
+    if (!context.hasPermission("sysadmin")) {
       Log.i("AddUser: FORBIDDEN username=" + username);
       context.sendJsonResponse("FORBIDDEN:AddUser", null);
       return;
