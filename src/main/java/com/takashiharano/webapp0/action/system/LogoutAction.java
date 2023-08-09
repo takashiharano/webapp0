@@ -5,6 +5,7 @@
  */
 package com.takashiharano.webapp0.action.system;
 
+import com.libutil.StrUtil;
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.action.Action;
 import com.takashiharano.webapp0.session.SessionManager;
@@ -18,9 +19,16 @@ public class LogoutAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
+    String targetSid = context.getRequestParameter("sid");
     SessionManager sessionManager = context.getSessionManager();
-    sessionManager.logout(context);
-    context.sendJsonResponse("OK", null);
+    boolean success = true;
+    if (StrUtil.isEmpty(targetSid)) {
+      sessionManager.logout(context);
+    } else {
+      success = sessionManager.logout(targetSid);
+    }
+    String status = success ? "OK" : "NG";
+    context.sendJsonResponse(status, null);
   }
 
 }

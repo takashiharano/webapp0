@@ -5,6 +5,8 @@
  */
 package com.takashiharano.webapp0.session;
 
+import com.libutil.JsonBuilder;
+
 public class SessionInfo {
 
   private String sessionId;
@@ -71,6 +73,25 @@ public class SessionInfo {
 
   public void setUserAgent(String userAgent) {
     this.userAgent = userAgent;
+  }
+
+  /**
+   * Returns all properties in JSON.
+   *
+   * @return JSON string
+   */
+  public String toJSON() {
+    JsonBuilder jb = new JsonBuilder();
+    jb.append("sessionId", getSessionId());
+    jb.append("username", getUsername());
+    jb.append("createdTime", getCreatedTime());
+    jb.append("lastAccessedTime", getLastAccessedTime());
+    jb.append("remoteAddr", getRemoteAddr());
+    jb.append("remoteHost", getRemoteHost());
+    jb.append("userAgent", getUserAgent());
+
+    String json = jb.toString();
+    return json;
   }
 
 }

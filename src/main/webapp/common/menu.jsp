@@ -23,7 +23,7 @@ if (context.isScreenEnabled("screen2")) {
 %>
 
 <%
-if (context.isScreenEnabled("userlist") && context.isPermitted("useredit")) {
+if (context.isScreenEnabled("userlist") && context.hasPermission("sysadmin")) {
 %>
 <button id="screen-button-userlist" class="screen-button" onclick="app.screen('userlist');">User List</button>
 <%
@@ -39,6 +39,5 @@ if (context.isScreenEnabled("system") && context.isAdmin()) {
 %>
 
 <button id="screen-button-_template" class="screen-button" onclick="app.screen('_template');">_Template</button>
-
 
 </div>

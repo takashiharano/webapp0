@@ -51,6 +51,9 @@ tr.item-list:hover {
 </div>
 <div id="user-list"></div>
 
+<pre style="margin-top:20px;">Sessions
+<div id="session-list"></div></pre>
+
 <div style="margin-top:20px;">
 Groups<button style="margin-left:8px;" onclick="app.userlist.confirmSaveGroups();">SAVE</button><span id="groups-status" style="margin-left:8px;"></span><br>
 <textarea id="groups-text"></textarea>

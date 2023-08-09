@@ -5,6 +5,7 @@
  */
 app.userlist = {};
 
+app.userlist.INTERVAL = 2 * 60 * 1000;
 app.userlist.LIST_COLUMNS = [
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
   {key: 'fullname', label: 'Full Name', style: 'min-width:13em;'},
@@ -25,13 +26,31 @@ app.userlist.listStatus = {
 };
 
 app.userlist.itemList = [];
-
+app.userlist.sessions = null;
+app.userlist.currentSid = null;
 app.userlist.editWindow = null;
 app.userlist.mode = null;
+app.userlist.tmrId = 0;
+app.userlist.interval = 0;
 
 $onReady = function() {
+  app.userlist.reload();
+  app.userlist.queueNextUpdateSessionInfo();
+};
+
+app.userlist.reload = function() {
   app.userlist.getUserList();
+  app.userlist.getSessionList();
   app.userlist.getGroups();
+};
+
+app.userlist.queueNextUpdateSessionInfo = function() {
+  app.userlist.tmrId = setTimeout(app.userlist.updateSessionInfo, app.userlist.INTERVAL);
+};
+
+app.userlist.updateSessionInfo = function() {
+  app.userlist.interval = 1;
+  app.userlist.getSessionList();
 };
 
 app.userlist.getUserList = function() {
@@ -118,6 +137,158 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
   app.userlist.drawListContent(html);
 };
 
+app.userlist.getSessionList = function() {
+  if (app.userlist.tmrId > 0) {
+    clearTimeout(app.userlist.tmrId);
+    app.userlist.tmrId = 0;
+    app.userlist.interval = 1;
+  }
+  app.callServerApi('GetSessionInfoList', null, app.userlist.getSessionListCb);
+};
+app.userlist.getSessionListCb = function(xhr, res, req) {
+  if (res.status == 'FORBIDDEN') {
+    location.href = location.href;
+    return;
+  } else if (res.status != 'OK') {
+    app.showInfotip(res.status);
+    return;
+  }
+  var data = res.body;
+  var sessions = data.sessions;
+  app.userlist.sessions = sessions;
+  app.currentSid = data.currentSid;
+  app.userlist.drawSessionList(sessions);
+
+  if (app.userlist.interval) {
+    app.userlist.interval = 0;
+    app.userlist.queueNextUpdateSessionInfo();
+  }
+};
+
+app.userlist.drawSessionList = function(sessions) {
+  var html = '<table>';
+  html += '<tr style="font-weight:bold;">';
+  html += '<td></td>';
+  html += '<td>UID</td>';
+  html += '<td>Name</td>';
+  html += '<td>Session</td>';
+  html += '<td>Last Accessed</td>';
+  html += '<td>Elapsed</td>';
+  html += '<td style="font-weight:normal;">0    1    2    3    4    5    6    7    8    9    10   11   12   13   14   15   16   17   18   19   20   21   22   23   </td>';
+  html += '<td>Addr</td>';
+  html += '<td>User-Agent</td>';
+  html += '<td>Logged in</td>';
+  html += '</tr>';
+
+  sessions = util.sortObject(sessions, 'lastAccessedTime', true, true);
+  html += app.userlist.buildSessionInfoHtml(sessions);
+  html += '</table>';
+  $el('#session-list').innerHTML = html;
+};
+
+app.userlist.buildSessionInfoHtml = function(sessions) {
+  var html = '';
+  if (!sessions) return html;
+  var now = util.now();
+  var mn = util.getTimestampOfMidnight(now);
+  for (var i = 0; i < sessions.length; i++) {
+    var session = sessions[i];
+    var username = session.username;
+    var name = session.fullName;
+    var ua = session.ua;
+    var loginT = session.createdTime;
+    var laTime = session.lastAccessedTime;
+    var loginTime = util.getDateTimeString(loginT, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
+    var laTimeStr = util.getDateTimeString(laTime, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
+    var sid = session['sid'];
+    var ssid = util.clipString(sid, 7, 2, '..');
+    var sid7 = util.clipString(sid, 7, 0, '');
+    var addr = session.addr;
+    var brws = util.getBrowserInfo(ua);
+    var ua = brws.name + ' ' + brws.version;
+
+    var elapsed = now - laTime;
+    var ledColor = '#888';
+    if (elapsed <= 10 * util.MINUTE) {
+      ledColor = '#0f0';
+    } else if (elapsed <= 30 * util.MINUTE) {
+      ledColor = '#0a0';
+    } else if (elapsed <= 6 * util.HOUR) {
+      ledColor = '#080';
+    } else if (laTime >= mn) {
+      ledColor = '#262';
+    }
+
+    var led = '<span class="led" style="color:' + ledColor + '"></span>'
+    var ssidLink = '<span class="pseudo-link link-button" onclick="app.userlist.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
+    var timeId = 'tm-' + sid7;
+    var tmspan = '<span id="' + timeId + '"></span>'
+    var timeline = app.userlist.buildTimeLine(now, laTime);
+
+    html += '<tr class="item-list">';
+    html += '<td style="padding-right:4px;">' + led + '</td>';
+    html += '<td style="padding-right:10px;">' + username + '</td>';
+    html += '<td style="padding-right:10px;">' + name + '</td>';
+    html += '<td style="padding-right:10px;">' + ssidLink + '</td>';
+    html += '<td style="padding-right:10px;">' + laTimeStr + '</td>';
+    html += '<td style="padding-right:10px;text-align:right;">' + tmspan + '</td>';
+    html += '<td>' + timeline + '</td>';
+    html += '<td style="padding-right:10px;">' + addr + '</td>';
+    html += '<td style="padding-right:10px;">' + ua + '</td>';
+    html += '<td style="padding-right:10px;">' + loginTime + '</td>';
+    html += '</tr>';
+
+    util.timecounter.start('#' + timeId, laTime);
+  }
+
+  return html;
+};
+app.userlist.buildTimeLine = function(now, lastAccessedTime) {
+  var nowYYYYMMDD = util.getDateTimeString(now, '%YYYY%MM%DD');
+  var nowHHMM = util.getDateTimeString(now, '%HH:%mm');
+  var tmp = nowHHMM.split(':');
+  var nowHH = tmp[0];
+  var nowMM = tmp[1];
+  var accYYYYMMDD = util.getDateTimeString(lastAccessedTime, '%YYYY%MM%DD');
+  var accHHMM = util.getDateTimeString(lastAccessedTime, '%HH:%mm');
+  tmp = accHHMM.split(':');
+  var accHH = tmp[0];
+  var accMM = tmp[1];
+
+  var future = false;
+  var html = '<span style="color:#888;"><span style="color:#000;">';
+  for (var i = 0; i <= 23; i++) {
+    html += '|';
+    for (var j = 0; j < 4; j++) {
+      var s = '-';
+      if ((accYYYYMMDD == nowYYYYMMDD) && (app.userlist.inTheTimeSlot(i, j, accHH, accMM))) {
+        s = '<span class="blink1" style="color:#0f0;">*</span>';
+      }
+      html += s;
+      if (app.userlist.inTheTimeSlot(i, j, nowHH, nowMM)) {
+        html += '</span>';
+      }
+    }
+  }
+  html += '</span>';
+  return html;
+};
+
+app.userlist.inTheTimeSlot = function(h, qM, hh, mm) {
+  if (hh == h) {
+    if ((qM == 0) && (mm < 15)) {
+      return true;
+    } else if ((qM == 1) && (mm >= 15) && (mm < 30)) {
+      return true;
+    } else if ((qM == 2) && (mm >= 30) && (mm < 45)) {
+      return true;
+    } else if ((qM == 3) && (mm >= 45)) {
+      return true;
+    }
+  }
+  return false;
+};
+
 app.userlist.drawListContent = function(html) {
   $el('#user-list').innerHTML = html;
 };
@@ -176,6 +347,32 @@ app.userlist.sortItemList = function(sortIdx, sortOrder) {
   app.userlist.listStatus.sortIdx = sortIdx;
   app.userlist.listStatus.sortOrder = sortOrder;
   app.userlist.drawList(app.userlist.itemList, sortIdx, sortOrder);
+};
+app.userlist.confirmLogoutSession = function(username, sid) {
+  var cSid = app.currentSid;
+  var ssid = util.clipString(sid, 7, 7, '..');
+  var m = 'Logout?\n\n';
+  if (sid == cSid) {
+    m += '<span style="color:#f44;font-weight:bold;">[CURRENT SESSION]</span>\n';
+  }
+  m += '<div style="text-align:left;">';
+  m += username + '\n';
+  m += 'sid: ' + sid;
+  m += '</div>';
+  util.confirm(m, app.userlist.logoutSession, {data: sid});
+};
+app.userlist.logoutSession = function(sid) {
+  var params = {
+    sid: sid
+  };
+  app.callServerApi('logout', params, app.userlist.logoutSessionCb);
+};
+app.userlist.logoutSessionCb = function(xhr, res) {
+  app.showInfotip(res.status);
+  if (res.status != 'OK') {
+    return;
+  }
+  app.userlist.getSessionList();
 };
 
 //-----------------------------------------------------------------------------

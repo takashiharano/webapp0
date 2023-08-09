@@ -355,6 +355,26 @@ public class SessionManager {
    *
    * @param context
    *          Process Context
+   * @return true if logged out successfully.
+   */
+  public boolean logout(String sessionId) {
+    SessionInfo info = sessionMap.get(sessionId);
+    if (info == null) {
+      Log.e("sid " + sessionId + " was not found");
+      return false;
+    }
+    String username = info.getUsername();
+    removeSessionInfo(sessionId);
+    cleanInvalidatedSessionInfo();
+    Log.i("Logout: user=" + username);
+    return true;
+  }
+
+  /**
+   * Logout.
+   *
+   * @param context
+   *          Process Context
    */
   public void logout(ProcessContext context) {
     String username = context.getUsername();
