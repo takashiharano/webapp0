@@ -190,7 +190,7 @@ app.userlist.buildSessionInfoHtml = function(sessions) {
   var html = '';
   if (!sessions) return html;
   var now = util.now();
-  var mn = util.getTimestampOfMidnight(now);
+  var mn = util.getMidnightTimestamp(now);
   for (var i = 0; i < sessions.length; i++) {
     var session = sessions[i];
     var username = session.username;
@@ -201,8 +201,8 @@ app.userlist.buildSessionInfoHtml = function(sessions) {
     var loginTime = util.getDateTimeString(loginT, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
     var laTimeStr = util.getDateTimeString(laTime, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
     var sid = session['sid'];
-    var ssid = util.clipString(sid, 7, 2, '..');
-    var sid7 = util.clipString(sid, 7, 0, '');
+    var ssid = util.snip(sid, 7, 2, '..');
+    var sid7 = util.snip(sid, 7, 0, '');
     var addr = session.addr;
     var brws = util.getBrowserInfo(ua);
     var ua = brws.name + ' ' + brws.version;
@@ -350,7 +350,7 @@ app.userlist.sortItemList = function(sortIdx, sortOrder) {
 };
 app.userlist.confirmLogoutSession = function(username, sid) {
   var cSid = app.currentSid;
-  var ssid = util.clipString(sid, 7, 7, '..');
+  var ssid = util.snip(sid, 7, 7, '..');
   var m = 'Logout?\n\n';
   if (sid == cSid) {
     m += '<span style="color:#f44;font-weight:bold;">[CURRENT SESSION]</span>\n';
