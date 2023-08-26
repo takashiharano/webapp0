@@ -25,7 +25,7 @@ public class AddUserAction extends Action {
     String userStatus = context.getRequestParameter("status");
 
     if (!context.hasPermission("sysadmin")) {
-      Log.i("AddUser: FORBIDDEN username=" + username);
+      Log.i("AddUser: FORBIDDEN user=" + username);
       context.sendJsonResponse("FORBIDDEN:AddUser", null);
       return;
     }
@@ -45,7 +45,7 @@ public class AddUserAction extends Action {
       Log.e("User regieter error: " + status);
     }
 
-    Log.i("AddUser: " + status + " username=" + username);
+    Log.i("AddUser: " + status + " user=" + username);
 
     context.sendJsonResponse(status, null);
   }

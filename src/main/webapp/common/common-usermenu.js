@@ -98,10 +98,10 @@ app.common.usermenu.chengaPw = function() {
     pw: pwHash
   };
 
-  app.callServerApi('EditUser', params, app.common.usermenu.chengaPwCb);
+  app.callServerApi('ChangePassword', params, app.common.usermenu.changePwCb);
 };
 
-app.common.usermenu.chengaPwCb = function(xhr, res) {
+app.common.usermenu.changePwCb = function(xhr, res) {
   if (res.status == 'OK') {
     var m = 'Your password has been updated.\n\nLogout now?\n\n';
     util.dialog.closeAll();

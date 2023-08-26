@@ -10,29 +10,30 @@ import com.takashiharano.webapp0.action.Action;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
 
-public class DeleteUserAction extends Action {
+public class ChangePasswordAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
     String username = context.getRequestParameter("username");
+    String pwHash = context.getRequestParameter("pw");
 
     String currentUsername = context.getUsername();
-    if (!context.hasPermission("sysadmin") || currentUsername.equals(username)) {
-      Log.w("DeleteUser: FORBIDDEN user=" + username);
-      context.sendJsonResponse("FORBIDDEN:DeleteUser", null);
+    if (!context.hasPermission("sysadmin") && !currentUsername.equals(username)) {
+      Log.w("ChangePassword: FORBIDDEN user=" + username);
+      context.sendJsonResponse("FORBIDDEN:ChangePassword", null);
       return;
     }
 
     String status = "OK";
     try {
       UserManager userManager = context.getUserManager();
-      userManager.deleteUser(username);
+      userManager.updateUser(username, pwHash, null, null, null, null, null, null, null);
     } catch (Exception e) {
       status = e.getMessage();
-      Log.e("User delete error: " + status);
+      Log.e("Change password error: " + status);
     }
 
-    Log.i("DeleteUser: " + status + " user=" + username);
+    Log.i("ChangePassword: " + status + " user=" + username);
 
     context.sendJsonResponse(status, null);
   }

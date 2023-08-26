@@ -26,7 +26,7 @@ public class EditUserAction extends Action {
 
     String currentUsername = context.getUsername();
     if (!context.hasPermission("sysadmin") && !currentUsername.equals(username)) {
-      Log.w("EditUser: FORBIDDEN username=" + username);
+      Log.w("EditUser: FORBIDDEN user=" + username);
       context.sendJsonResponse("FORBIDDEN:EditUser", null);
       return;
     }
@@ -41,10 +41,10 @@ public class EditUserAction extends Action {
       }
     } catch (Exception e) {
       status = e.getMessage();
-      Log.e("User regieter error: " + status);
+      Log.e("User edit error: " + status);
     }
 
-    Log.i("EditUser: " + status + " username=" + username + ((info == null) ? "" : " " + info));
+    Log.i("EditUser: " + status + " user=" + username + ((info == null) ? "" : " " + info));
 
     context.sendJsonResponse(status, null);
   }
