@@ -166,6 +166,8 @@ app.userlist.getSessionListCb = function(xhr, res, req) {
 };
 
 app.userlist.drawSessionList = function(sessions) {
+  var now = util.now();
+
   var html = '<table>';
   html += '<tr style="font-weight:bold;">';
   html += '<td></td>';
@@ -174,7 +176,7 @@ app.userlist.drawSessionList = function(sessions) {
   html += '<td>Session</td>';
   html += '<td>Last Accessed</td>';
   html += '<td>Elapsed</td>';
-  html += '<td style="font-weight:normal;">0    1    2    3    4    5    6    7    8    9    10   11   12   13   14   15   16   17   18   19   20   21   22   23   </td>';
+  html += '<td style="font-weight:normal;">' + app.userlist.buildTimeLineHeader(now) + '</td>';
   html += '<td>Addr</td>';
   html += '<td>User-Agent</td>';
   html += '<td>Logged in</td>';
@@ -184,6 +186,47 @@ app.userlist.drawSessionList = function(sessions) {
   html += app.userlist.buildSessionInfoHtml(sessions);
   html += '</table>';
   $el('#session-list').innerHTML = html;
+};
+
+app.userlist.buildTimeLineHeader = function(now) {
+  var currentInd = '<span class="blink1" style="color:#08c;">v</span>';
+
+  var nowYYYYMMDD = util.getDateTimeString(now, '%YYYY%MM%DD');
+  var nowHHMM = util.getDateTimeString(now, '%HH:%mm');
+  var tmp = nowHHMM.split(':');
+  var nowHH = tmp[0];
+  var nowMM = tmp[1];
+
+  var html = '';
+  for (var i = 0; i <= 23; i++) {
+    var ts = app.userlist.getTimeSlot(i, nowHH, nowMM);
+    var v = false;
+    if (i < 10) {
+      if (ts == 0) {
+        html += currentInd;
+      }
+    } else {
+      if (ts == 0) {
+        html += currentInd + ' ';
+      } else if (ts == 1) {
+        html += ' ' + currentInd;
+      }
+    }
+
+    if (!((ts == 0) || ((i >= 10) && (ts == 1)))) {
+      html += i;
+    }
+
+    var st = ((i < 10) ? 1 : 2);
+    for (var j = st; j <= 4; j++) {
+      if (ts == j) {
+        html += currentInd;
+      } else {
+        html += ' ';
+      }
+    }
+  }
+  return html;
 };
 
 app.userlist.buildSessionInfoHtml = function(sessions) {
@@ -244,6 +287,7 @@ app.userlist.buildSessionInfoHtml = function(sessions) {
   return html;
 };
 app.userlist.buildTimeLine = function(now, lastAccessedTime) {
+  var mn = util.getMidnightTimestamp(now);
   var nowYYYYMMDD = util.getDateTimeString(now, '%YYYY%MM%DD');
   var nowHHMM = util.getDateTimeString(now, '%HH:%mm');
   var tmp = nowHHMM.split(':');
@@ -255,21 +299,27 @@ app.userlist.buildTimeLine = function(now, lastAccessedTime) {
   var accHH = tmp[0];
   var accMM = tmp[1];
 
-  var future = false;
-  var html = '<span style="color:#888;"><span style="color:#000;">';
+  var html = '<span style="">';
+  var f = false;
   for (var i = 0; i <= 23; i++) {
-    html += '|';
+    if ((i == 0) && (lastAccessedTime < mn)) {
+      html += '<span style="color:#d66;">&lt;</span>';
+    } else {
+      html += '|';
+    }
     for (var j = 0; j < 4; j++) {
       var s = '-';
       if ((accYYYYMMDD == nowYYYYMMDD) && (app.userlist.inTheTimeSlot(i, j, accHH, accMM))) {
-        s = '<span class="blink1" style="color:#0f0;">*</span>';
+        s = '<span style="color:#0c0;">*</span>';
       }
       html += s;
       if (app.userlist.inTheTimeSlot(i, j, nowHH, nowMM)) {
-        html += '</span>';
+        html += '<span style="opacity:0.5;">';
+        f = true;
       }
     }
   }
+  if (f) html += '</span>';
   html += '</span>';
   return html;
 };
@@ -287,6 +337,23 @@ app.userlist.inTheTimeSlot = function(h, qM, hh, mm) {
     }
   }
   return false;
+};
+
+app.userlist.getTimeSlot = function(h, hh, mm) {
+  if (h == hh) {
+    if (mm == 0) {
+      return 0;
+    } else if (mm < 15) {
+      return 1;
+    } else if ((mm >= 15) && (mm < 30)) {
+      return 2;
+    } else if ((mm >= 30) && (mm < 45)) {
+      return 3;
+    } else if (mm >= 45) {
+      return 4;
+    }
+  }
+  return -1;
 };
 
 app.userlist.drawListContent = function(html) {
