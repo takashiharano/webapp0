@@ -353,8 +353,8 @@ public class SessionManager {
   /**
    * Logout.
    *
-   * @param context
-   *          Process Context
+   * @param sessionId
+   *          target session id
    * @return true if logged out successfully.
    */
   public boolean logout(String sessionId) {
