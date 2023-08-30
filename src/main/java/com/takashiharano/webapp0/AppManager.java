@@ -60,7 +60,7 @@ public class AppManager {
    * ServletContextListener#contextDestroyed().
    */
   public void onStop() {
-    getInstance().stopIntervalTsak();
+    getInstance().stopIntervalTsaks();
     sessionManager.onStop();
     Log.i("[OK] ==> APP STOPPED");
   }
@@ -173,7 +173,7 @@ public class AppManager {
     if (intervalTaskManager == null) {
       intervalTaskManager = new IntervalTaskManager();
     }
-    startIntervalTask();
+    startIntervalTasks();
     asyncTaskManager = AsyncTaskManager.getInstance();
   }
 
@@ -367,8 +367,8 @@ public class AppManager {
   /**
    * Starts the interval tasks.
    */
-  private void startIntervalTask() {
-    stopIntervalTsak();
+  private void startIntervalTasks() {
+    stopIntervalTsaks();
 
     // Sample implementation of the Interval Task.
     // TODO Remove if not necessary
@@ -379,7 +379,7 @@ public class AppManager {
   /**
    * Stops all interval tasks.
    */
-  private void stopIntervalTsak() {
+  private void stopIntervalTsaks() {
     intervalTaskManager.stopAllTasks();
   }
 
