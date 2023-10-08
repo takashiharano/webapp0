@@ -236,54 +236,58 @@ app.userlist.buildSessionInfoHtml = function(sessions) {
   var mn = util.getMidnightTimestamp(now);
   for (var i = 0; i < sessions.length; i++) {
     var session = sessions[i];
-    var username = session.username;
-    var name = session.fullName;
-    var ua = session.ua;
-    var loginT = session.createdTime;
-    var laTime = session.lastAccessedTime;
-    var loginTime = util.getDateTimeString(loginT, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
-    var laTimeStr = util.getDateTimeString(laTime, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
-    var sid = session['sid'];
-    var ssid = util.snip(sid, 7, 2, '..');
-    var sid7 = util.snip(sid, 7, 0, '');
-    var addr = session.addr;
-    var brws = util.getBrowserInfo(ua);
-    var ua = brws.name + ' ' + brws.version;
+    html += app.userlist.buildSessionInfoOne(session, now, mn);
+  }
+  return html;
+};
+app.userlist.buildSessionInfoOne = function(session, now, mn) {
+  var username = session.username;
+  var name = session.fullName;
+  var ua = session.ua;
+  var loginT = session.createdTime;
+  var laTime = session.lastAccessedTime;
+  var loginTime = util.getDateTimeString(loginT, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
+  var laTimeStr = util.getDateTimeString(laTime, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
+  var sid = session['sid'];
+  var ssid = util.snip(sid, 7, 2, '..');
+  var sid7 = util.snip(sid, 7, 0, '');
+  var addr = session.addr;
+  var brws = util.getBrowserInfo(ua);
+  var ua = brws.name + ' ' + brws.version;
 
-    var elapsed = now - laTime;
-    var ledColor = '#888';
-    if (elapsed <= 10 * util.MINUTE) {
-      ledColor = '#0f0';
-    } else if (elapsed <= 30 * util.MINUTE) {
-      ledColor = '#0a0';
-    } else if (elapsed <= 6 * util.HOUR) {
-      ledColor = '#080';
-    } else if (laTime >= mn) {
-      ledColor = '#262';
-    }
-
-    var led = '<span class="led" style="color:' + ledColor + '"></span>'
-    var ssidLink = '<span class="pseudo-link link-button" onclick="app.userlist.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
-    var timeId = 'tm-' + sid7;
-    var tmspan = '<span id="' + timeId + '"></span>'
-    var timeline = app.userlist.buildTimeLine(now, laTime);
-
-    html += '<tr class="item-list">';
-    html += '<td style="padding-right:4px;">' + led + '</td>';
-    html += '<td style="padding-right:10px;">' + username + '</td>';
-    html += '<td style="padding-right:10px;">' + name + '</td>';
-    html += '<td style="padding-right:10px;">' + ssidLink + '</td>';
-    html += '<td style="padding-right:10px;">' + laTimeStr + '</td>';
-    html += '<td style="padding-right:10px;text-align:right;">' + tmspan + '</td>';
-    html += '<td>' + timeline + '</td>';
-    html += '<td style="padding-right:10px;">' + addr + '</td>';
-    html += '<td style="padding-right:10px;">' + ua + '</td>';
-    html += '<td style="padding-right:10px;">' + loginTime + '</td>';
-    html += '</tr>';
-
-    util.timecounter.start('#' + timeId, laTime);
+  var elapsed = now - laTime;
+  var ledColor = '#888';
+  if (elapsed <= 10 * util.MINUTE) {
+    ledColor = '#0f0';
+  } else if (elapsed <= 30 * util.MINUTE) {
+    ledColor = '#0a0';
+  } else if (elapsed <= 6 * util.HOUR) {
+    ledColor = '#080';
+  } else if (laTime >= mn) {
+    ledColor = '#262';
   }
 
+  var led = '<span class="led" style="color:' + ledColor + '"></span>'
+  var ssidLink = '<span class="pseudo-link link-button" onclick="app.userlist.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
+  var timeId = 'tm-' + sid7;
+  var tmspan = '<span id="' + timeId + '"></span>'
+  var timeline = app.userlist.buildTimeLine(now, laTime);
+
+  var html = '';
+  html += '<tr class="item-list">';
+  html += '<td style="padding-right:4px;">' + led + '</td>';
+  html += '<td style="padding-right:10px;">' + username + '</td>';
+  html += '<td style="padding-right:10px;">' + name + '</td>';
+  html += '<td style="padding-right:10px;">' + ssidLink + '</td>';
+  html += '<td style="padding-right:10px;">' + laTimeStr + '</td>';
+  html += '<td style="padding-right:10px;text-align:right;">' + tmspan + '</td>';
+  html += '<td>' + timeline + '</td>';
+  html += '<td style="padding-right:10px;">' + addr + '</td>';
+  html += '<td style="padding-right:10px;">' + ua + '</td>';
+  html += '<td style="padding-right:10px;">' + loginTime + '</td>';
+  html += '</tr>';
+
+  util.timecounter.start('#' + timeId, laTime);
   return html;
 };
 app.userlist.buildTimeLine = function(now, lastAccessedTime) {
