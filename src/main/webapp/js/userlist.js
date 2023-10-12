@@ -303,18 +303,19 @@ app.userlist.buildTimeLine = function(now, lastAccessedTime) {
   var accHH = tmp[0];
   var accMM = tmp[1];
 
-  var html = '<span style="">';
+  var span = '<span style="opacity:0.6;">';
+  var html = span;
   var f = false;
   for (var i = 0; i <= 23; i++) {
     if ((i == 0) && (lastAccessedTime < mn)) {
-      html += '<span style="color:#d66;">&lt;</span>';
+      html += '</span><span style="color:#d66;">&lt;</span>' + span;
     } else {
       html += '|';
     }
     for (var j = 0; j < 4; j++) {
       var s = '-';
       if ((accYYYYMMDD == nowYYYYMMDD) && (app.userlist.inTheTimeSlot(i, j, accHH, accMM))) {
-        s = '<span style="color:#0c0;">*</span>';
+        s = '</span><span style="color:#0c0;">*</span>' + span;
       }
       html += s;
       if (app.userlist.inTheTimeSlot(i, j, nowHH, nowMM)) {
