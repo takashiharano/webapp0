@@ -5,7 +5,7 @@
  * https://libutil.com/
  */
 var util = util || {};
-util.v = '202309181808';
+util.v = '202311122301';
 
 util.SYSTEM_ZINDEX_BASE = 0x7ffffff0;
 util.DFLT_FADE_SPEED = 500;
@@ -101,6 +101,14 @@ util.DateTime = function(src, tzOffset) {
   this.tzOffsetMin = tzOffsetMin;
   this.wday = dt.getDay(); // Sunday=0 - Saturday=6
   this.WDAYS = util.WDAYS;
+
+  this.yyyy = year + '';
+  this.mm = util.lpad(month, '0', 2);
+  this.dd = util.lpad(day, '0', 2);
+  this.hh = util.lpad(hour, '0', 2);
+  this.mi = util.lpad(minute, '0', 2);
+  this.ss = util.lpad(second, '0', 2);
+  this.sss = util.lpad(millisecond, '0', 3);
 };
 util.DateTime.prototype = {
   setWdays: function(wdays) {
@@ -310,6 +318,33 @@ util.getDateTimeString = function(a1, a2, a3) {
 util.getDateTimeFromTime = function(timeString, offset) {
   var t = util.getTimestampOfDay(timeString, offset);
   return util.getDateTime(t);
+};
+
+/**
+ * SUN=0 .. SAT=6
+ * dt: '20231001' -> 0
+ *     '20231002' -> 1
+ *     '20231007' -> 6
+ */
+util.getWday = function(dt) {
+  return util.getDateTime(dt).wday;
+};
+
+/**
+ * dt: '20231001' -> 31
+ *     '20231101' -> 30
+ */
+util.getLastDayOfMonth = function(dt) {
+  var E = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  var v = util.getDateTime(dt);
+  var m = v.month;
+  var d = E[m - 1];
+  if ((m == 2) && util.isLeapYear(v.year)) d = 29;
+  return d;
+};
+
+util.isLeapYear = function(y) {
+  return ((((y % 4) == 0) && ((y % 100) != 0)) || (y % 400 == 0));
 };
 
 /**
@@ -3185,7 +3220,7 @@ util.textarea.addStatusInfo = function(textarea, infoarea) {
   infoarea = util.getElement(infoarea);
   if (!infoarea) return;
   textarea.infoarea = infoarea;
-  util.textarea._adqdLIstener(textarea);
+  util.textarea._adqdListener(textarea);
 };
 /**
  * updateTextAreaInfo('#textarea-id')
@@ -3244,7 +3279,7 @@ util.updateTextAreaInfo = function(textarea) {
     listener(data);
   }
 };
-util.textarea._adqdLIstener = function(tgt) {
+util.textarea._adqdListener = function(tgt) {
   tgt.addEventListener('input', util.textarea.onInput);
   tgt.addEventListener('change', util.textarea.onInput);
   tgt.addEventListener('keydown', util.textarea.onInput);
@@ -3258,7 +3293,7 @@ util.textarea.addListener = function(tgt, f) {
   var el = util.getElement(tgt);
   if (el) {
     el.listener = f;
-    util.textarea._adqdLIstener(el);
+    util.textarea._adqdListener(el);
   }
 };
 
@@ -5682,8 +5717,12 @@ util.dialog.btnHandler = function(el) {
   var ctx = el.ctx;
   var data;
   if (ctx.opt) data = ctx.opt.data;
-  if (el.cb) el.cb(data);
-  ctx.close(ctx);
+  var f = true;
+  if (el.cb) {
+    f = el.cb(data);
+    if (f !== false) f = true;
+  }
+  if (f) ctx.close(ctx);
 };
 
 util.dialog.close = function(btnIdx) {
@@ -5840,8 +5879,8 @@ util.dialog.confirm = function(a1, a2, a3, a4, a5) {
   }
   if (a[k]) opt = a[k];
   var definition = {
-    labelY: 'Yes',
-    labelN: 'No',
+    labelY: (opt.labelY ? opt.labelY : 'Yes'),
+    labelN: (opt.labelN ? opt.labelN : 'No'),
     cbY: util.dialog.sysCbY,
     cbN: util.dialog.sysCbN,
   };
@@ -5875,7 +5914,8 @@ util.dialog.confirmDialog = function(title, content, definition, opt) {
     buttons: buttons,
     data: ctx,
     focusEl: definition.focusEl, // prior
-    style: opt.style
+    style: opt.style,
+    onenter: opt.onenter
   };
   ctx.dlg = util.dialog.open(content, dialogOpt);
 };
@@ -5885,10 +5925,14 @@ util.dialog.confirmDialog.prototype = {
   }
 };
 util.dialog.sysCbY = function(ctx) {
-  if (ctx.cbY) ctx.cbY(ctx.data);
+  var f;
+  if (ctx.cbY) f = ctx.cbY(ctx.data);
+  return f;
 };
 util.dialog.sysCbN = function(ctx) {
+  var f;
   if (ctx.cbN) ctx.cbN(ctx.data);
+  return f;
 };
 
 //-----------------------------------------------------------
@@ -5914,7 +5958,8 @@ util.dialog.sysCbN = function(ctx) {
  *     textbox: {
  *       ...
  *     }
- *   }
+ *   },
+ *   onenter: cb
  * };
  *
  * cb = function(data) {}
@@ -5925,6 +5970,7 @@ util.dialog.sysCbN = function(ctx) {
  *  dialog-content
  *  dialog-button
  *  dialog-textbox
+ *  dialog-textarea
  */
 util.dialog.text = function(a1, a2, a3, a4, a5) {
   var a = [a1, a2, a3, a4, a5];
@@ -5952,9 +5998,10 @@ util.dialog.text = function(a1, a2, a3, a4, a5) {
     k--;
   }
   if (a[k]) opt = a[k];
-  var txtBox = document.createElement('input');
+  var elType = ((opt.type == 'textarea') ? 'textarea' : 'input');
+  var txtBox = document.createElement(elType);
   txtBox.type = (opt.secure ? 'password' : 'text');
-  txtBox.className = 'dialog-textbox';
+  txtBox.className = ((opt.type == 'textarea') ? 'dialog-textarea' : 'dialog-textbox');
   if (opt && opt.style && opt.style.textbox) {
     for (var key in opt.style.textbox) {
       util.setStyle(txtBox, key, opt.style.textbox[key]);
@@ -5989,18 +6036,35 @@ util.dialog.text = function(a1, a2, a3, a4, a5) {
     focusEl: txtBox
   };
   var dialog = new util.dialog.confirmDialog(title, body, definition, opt);
+  txtBox.ctx = dialog;
+  if (elType == 'input') {
+    txtBox.addEventListener('keydown', util.dialog.text.onEnter);
+  }
   dialog.cbY = cbY;
   dialog.cbN = cbN;
   dialog.txtBox = txtBox;
   return dialog;
 };
 util.dialog.text.sysCbOK = function(ctx) {
+  var f;
   var text = ctx.txtBox.value;
-  if (ctx.cbY) ctx.cbY(text, ctx.data);
+  if (ctx.cbY) f = ctx.cbY(text, ctx.data);
+  return f;
 };
 util.dialog.text.sysCbCancel = function(ctx) {
+  var f;
   var text = ctx.txtBox.value;
-  if (ctx.cbN) ctx.cbN(text, ctx.data);
+  if (ctx.cbN) f = ctx.cbN(text, ctx.data);
+  return f;
+};
+util.dialog.text.onEnter = function(e) {
+  if (e.keyCode != 13) return;
+  var dlg = e.target.ctx.dlg;
+  var opt = dlg.opt;
+  if (opt.onenter) {
+    var b = dlg.btnEls[0];
+    util.dialog.btnHandler(b);
+  }
 };
 
 util.alert = function(a1, a2, a3, a4) {
@@ -6866,11 +6930,21 @@ util.Base64.decode = function(str) {
   return arr;
 };
 
-util.encodeBase64 = function(s) {
+util.encodeBase64 = function(s, b) {
+  return (b ? util.encodeBase64fmB(s) : util.encodeBase64fmT(s));
+};
+util.encodeBase64fmT = function(s) {
   if (s == undefined) return '';
   return btoa(encodeURIComponent(s).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode('0x' + p1);}));
 };
-util.decodeBase64 = function(s) {
+util.encodeBase64fmB = function(s) {
+  s = util.toBinaryString(s);
+  return btoa(s);
+};
+util.decodeBase64 = function(s, b) {
+  return (b ? util.decodeBase64asB(s) : util.decodeBase64asT(s));
+};
+util.decodeBase64asT = function(s) {
   if ((s == undefined) || !window.atob) return '';
   var r;
   try {
@@ -6881,6 +6955,23 @@ util.decodeBase64 = function(s) {
     r = atob(s);
   }
   return r;
+};
+util.decodeBase64asB = function(s) {
+  var b = atob(s);
+  var a = [];
+  for (var i = 0; i < b.length; i++) {
+    a.push(b[i].charCodeAt(0));
+  }
+  return new Uint8Array(a);
+};
+
+util.toBinaryString = function(a) {
+  var s = '';
+  var b = new Uint8Array(a);
+  for (var i = 0; i < b.byteLength; i++) {
+    s += String.fromCharCode(b[i]);
+  }
+  return s;
 };
 
 //---------------------------------------------------------
