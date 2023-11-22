@@ -55,7 +55,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.2</version>
         <configuration>
           <author>true</author>
           <source>1.8</source>
@@ -130,7 +130,7 @@
     <dependency>
       <groupId>com.libutil</groupId>
       <artifactId>util</artifactId>
-      <version>1.17.0</version>
+      <version>1.18.0</version>
     </dependency>
 
     <dependency>
