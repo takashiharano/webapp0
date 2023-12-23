@@ -40,6 +40,13 @@ button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled {
   background: #888;
 }
 
+.button-red {
+  background: #a00;
+}
+.button-red:hover {
+  background: #d55;
+}
+
 input[type="text"],input[type="password"] {
   border: none;
   border-bottom: 1px solid #000;

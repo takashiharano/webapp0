@@ -455,7 +455,7 @@ app.userlist.newUser = function() {
 app.userlist.editUser = function(username) {
   app.userlist.mode = (username ? 'edit' : 'new');
   if (!app.userlist.editWindow) {
-    app.userlist.editWindow = app.userlist.openUserInfoEditorWindow(app.userlist.mode);
+    app.userlist.editWindow = app.userlist.openUserInfoEditorWindow(app.userlist.mode, username);
   }
   app.userlist.clearUserInfoEditor();
   if (username) {
@@ -468,9 +468,14 @@ app.userlist.editUser = function(username) {
   }
 };
 
-app.userlist.openUserInfoEditorWindow = function(mode) {
+app.userlist.openUserInfoEditorWindow = function(mode, username) {
+  var currentUsername = app.getUsername();
+
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
+  if (username && (username != currentUsername)) {
+    html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="app.userlist.deleteUser(\'' + username + '\');">DEL</button></div>';
+  }
   html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:350px;text-align:left;">';
 
   html += '<table>';
@@ -751,6 +756,9 @@ app.userlist.deleteUser = function(username) {
 app.userlist._deleteUser = function(username) {
   if (!username) {
     return;
+  }
+  if (app.userlist.editWindow) {
+    app.userlist.editWindow.close();
   }
   var params = {
     username: username,
