@@ -182,7 +182,7 @@ app.userlist.drawSessionList = function(sessions) {
   html += '<td>Logged in</td>';
   html += '</tr>';
 
-  sessions = util.sortObject(sessions, 'lastAccessedTime', true, true);
+  sessions = util.sortObjectList(sessions, 'lastAccessedTime', true, true);
   html += app.userlist.buildSessionInfoHtml(sessions);
   html += '</table>';
   $el('#session-list').innerHTML = html;
@@ -780,7 +780,7 @@ app.userlist.sortList = function(itemList, sortKey, desc) {
   var items = util.copyObject(itemList);
   var srcList = items;
   var asNum = true;
-  var sortedList = util.sortObject(srcList, sortKey, desc, asNum);
+  var sortedList = util.sortObjectList(srcList, sortKey, desc, asNum);
   return sortedList;
 };
 
