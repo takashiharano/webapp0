@@ -6,7 +6,7 @@
 app.userlist = {};
 
 app.userlist.INTERVAL = 2 * 60 * 1000;
-app.userlist.LIST_COLUMNS = [
+app.userlist.USER_LIST_COLUMNS = [
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
   {key: 'fullname', label: 'Full Name', style: 'min-width:13em;'},
   {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
@@ -28,8 +28,10 @@ app.userlist.listStatus = {
 app.userlist.itemList = [];
 app.userlist.sessions = null;
 app.userlist.currentSid = null;
-app.userlist.editWindow = null;
-app.userlist.mode = null;
+app.userlist.userEditWindow = null;
+app.userlist.userEditMode = null;
+app.userlist.groupEditWindow = null;
+app.userlist.groupEditMode = null;
 app.userlist.tmrId = 0;
 app.userlist.interval = 0;
 
@@ -41,7 +43,7 @@ $onReady = function() {
 app.userlist.reload = function() {
   app.userlist.getUserList();
   app.userlist.getSessionList();
-  app.userlist.getGroups();
+  app.userlist.getGroupList();
 };
 
 app.userlist.queueNextUpdateSessionInfo = function() {
@@ -70,7 +72,7 @@ app.userlist.getUserInfoListCb = function(xhr, res) {
 app.userlist.drawList = function(items, sortIdx, sortOrder) {
   if (sortIdx >= 0) {
     if (sortOrder > 0) {
-      var srtDef = app.userlist.LIST_COLUMNS[sortIdx];
+      var srtDef = app.userlist.USER_LIST_COLUMNS[sortIdx];
       var desc = (sortOrder == 2);
       items = app.userlist.sortList(items, srtDef.key, desc, srtDef.meta);
     }
@@ -131,7 +133,7 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
   }
   htmlList += '</table>';
 
-  var htmlHead = app.userlist.buildListHeader(app.userlist.LIST_COLUMNS, sortIdx, sortOrder);
+  var htmlHead = app.userlist.buildListHeader(app.userlist.USER_LIST_COLUMNS, sortIdx, sortOrder);
   var html = htmlHead + htmlList; 
 
   app.userlist.drawListContent(html);
@@ -453,9 +455,9 @@ app.userlist.newUser = function() {
 };
 
 app.userlist.editUser = function(username) {
-  app.userlist.mode = (username ? 'edit' : 'new');
-  if (!app.userlist.editWindow) {
-    app.userlist.editWindow = app.userlist.openUserInfoEditorWindow(app.userlist.mode, username);
+  app.userlist.userEditMode = (username ? 'edit' : 'new');
+  if (!app.userlist.userEditWindow) {
+    app.userlist.userEditWindow = app.userlist.openUserInfoEditorWindow(app.userlist.userEditMode, username);
   }
   app.userlist.clearUserInfoEditor();
   if (username) {
@@ -532,7 +534,7 @@ app.userlist.openUserInfoEditorWindow = function(mode, username) {
 
   html += '<div style="margin-top:24px;text-align:center;">';
   html += '<button onclick="app.userlist.saveUserInfo();">OK</button>'
-  html += '<button style="margin-left:8px;" onclick="app.userlist.editWindow.close();">Cancel</button>'
+  html += '<button style="margin-left:8px;" onclick="app.userlist.userEditWindow.close();">Cancel</button>'
   html += '</div>';
 
   html += '</div>';
@@ -558,7 +560,7 @@ app.userlist.openUserInfoEditorWindow = function(mode, username) {
         background: '#fff'
       }
     },
-    onclose: app.userlist.onEditWindowClose,
+    onclose: app.userlist.onUserEditWindowClose,
     content: html
   };
 
@@ -609,7 +611,7 @@ app.userlist.clearUserInfoEditor = function() {
 };
 
 app.userlist.saveUserInfo = function() {
-  if (app.userlist.mode == 'new') {
+  if (app.userlist.userEditMode == 'new') {
     app.userlist.addUser();
   } else {
     app.userlist.updateUser();
@@ -694,7 +696,7 @@ app.userlist.addUserCb = function(xhr, res) {
   if (res.status != 'OK') {
     return;
   }
-  app.userlist.editWindow.close();
+  app.userlist.userEditWindow.close();
   app.userlist.getUserList();
 };
 
@@ -742,7 +744,7 @@ app.userlist.updateUserCb = function(xhr, res) {
   if (res.status != 'OK') {
     return;
   }
-  app.userlist.editWindow.close();
+  app.userlist.userEditWindow.close();
   app.userlist.getUserList();
 };
 
@@ -757,8 +759,8 @@ app.userlist._deleteUser = function(username) {
   if (!username) {
     return;
   }
-  if (app.userlist.editWindow) {
-    app.userlist.editWindow.close();
+  if (app.userlist.userEditWindow) {
+    app.userlist.userEditWindow.close();
   }
   var params = {
     username: username,
@@ -879,49 +881,283 @@ app.userlist.cleansePrivileges = function(s) {
   return res;
 };
 
-
 //-----------------------------------------------------------------------------
 app.userlist.drawGroupStatus = function(s) {
   $el('#groups-status').innerHTML = s;
 };
 
-app.userlist.getGroups = function() {
-  app.callServerApi('GetGroupsDefinition', null, app.userlist.getGroupsCb);
+app.userlist.getGroupList = function() {
+  app.callServerApi('GetGroupInfoList', null, app.userlist.getGroupListCb);
 };
-app.userlist.getGroupsCb = function(xhr, res) {
-  app.userlist.drawGroupStatus('');
-  var s = util.decodeBase64(res.body);
-  $el('#groups-text').value = s;
-};
-
-app.userlist.confirmSaveGroups = function() {
-  util.confirm('Save?', app.userlist.saveGroups);
-};
-app.userlist.saveGroups = function() {
-  var s = $el('#groups-text').value;
-  var b64 = util.encodeBase64(s);
-  var params = {
-    text: b64
+app.userlist.getGroupListCb = function(xhr, res) {
+  if (res.status == 'OK') {
+    app.userlist.drawGroupStatus('');
+    var list = res.body.grouplist;
+    app.userlist.drawGroupList(list);
   }
-  app.callServerApi('SaveGroupsDefinition', params, app.userlist.saveGroupsCb);
-};
-app.userlist.saveGroupsCb = function(xhr, res) {
-  app.showInfotip('OK');
 };
 
+app.userlist.drawGroupList = function(list) {
+  var html = '<table>';
+  html += '<tr class="item-list-header">';
+  html += '<th class="item-list" style="min-width:10em;">GID</th>';
+  html += '<th class="item-list" style="min-width:20em;">Prvileges</th>';
+  html += '<th class="item-list" style="min-width:20em;">Description</th>';
+  html += '<th class="item-list">Created</th>';
+  html += '<th class="item-list">Updated</th>';
+  html += '</tr>';
+
+  for (var i = 0; i < list.length; i++) {
+    var group = list[i];
+    var gid = group.gid;
+    var privs = (group.privileges ? group.privileges : '');
+    var desc = (group.description ? group.description : '');
+
+    var createdDate = '---------- --:--:--.---';
+    if (group.created_date > 0) {
+      var createdAt = group.created_date;
+      if (util.isInteger(createdAt)) createdAt;
+      createdDate = util.getDateTimeString(createdAt, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
+    }
+
+    var updatedDate = '---------- --:--:--.---';
+    if (group.updated_date > 0) {
+      var updatedAt = group.updated_date;
+      if (util.isInteger(updatedAt)) updatedAt;
+      updatedDate = util.getDateTimeString(updatedAt, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
+    }
+
+    html += '<tr class="item-list">';
+    html += '<td class="item-list"><span class="pseudo-link link-button" onclick="app.userlist.editGroup(\'' + gid + '\');" data-tooltip="Edit">' + gid + '</span></td>';
+    html += '<td class="item-list">' + privs + '</td>';
+    html += '<td class="item-list">' + desc + '</td>';
+    html += '<td class="item-list">' + createdDate + '</td>';
+    html += '<td class="item-list">' + updatedDate + '</td>';
+    html += '</tr>';
+  }
+  html += '</table>';
+  $el('#group-list').innerHTML = html;
+};
 
 //-----------------------------------------------------------------------------
-app.userlist.onEditWindowClose = function() {
-  app.userlist.editWindow = null;
-  app.userlist.mode = null;
+app.userlist.newGroup = function() {
+  app.userlist.editGroup(null);
+};
+
+app.userlist.editGroup = function(gid) {
+  app.userlist.groupEditMode = (gid ? 'edit' : 'new');
+  if (!app.userlist.groupEditWindow) {
+    app.userlist.groupEditWindow = app.userlist.openGroupInfoEditorWindow(app.userlist.groupEditMode, gid);
+  }
+  app.userlist.clearGroupInfoEditor();
+  if (gid) {
+    var params = {
+      gid: gid
+    };
+    app.callServerApi('GetGroupInfo', params, app.userlist.getGroupInfoCb);
+  } else {
+    $el('#gid').focus();
+  }
+};
+
+app.userlist.openGroupInfoEditorWindow = function(mode, gid) {
+  var html = '';
+  html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
+  html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="app.userlist.deleteGroup(\'' + gid + '\');">DEL</button></div>';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:110px;text-align:left;">';
+
+  html += '<table>';
+  html += '  <tr>';
+  html += '    <td>GID</td>';
+  html += '    <td style="width:256px;">';
+  html += '      <input type="text" id="gid" style="width:100%;">';
+  html += '    </td>';
+  html += '  </tr>';
+  html += '  <tr>';
+  html += '    <td>Privileges</td>';
+  html += '    <td><input type="text" id="group-privs" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '  <tr>';
+  html += '    <td>Description</td>';
+  html += '    <td><input type="text" id="group-desc" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '<table>';
+
+  html += '<div style="margin-top:24px;text-align:center;">';
+  html += '<button onclick="app.userlist.saveGroupInfo();">OK</button>'
+  html += '<button style="margin-left:8px;" onclick="app.userlist.groupEditWindow.close();">Cancel</button>'
+  html += '</div>';
+
+  html += '</div>';
+  html += '</div>';
+
+  var opt = {
+    draggable: true,
+    resizable: true,
+    pos: 'c',
+    closeButton: true,
+    width: 480,
+    height: 200,
+    minWidth: 480,
+    minHeight: 360,
+    scale: 1,
+    hidden: false,
+    modal: false,
+    title: {
+      text: ((mode == 'new') ? 'New' : 'Edit') +' Group'
+    },
+    body: {
+      style: {
+        background: '#fff'
+      }
+    },
+    onclose: app.userlist.onGroupEditWindowClose,
+    content: html
+  };
+
+  var win = util.newWindow(opt);
+  return win;
+};
+
+//-----------------------------------------------------------------------------
+app.userlist.addGroup = function() {
+  var gid = $el('#gid').value;
+  var privs = $el('#group-privs').value;
+  var desc = $el('#group-desc').value;
+
+  clnsRes = app.userlist.cleansePrivileges(privs);
+  if (clnsRes.msg) {
+    app.showInfotip(clnsRes.msg, 2000);
+    return;
+  }
+  privs = clnsRes.val;
+
+  var params = {
+    gid: gid,
+    privileges: privs,
+    description: desc
+  };
+
+  app.callServerApi('AddGroup', params, app.userlist.addGroupCb);
+};
+
+app.userlist.addGroupCb = function(xhr, res) {
+  app.showInfotip(res.status);
+  if (res.status != 'OK') {
+    return;
+  }
+  app.userlist.groupEditWindow.close();
+  app.userlist.getGroupList();
+};
+
+//-----------------------------------------------------------------------------
+app.userlist.updateGroup = function() {
+  var gid = $el('#gid').value;
+  var privs = $el('#group-privs').value;
+  var desc = $el('#group-desc').value;
+
+  var params = {
+    gid: gid,
+    privileges: privs,
+    description: desc
+  };
+
+  app.callServerApi('EditGroup', params, app.userlist.updateGroupCb);
+};
+
+app.userlist.updateGroupCb = function(xhr, res) {
+  app.showInfotip(res.status);
+  if (res.status != 'OK') {
+    return;
+  }
+  app.userlist.groupEditWindow.close();
+  app.userlist.getGroupList();
+};
+
+//-----------------------------------------------------------------------------
+app.userlist.deleteGroup = function(gid) {
+  var opt = {
+    data: gid
+  };
+  util.confirm('Delete ' + gid + ' ?', app.userlist._deleteGroup, opt);
+};
+app.userlist._deleteGroup = function(gid) {
+  if (!gid) {
+    return;
+  }
+  if (app.userlist.groupEditWindow) {
+    app.userlist.groupEditWindow.close();
+  }
+  var params = {
+    gid: gid
+  };
+  app.callServerApi('DeleteGroup', params, app.userlist.deleteGroupCb);
+};
+
+app.userlist.deleteGroupCb = function(xhr, res) {
+  if (res.status != 'OK') {
+    app.showInfotip(res.status);
+    return;
+  }
+  app.showInfotip('OK');
+  app.userlist.getGroupList();
+};
+
+//-----------------------------------------------------------------------------
+app.userlist.getGroupInfoCb = function(xhr, res) {
+  if (res.status != 'OK') {
+    app.showInfotip(res.status);
+    return;
+  }
+  var info = res.body;
+  app.userlist.setGroupInfoToEditor(info);
+};
+
+app.userlist.setGroupInfoToEditor = function(info) {
+  var gid = info.gid;
+  $el('#gid').value = gid;
+  if (gid) {
+    $el('#gid').disabled = true;
+    $el('#gid').addClass('edit-disabled');
+  } else {
+    $el('#gid').disabled = false;
+    $el('#gid').removeClass('edit-disabled');
+  }
+  $el('#group-privs').value = info.privileges;
+  $el('#group-desc').value = (info.description ? info.description : '');
+};
+
+app.userlist.clearGroupInfoEditor = function() {
+  var info = {
+    gid: '',
+    privileges: '',
+    description: ''
+  };
+  app.userlist.setGroupInfoToEditor(info);
+};
+
+app.userlist.saveGroupInfo = function() {
+  if (app.userlist.groupEditMode == 'new') {
+    app.userlist.addGroup();
+  } else {
+    app.userlist.updateGroup();
+  }
+};
+
+//-----------------------------------------------------------------------------
+app.userlist.onUserEditWindowClose = function() {
+  app.userlist.userEditWindow = null;
+  app.userlist.userEditMode = null;
+};
+
+app.userlist.onGroupEditWindowClose = function() {
+  app.userlist.groupEditWindow = null;
+  app.userlist.groupEditMode = null;
 };
 
 $onCtrlS = function(e) {
-  if ($el('#groups-text').hasFocus()) {
-    app.userlist.confirmSaveGroups();
-  }
 };
 
 $onBeforeUnload = function(e) {
-  if (app.userlist.editWindow) e.returnValue = '';
+  if ((app.userlist.userEditWindow) || (app.userlist.groupEditWindow)) e.returnValue = '';
 };

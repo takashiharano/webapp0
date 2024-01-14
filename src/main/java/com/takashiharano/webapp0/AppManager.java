@@ -13,6 +13,7 @@ import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.task.HeapMonitor;
 import com.takashiharano.webapp0.task.IntervalTask;
 import com.takashiharano.webapp0.task.IntervalTaskManager;
+import com.takashiharano.webapp0.user.GroupManager;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
 
@@ -31,6 +32,7 @@ public class AppManager {
   private Props config;
   private String errorInfo;
   private UserManager userManager;
+  private GroupManager groupManager;
   private SessionManager sessionManager;
   private IntervalTaskManager intervalTaskManager;
   private AsyncTaskManager asyncTaskManager;
@@ -161,6 +163,9 @@ public class AppManager {
 
     userManager = UserManager.getInstance();
     userManager.init();
+
+    groupManager = GroupManager.getInstance();
+    groupManager.init();
 
     if (sessionManager == null) {
       String sessionPath = FileUtil.joinPath(getAppWorkspacePath(), "sessions.txt");
@@ -353,6 +358,15 @@ public class AppManager {
    */
   public UserManager getUserManager() {
     return userManager;
+  }
+
+  /**
+   * Returns the group manager object.
+   *
+   * @return GroupManager
+   */
+  public GroupManager getGroupManager() {
+    return groupManager;
   }
 
   /**

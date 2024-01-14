@@ -9,15 +9,15 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.libutil.JsonBuilder;
+import com.takashiharano.webapp0.util.Util;
 
 /**
- * User Entity.
+ * User entity.
  */
 public class User {
   public static final int STATE_NONE = 0;
   public static final int STATE_NEED_PW_CHANGE = 1;
   public static final int STATE_DISABLED = 1 << 1;
-  public static final int STATE_LOCKED = 1 << 2;
 
   private String username;
   private String fullname;
@@ -201,7 +201,7 @@ public class User {
    * @return the groups in the format "group1[SEP]group2[SEP]group3..."
    */
   public String getGroupsInOneLine(String separator) {
-    return convertSetToOneLineString(groups, separator);
+    return Util.convertSetToOneLineString(groups, separator);
   }
 
   /**
@@ -292,7 +292,7 @@ public class User {
    * @return the privileges in the format "priv1[SEP]priv2[SEP]priv3..."
    */
   public String getPrivilegesInOneLine(String separator) {
-    return convertSetToOneLineString(privileges, separator);
+    return Util.convertSetToOneLineString(privileges, separator);
   }
 
   /**
@@ -304,19 +304,13 @@ public class User {
    * @return true if the user has the privilege. always true if the user is admin.
    */
   public boolean hasPermission(String privilege) {
-    boolean has = hasPrivilege(privilege);
-    if (has) {
+    if (hasPrivilege(privilege)) {
       return true;
     }
 
-    UserManager um = UserManager.getInstance();
-    for (String groupName : groups) {
-      Group group = um.getGroupInfo(groupName);
-      if (group == null) {
-        continue;
-      }
-      has = group.hasPrivilege(privilege);
-      if (has) {
+    GroupManager groupManager = GroupManager.getInstance();
+    for (String gid : groups) {
+      if (groupManager.hasPrivilege(gid, privilege)) {
         return true;
       }
     }
@@ -473,19 +467,6 @@ public class User {
     jb.append("pw_changed_date", getPwChangedDate());
     String json = jb.toString();
     return json;
-  }
-
-  private String convertSetToOneLineString(Set<String> items, String separator) {
-    StringBuilder sb = new StringBuilder();
-    int cnt = 0;
-    for (String item : items) {
-      if (cnt > 0) {
-        sb.append(separator);
-      }
-      sb.append(item);
-      cnt++;
-    }
-    return sb.toString();
   }
 
 }

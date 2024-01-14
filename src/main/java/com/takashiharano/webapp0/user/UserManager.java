@@ -6,30 +6,23 @@
 package com.takashiharano.webapp0.user;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.libutil.FileUtil;
 import com.libutil.StrUtil;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.auth.Authenticator;
-import com.takashiharano.webapp0.util.Log;
 
 public class UserManager {
 
   private static final String USERS_FILE_NAME = "users.txt";
   private static final String USERS_PW_FILE_NAME = "userspw.txt";
-  private static final String GROUPS_FILE_NAME = "groups.json";
 
   private static UserManager instance;
 
   private Map<String, User> users;
-  private Map<String, Group> groups;
   private Authenticator authenticator;
 
   /**
@@ -47,7 +40,6 @@ public class UserManager {
   }
 
   public void init() {
-    loadGroups();
     loadUsers();
   }
 
@@ -69,26 +61,6 @@ public class UserManager {
    */
   public Map<String, User> getAllUserInfo() {
     return users;
-  }
-
-  /**
-   * Returns the group info of specified group name.
-   * 
-   * @param groupName
-   *          target group name
-   * @return the group info
-   */
-  public Group getGroupInfo(String groupName) {
-    return groups.get(groupName);
-  }
-
-  /**
-   * Returns all group info map.
-   *
-   * @return the map of group info
-   */
-  public Map<String, Group> getAllGroupInfo() {
-    return groups;
   }
 
   /**
@@ -258,10 +230,10 @@ public class UserManager {
     }
 
     String dataPath = getDataPath();
-    String usersFile = FileUtil.joinPath(dataPath, "users.txt");
+    String usersFilePath = FileUtil.joinPath(dataPath, USERS_FILE_NAME);
     String data = sb.toString();
     try {
-      FileUtil.write(usersFile, data);
+      FileUtil.write(usersFilePath, data);
     } catch (IOException ioe) {
       ioe.printStackTrace();
       throw ioe;
@@ -452,80 +424,6 @@ public class UserManager {
    */
   public boolean existsUser(String username) {
     return users.containsKey(username);
-  }
-
-  /**
-   * Load group info from a storage.
-   */
-  public void loadGroups() {
-    String dataPath = getDataPath();
-    String groupsFile = FileUtil.joinPath(dataPath, GROUPS_FILE_NAME);
-    String json = FileUtil.readText(groupsFile);
-    try {
-      loadGroups(json);
-    } catch (JSONException e) {
-      Log.e(e.toString());
-    }
-  }
-
-  /**
-   * Load group info from a JSON.
-   *
-   * @param json
-   *          JSON text
-   */
-  public void loadGroups(String json) {
-    groups = new LinkedHashMap<>();
-    if (json == null) {
-      // group definition file not found
-      return;
-    }
-    JSONObject jsonObj = new JSONObject(json);
-    Iterator<String> it = jsonObj.keys();
-    while (it.hasNext()) {
-      String groupName = (String) it.next();
-      JSONObject grp = jsonObj.getJSONObject(groupName);
-      String privileges;
-      try {
-        privileges = grp.getString("privs");
-      } catch (JSONException e) {
-        privileges = null;
-      }
-      Group group = new Group(groupName, privileges);
-      groups.put(groupName, group);
-    }
-  }
-
-  /**
-   * Returns group definition file content as is,
-   *
-   * @return the group file content
-   */
-  public String readGroupsDefinition() {
-    groups = new LinkedHashMap<>();
-    String dataPath = getDataPath();
-    String path = FileUtil.joinPath(dataPath, GROUPS_FILE_NAME);
-    String text = FileUtil.readText(path);
-    if (text == null) {
-      text = "";
-    }
-    return text;
-  }
-
-  /**
-   * Write the group definitions to the file.
-   *
-   * @param text
-   *          the group file content to be saved
-   * @throws IOException
-   *           If an I/O error occurs
-   */
-  public void saveGroupsDefinition(String text) throws IOException {
-    groups = new LinkedHashMap<>();
-    String dataPath = getDataPath();
-    String path = FileUtil.joinPath(dataPath, GROUPS_FILE_NAME);
-    FileUtil.write(path, text);
-    loadGroups(text);
   }
 
   private String getDataPath() {

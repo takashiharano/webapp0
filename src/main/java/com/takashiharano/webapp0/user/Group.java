@@ -8,33 +8,48 @@ package com.takashiharano.webapp0.user;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.libutil.JsonBuilder;
+import com.takashiharano.webapp0.util.Util;
+
+/**
+ * Group entity.
+ */
 public class Group {
-
-  private String groupName;
+  private String gid;
   private Set<String> privileges;
+  private String description;
+  private long createdDate;
+  private long updatedDate;
 
-  public Group(String groupName, String privileges) {
-    this.groupName = groupName;
+  public Group(String gid, String privileges, String description) {
+    this(gid, privileges, description, 0L, 0L);
+  }
+
+  public Group(String gid, String privileges, String description, long createdDate, long updatedDate) {
+    this.gid = gid;
     setPrivileges(privileges);
+    this.description = description;
+    this.setCreatedDate(createdDate);
+    this.setUpdatedDate(updatedDate);
   }
 
   /**
-   * Returns the group name.
+   * Returns the group id.
    *
-   * @return group name
+   * @return group id
    */
-  public String getGroupName() {
-    return groupName;
+  public String getGid() {
+    return gid;
   }
 
   /**
-   * Sets the group name.
+   * Sets the group id.
    *
-   * @param groupName
-   *          group name
+   * @param gid
+   *          group id
    */
-  public void setGroupName(String groupName) {
-    this.groupName = groupName;
+  public void setGid(String gid) {
+    this.gid = gid;
   }
 
   /**
@@ -44,6 +59,26 @@ public class Group {
    */
   public Set<String> getPrivileges() {
     return privileges;
+  }
+
+  /**
+   * Returns the user privileges in one line in string.
+   *
+   * @return the privileges in the format "priv1 priv2 priv3..."
+   */
+  public String getPrivilegesInOneLine() {
+    return getPrivilegesInOneLine(" ");
+  }
+
+  /**
+   * Returns the user privileges in one line with the given separator in string.
+   *
+   * @param separator
+   *          the separator between privilege names
+   * @return the privileges in the format "priv1[SEP]priv2[SEP]priv3..."
+   */
+  public String getPrivilegesInOneLine(String separator) {
+    return Util.convertSetToOneLineString(privileges, separator);
   }
 
   /**
@@ -83,6 +118,79 @@ public class Group {
    */
   public boolean hasPrivilege(String privilege) {
     return privileges.contains(privilege);
+  }
+
+  /**
+   * Returns the description.
+   *
+   * @return the description
+   */
+  public String getDescription() {
+    return description;
+  }
+
+  /**
+   * Sets the description.
+   *
+   * @param description
+   *          the description
+   */
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  /**
+   * Returns the created date of the user.
+   *
+   * @return the created date in unix millis.
+   */
+  public long getCreatedDate() {
+    return createdDate;
+  }
+
+  /**
+   * Sets the created date of the user.
+   *
+   * @param createdDate
+   *          the created date in unix millis.
+   */
+  public void setCreatedDate(long createdDate) {
+    this.createdDate = createdDate;
+  }
+
+  /**
+   * Returns the updated date of the user.
+   *
+   * @return the updated date in unix millis.
+   */
+  public long getUpdatedDate() {
+    return updatedDate;
+  }
+
+  /**
+   * Sets the updated date of the user.
+   *
+   * @param updatedDate
+   *          the updated date in unix millis.
+   */
+  public void setUpdatedDate(long updatedDate) {
+    this.updatedDate = updatedDate;
+  }
+
+  /**
+   * Returns all properties in JSON.
+   *
+   * @return JSON string
+   */
+  public String toJSON() {
+    JsonBuilder jb = new JsonBuilder();
+    jb.append("gid", getGid());
+    jb.append("privileges", getPrivilegesInOneLine());
+    jb.append("description", getDescription());
+    jb.append("created_date", getCreatedDate());
+    jb.append("updated_date", getUpdatedDate());
+    String json = jb.toString();
+    return json;
   }
 
 }

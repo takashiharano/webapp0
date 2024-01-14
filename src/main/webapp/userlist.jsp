@@ -34,11 +34,6 @@ tr.item-list:hover {
 #user-list {
   font-size: 12px;
 }
-
-#groups-text {
-  width: calc(100% - 17px);
-  height: 200px;
-}
 </style>
 </head>
 <body>
@@ -47,6 +42,7 @@ tr.item-list:hover {
 <jsp:include page="common/menu.jsp" />
 
 <div style="margin-bottom:4px;">
+<b>Users</b><br>
 <button onclick="app.userlist.newUser();">+</button>
 </div>
 <div id="user-list"></div>
@@ -54,9 +50,14 @@ tr.item-list:hover {
 <pre style="margin-top:20px;">Sessions
 <div id="session-list"></div></pre>
 
-<div style="margin-top:20px;">
-Groups<button style="margin-left:8px;" onclick="app.userlist.confirmSaveGroups();">SAVE</button><span id="groups-status" style="margin-left:8px;"></span><br>
-<textarea id="groups-text"></textarea>
+<div style="display:inline-block;margin-top:20px;margin-bottom:40px;">
+<div style="margin-bottom:4px;">
+<b>Groups</b><br>
+<button onclick="app.userlist.newGroup();">+</button>
+<button onclick="app.userlist.getGroupList();">RELOAD</button>
+<span id="groups-status" style="margin-left:8px;"></span><br>
+</div>
+<div id="group-list"></div>
 </div>
 
 </div>

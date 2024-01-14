@@ -35,6 +35,7 @@ import com.libutil.Props;
 import com.takashiharano.webapp0.async.AsyncTaskManager;
 import com.takashiharano.webapp0.session.SessionInfo;
 import com.takashiharano.webapp0.session.SessionManager;
+import com.takashiharano.webapp0.user.GroupManager;
 import com.takashiharano.webapp0.user.User;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
@@ -1269,6 +1270,17 @@ public class ProcessContext {
     AppManager appManager = getAppManager();
     UserManager userManager = appManager.getUserManager();
     return userManager;
+  }
+
+  /**
+   * Returns the gtoup manager object.
+   *
+   * @return GroupManager
+   */
+  public GroupManager getGroupManager() {
+    AppManager appManager = getAppManager();
+    GroupManager groupManager = appManager.getGroupManager();
+    return groupManager;
   }
 
   /**
