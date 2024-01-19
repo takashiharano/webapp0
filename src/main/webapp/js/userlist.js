@@ -14,7 +14,7 @@ app.userlist.USER_LIST_COLUMNS = [
   {key: 'groups', label: 'Groups', style: 'min-width:15em;'},
   {key: 'privileges', label: 'Privileges', style: 'min-width:15em;'},
   {key: 'description', label: 'Description', style: 'min-width:15em;'},
-  {key: 'status', label: 'Status'},
+  {key: 'flags', label: 'Flags'},
   {key: 'created_date', label: 'Created'},
   {key: 'updated_date', label: 'Updated'},
   {key: 'pw_changed_date', label: 'PwChanged'}
@@ -118,7 +118,7 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list">' + item.groups + '</td>';
     htmlList += '<td class="item-list">' + item.privileges + '</td>';
     htmlList += '<td class="item-list" style="max-width:20em">' + dispDesc + '</td>';
-    htmlList += '<td class="item-list" style="text-align:center;">' + item.status + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + item.flags + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + pwChangedDate + '</td>';
@@ -513,8 +513,8 @@ app.userlist.openUserInfoEditorWindow = function(mode, username) {
   html += '    <td><input type="text" id="description" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Status</td>';
-  html += '    <td><input type="text" id="status" style="width:1.5em;"></td>';
+  html += '    <td>Flags</td>';
+  html += '    <td><input type="text" id="flags" style="width:1.5em;"></td>';
   html += '  </tr>';
 
   html += '  <tr>';
@@ -593,7 +593,7 @@ app.userlist.setUserInfoToEditor = function(info) {
   $el('#groups').value = info.groups;
   $el('#privileges').value = info.privileges;
   $el('#description').value = info.description;
-  $el('#status').value = info.status;
+  $el('#flags').value = info.flags;
 };
 
 app.userlist.clearUserInfoEditor = function() {
@@ -605,7 +605,7 @@ app.userlist.clearUserInfoEditor = function() {
     groups: '',
     privileges: '',
     description: '',
-    status: ''
+    flags: ''
   };
   app.userlist.setUserInfoToEditor(info);
 };
@@ -627,7 +627,7 @@ app.userlist.addUser = function() {
   var groups = $el('#groups').value;
   var privileges = $el('#privileges').value;
   var description = $el('#description').value;
-  var status = $el('#status').value.trim();
+  var flags = $el('#flags').value.trim();
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
@@ -681,7 +681,7 @@ app.userlist.addUser = function() {
     groups: groups,
     privileges: privileges,
     description: description,
-    status: status,
+    flags: flags,
   };
   if (pw) {
     var salt = username;
@@ -709,7 +709,7 @@ app.userlist.updateUser = function() {
   var groups = $el('#groups').value;
   var privileges = $el('#privileges').value;
   var description = $el('#description').value;
-  var status = $el('#status').value;
+  var flags = $el('#flags').value;
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
@@ -728,7 +728,7 @@ app.userlist.updateUser = function() {
     groups: groups,
     privileges: privileges,
     description : description,
-    status: status,
+    flags: flags,
   };
 
   if (pw) {

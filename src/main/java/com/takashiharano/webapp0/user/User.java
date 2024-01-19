@@ -15,9 +15,9 @@ import com.takashiharano.webapp0.util.Util;
  * User entity.
  */
 public class User {
-  public static final int STATE_NONE = 0;
-  public static final int STATE_NEED_PW_CHANGE = 1;
-  public static final int STATE_DISABLED = 1 << 1;
+  public static final int FLAG_NONE = 0;
+  public static final int FLAG_NEED_PW_CHANGE = 1;
+  public static final int FLAG_DISABLED = 1 << 1;
 
   private String username;
   private String fullname;
@@ -26,7 +26,7 @@ public class User {
   private Set<String> groups;
   private Set<String> privileges;
   private String description;
-  private int status;
+  private int flags;
   private long createdDate;
   private long updatedDate;
   private long pwChangedDate;
@@ -36,14 +36,14 @@ public class User {
     this.admin = isAdmin;
     this.groups = new LinkedHashSet<>();
     this.privileges = new LinkedHashSet<>();
-    this.status = STATE_NONE;
+    this.flags = FLAG_NONE;
   }
 
-  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, String description, int status) {
-    this(username, fullname, localFullName, isAdmin, groups, privileges, description, status, 0L, 0L, 0L);
+  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, String description, int flags) {
+    this(username, fullname, localFullName, isAdmin, groups, privileges, description, flags, 0L, 0L, 0L);
   }
 
-  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, String description, int status, long createdDate, long updatedDate, long pwChangedDate) {
+  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, String description, int flags, long createdDate, long updatedDate, long pwChangedDate) {
     this.username = username;
     this.fullname = fullname;
     this.localFullName = localFullName;
@@ -51,7 +51,7 @@ public class User {
     setGroups(groups);
     setPrivileges(privileges);
     setDescription(description);
-    this.status = status;
+    this.flags = flags;
     this.createdDate = createdDate;
     this.updatedDate = updatedDate;
     this.pwChangedDate = pwChangedDate;
@@ -341,53 +341,53 @@ public class User {
   }
 
   /**
-   * Returns the user status.
+   * Returns the user flags.
    *
-   * @return the status
+   * @return the flags
    */
-  public int getStatus() {
-    return status;
+  public int getFlags() {
+    return flags;
   }
 
   /**
-   * Sets the user status.
+   * Sets the user flags.
    *
-   * @param status
-   *          the status
+   * @param flags
+   *          the flags
    */
-  public void setStatus(int status) {
-    this.status = status;
+  public void setFlags(int flags) {
+    this.flags = flags;
   }
 
   /**
-   * Sets the state to the user status.
+   * Sets the flag to the user flags.
    *
    * @param state
-   *          the state to set
+   *          the flag to set
    */
-  public void setState(int state) {
-    this.status |= state;
+  public void setFlag(int flag) {
+    this.flags |= flag;
   }
 
   /**
-   * Unsets the state from the user status.
+   * Unsets the flag from the user flags.
    *
-   * @param state
-   *          the state to unset
+   * @param flag
+   *          the flag to unset
    */
-  public void unsetState(int state) {
-    this.status &= ~state;
+  public void unsetFlag(int flag) {
+    this.flags &= ~flag;
   }
 
   /**
-   * Returns whether the user has the state.
+   * Returns whether the user has the flag.
    *
-   * @param state
-   *          the state to check
-   * @return true if the user has the state
+   * @param flag
+   *          the flag to check
+   * @return true if the user has the flag
    */
-  public boolean hasState(int state) {
-    return ((this.status & state) != 0);
+  public boolean hasFlag(int flag) {
+    return ((this.flags & flag) != 0);
   }
 
   /**
@@ -461,7 +461,7 @@ public class User {
     jb.append("groups", getGroupsInOneLine());
     jb.append("privileges", getPrivilegesInOneLine());
     jb.append("description", getDescription());
-    jb.append("status", getStatus());
+    jb.append("flags", getFlags());
     jb.append("created_date", getCreatedDate());
     jb.append("updated_date", getUpdatedDate());
     jb.append("pw_changed_date", getPwChangedDate());

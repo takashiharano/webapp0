@@ -150,7 +150,7 @@ public class UserManager {
         description = fields[6];
       }
 
-      int status = User.STATE_NONE;
+      int status = User.FLAG_NEED_PW_CHANGE;
       if (fields.length > 7) {
         try {
           status = Integer.parseInt(fields[7]);
@@ -187,7 +187,7 @@ public class UserManager {
    *           if an IO error occurres
    */
   public void saveUsers() throws IOException {
-    String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tDescription\tStatus\tCreated\tUpdated\tPwChanged\n";
+    String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tDescription\tFlags\tCreated\tUpdated\tPwChanged\n";
     StringBuilder sb = new StringBuilder();
     sb.append(header);
     for (Entry<String, User> entry : users.entrySet()) {
@@ -200,7 +200,7 @@ public class UserManager {
       String groups = user.getGroupsInOneLine();
       String privileges = user.getPrivilegesInOneLine();
       String description = user.getDescription();
-      int status = user.getStatus();
+      int flags = user.getFlags();
       long createdDate = user.getCreatedDate();
       long updatedDate = user.getUpdatedDate();
       long pwChangedDate = user.getPwChangedDate();
@@ -219,7 +219,7 @@ public class UserManager {
       sb.append("\t");
       sb.append(description);
       sb.append("\t");
-      sb.append(status);
+      sb.append(flags);
       sb.append("\t");
       sb.append(createdDate);
       sb.append("\t");
@@ -259,13 +259,13 @@ public class UserManager {
    *          Privileges
    * @param description
    *          user description
-   * @param userStatus
-   *          user status
+   * @param userFlags
+   *          user flags
    * @return User
    * @throws Exception
    *           if an error occurres
    */
-  public User regieterNewUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String description, String userStatus) throws Exception {
+  public User regieterNewUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String description, String userFlags) throws Exception {
     if (users.containsKey(username)) {
       throw new Exception("USER_ALREADY_EXISTS");
     }
@@ -276,16 +276,16 @@ public class UserManager {
     }
 
     boolean isAdmin = "1".equals(adminFlag);
-    int status = StrUtil.parseInt(userStatus, User.STATE_NONE);
+    int flags = StrUtil.parseInt(userFlags, User.FLAG_NONE);
 
     long now = System.currentTimeMillis();
     long createdDate = now;
     long updatedDate = now;
     long pwChangedDate = now;
 
-    User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, status, createdDate, updatedDate, pwChangedDate);
-    if (StrUtil.isEmpty(userStatus)) {
-      user.setState(User.STATE_NEED_PW_CHANGE);
+    User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, flags, createdDate, updatedDate, pwChangedDate);
+    if (StrUtil.isEmpty(userFlags)) {
+      user.setFlag(User.FLAG_NEED_PW_CHANGE);
     }
     users.put(username, user);
 
@@ -317,13 +317,13 @@ public class UserManager {
    *          Privileges
    * @param description
    *          user description
-   * @param userStatus
-   *          user status
+   * @param userFlags
+   *          user flags
    * @return User
    * @throws Exception
    *           if an error occurres
    */
-  public User updateUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String description, String userStatus) throws Exception {
+  public User updateUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String description, String userFlags) throws Exception {
     User user = users.get(username);
     if (user == null) {
       throw new Exception("USER_NOT_FOUND");
@@ -362,9 +362,9 @@ public class UserManager {
       updated = true;
     }
 
-    if (userStatus != null) {
-      int status = StrUtil.parseInt(userStatus, User.STATE_NONE);
-      user.setStatus(status);
+    if (userFlags != null) {
+      int flags = StrUtil.parseInt(userFlags, User.FLAG_NONE);
+      user.setFlags(flags);
       updated = true;
     }
 
@@ -379,7 +379,7 @@ public class UserManager {
         throw new Exception("PW_REGISTER_ERROR");
       }
       user.setPwChangedDate(now);
-      user.unsetState(User.STATE_NEED_PW_CHANGE);
+      user.unsetFlag(User.FLAG_NEED_PW_CHANGE);
     }
 
     try {

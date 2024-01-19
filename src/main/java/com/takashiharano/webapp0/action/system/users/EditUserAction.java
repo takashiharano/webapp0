@@ -22,7 +22,7 @@ public class EditUserAction extends Action {
     String groups = context.getRequestParameter("groups");
     String privileges = context.getRequestParameter("privileges");
     String description = context.getRequestParameter("description");
-    String userStatus = context.getRequestParameter("status");
+    String userFlags = context.getRequestParameter("flags");
 
     String currentUsername = context.getUsername();
     if (!context.hasPermission("sysadmin") && !currentUsername.equals(username)) {
@@ -35,7 +35,7 @@ public class EditUserAction extends Action {
     String info = null;
     try {
       UserManager userManager = context.getUserManager();
-      userManager.updateUser(username, pwHash, fullname, localFullName, adminFlag, groups, privileges, description, userStatus);
+      userManager.updateUser(username, pwHash, fullname, localFullName, adminFlag, groups, privileges, description, userFlags);
       if (pwHash != null) {
         info = "PW changed";
       }

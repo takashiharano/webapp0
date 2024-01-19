@@ -16,7 +16,7 @@ app.username = '<%= username %>';
 
 app.onScreenReady = function() {
 <%
-if (!"login".equals(screenId) && (user != null) && (user.hasState(User.STATE_NEED_PW_CHANGE))) {
+if (!"login".equals(screenId) && (user != null) && (user.hasFlag(User.FLAG_NEED_PW_CHANGE))) {
 %>
   app.common.usermenu.openChangePw();
 <%

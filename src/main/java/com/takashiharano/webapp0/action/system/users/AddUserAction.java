@@ -22,7 +22,7 @@ public class AddUserAction extends Action {
     String groups = context.getRequestParameter("groups");
     String privileges = context.getRequestParameter("privileges");
     String description = context.getRequestParameter("description");
-    String userStatus = context.getRequestParameter("status");
+    String userFlags = context.getRequestParameter("flags");
 
     if (!context.hasPermission("sysadmin")) {
       Log.i("AddUser: FORBIDDEN user=" + username);
@@ -39,7 +39,7 @@ public class AddUserAction extends Action {
 
     String status = "OK";
     try {
-      userManager.regieterNewUser(username, pwHash, fullname, localFullName, adminFlag, groups, privileges, description, userStatus);
+      userManager.regieterNewUser(username, pwHash, fullname, localFullName, adminFlag, groups, privileges, description, userFlags);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User regieter error: " + status);
