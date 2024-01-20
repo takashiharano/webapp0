@@ -23,17 +23,9 @@ if (context.isScreenEnabled("screen2")) {
 %>
 
 <%
-if (context.isScreenEnabled("userlist") && context.hasPermission("sysadmin")) {
+if (context.isScreenEnabled("appmgr") && context.hasPermission("sysadmin")) {
 %>
-<button id="screen-button-userlist" class="screen-button" onclick="app.screen('userlist');">User List</button>
-<%
-}
-%>
-
-<%
-if (context.isScreenEnabled("system") && context.isAdmin()) {
-%>
-<button id="screen-button-system" class="screen-button" onclick="app.screen('system');">System</button>
+<button id="screen-button-appmgr" class="screen-button" onclick="app.screen('appmgr');">AppMgr</button>
 <%
 }
 %>

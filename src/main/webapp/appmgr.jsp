@@ -7,11 +7,11 @@ ProcessContext context = (ProcessContext) request.getAttribute("context");
 <html>
 <head>
 <meta charset="utf-8">
-<title>User List</title>
+<title>App Manager</title>
 <jsp:include page="common/include.jsp" />
 <jsp:include page="common/style.jsp" />
 <jsp:include page="common/script.jsp" />
-<script src="js/userlist.js"></script>
+<script src="js/appmgr.js"></script>
 <style>
 .item-list-header {
   background: #ddebf7;
@@ -34,6 +34,11 @@ tr.item-list:hover {
 #user-list {
   font-size: 12px;
 }
+
+#message {
+  display: inline-block;
+  margin-left: 16px;
+}
 </style>
 </head>
 <body>
@@ -43,7 +48,7 @@ tr.item-list:hover {
 
 <div style="margin-bottom:4px;">
 <b>Users</b><br>
-<button onclick="app.userlist.newUser();">+</button>
+<button onclick="app.appmgr.newUser();">+</button>
 </div>
 <div id="user-list"></div>
 
@@ -53,11 +58,16 @@ tr.item-list:hover {
 <div style="display:inline-block;margin-top:20px;margin-bottom:40px;">
 <div style="margin-bottom:4px;">
 <b>Groups</b><br>
-<button onclick="app.userlist.newGroup();">+</button>
-<button onclick="app.userlist.getGroupList();">RELOAD</button>
+<button onclick="app.appmgr.newGroup();">+</button>
+<button onclick="app.appmgr.getGroupList();">RELOAD</button>
 <span id="groups-status" style="margin-left:8px;"></span><br>
 </div>
 <div id="group-list"></div>
+</div>
+
+<div style="margin-bottom:4px;">
+<b>App Reset</b><br>
+<button onclick="app.appmgr.resetApp();">RESET</button><div id="message"></div>
 </div>
 
 </div>

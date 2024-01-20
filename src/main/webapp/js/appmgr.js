@@ -3,10 +3,10 @@
  * The template is released under the MIT license.
  * Copyright 2023 Takashi Harano
  */
-app.userlist = {};
+app.appmgr = {};
 
-app.userlist.INTERVAL = 2 * 60 * 1000;
-app.userlist.USER_LIST_COLUMNS = [
+app.appmgr.INTERVAL = 2 * 60 * 1000;
+app.appmgr.USER_LIST_COLUMNS = [
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
   {key: 'fullname', label: 'Full Name', style: 'min-width:13em;'},
   {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
@@ -20,61 +20,61 @@ app.userlist.USER_LIST_COLUMNS = [
   {key: 'pw_changed_date', label: 'PwChanged'}
 ];
 
-app.userlist.listStatus = {
+app.appmgr.listStatus = {
   sortIdx: 0,
   sortOrder: 1
 };
 
-app.userlist.itemList = [];
-app.userlist.sessions = null;
-app.userlist.currentSid = null;
-app.userlist.userEditWindow = null;
-app.userlist.userEditMode = null;
-app.userlist.groupEditWindow = null;
-app.userlist.groupEditMode = null;
-app.userlist.tmrId = 0;
-app.userlist.interval = 0;
+app.appmgr.itemList = [];
+app.appmgr.sessions = null;
+app.appmgr.currentSid = null;
+app.appmgr.userEditWindow = null;
+app.appmgr.userEditMode = null;
+app.appmgr.groupEditWindow = null;
+app.appmgr.groupEditMode = null;
+app.appmgr.tmrId = 0;
+app.appmgr.interval = 0;
 
 $onReady = function() {
-  app.userlist.reload();
-  app.userlist.queueNextUpdateSessionInfo();
+  app.appmgr.reload();
+  app.appmgr.queueNextUpdateSessionInfo();
 };
 
-app.userlist.reload = function() {
-  app.userlist.getUserList();
-  app.userlist.getSessionList();
-  app.userlist.getGroupList();
+app.appmgr.reload = function() {
+  app.appmgr.getUserList();
+  app.appmgr.getSessionList();
+  app.appmgr.getGroupList();
 };
 
-app.userlist.queueNextUpdateSessionInfo = function() {
-  app.userlist.tmrId = setTimeout(app.userlist.updateSessionInfo, app.userlist.INTERVAL);
+app.appmgr.queueNextUpdateSessionInfo = function() {
+  app.appmgr.tmrId = setTimeout(app.appmgr.updateSessionInfo, app.appmgr.INTERVAL);
 };
 
-app.userlist.updateSessionInfo = function() {
-  app.userlist.interval = 1;
-  app.userlist.getSessionList();
+app.appmgr.updateSessionInfo = function() {
+  app.appmgr.interval = 1;
+  app.appmgr.getSessionList();
 };
 
-app.userlist.getUserList = function() {
-  app.callServerApi('GetUserInfoList', null, app.userlist.getUserInfoListCb);
+app.appmgr.getUserList = function() {
+  app.callServerApi('GetUserInfoList', null, app.appmgr.getUserInfoListCb);
 };
 
-app.userlist.getUserInfoListCb = function(xhr, res) {
+app.appmgr.getUserInfoListCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
   }
   var infoList = res.body.userlist;
-  app.userlist.itemList = infoList;
-  app.userlist.drawList(infoList, 0, 1);
+  app.appmgr.itemList = infoList;
+  app.appmgr.drawList(infoList, 0, 1);
 };
 
-app.userlist.drawList = function(items, sortIdx, sortOrder) {
+app.appmgr.drawList = function(items, sortIdx, sortOrder) {
   if (sortIdx >= 0) {
     if (sortOrder > 0) {
-      var srtDef = app.userlist.USER_LIST_COLUMNS[sortIdx];
+      var srtDef = app.appmgr.USER_LIST_COLUMNS[sortIdx];
       var desc = (sortOrder == 2);
-      items = app.userlist.sortList(items, srtDef.key, desc, srtDef.meta);
+      items = app.appmgr.sortList(items, srtDef.key, desc, srtDef.meta);
     }
   }
 
@@ -87,20 +87,9 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     var fullname = item.fullname.replace(/ /g, '&nbsp');
     var localfullname = item.localfullname.replace(/ /g, '&nbsp');
 
-    var createdDate = '---------- --:--:--';
-    if (item.created_date > 0) {
-      createdDate = util.getDateTimeString(item.created_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
-    }
-
-    var updatedDate = '---------- --:--:--';
-    if (item.updated_date > 0) {
-      updatedDate = util.getDateTimeString(item.updated_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
-    }
-
-    var pwChangedDate = '---------- --:--:--';
-    if (item.pw_changed_date > 0) {
-      pwChangedDate = util.getDateTimeString(item.pw_changed_date, '%YYYY-%MM-%DD %HH:%mm:%SS');
-    }
+    var createdDate = app.appmgr.getDateTimeString(item.created_date);
+    var updatedDate = app.appmgr.getDateTimeString(item.updated_date);
+    var pwChangedDate = app.appmgr.getDateTimeString(item.pw_changed_date);
 
     var desc = (item.description ? item.description : '');
     var escDesc = util.escHtml(desc);
@@ -111,7 +100,7 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     dispDesc += '>' + escDesc + '</span>';
 
     htmlList += '<tr class="item-list">';
-    htmlList += '<td class="item-list"><span class="pseudo-link link-button" style="text-align:center;" onclick="app.userlist.editUser(\'' + username + '\');" data-tooltip="Edit">' + username + '</span></td>';
+    htmlList += '<td class="item-list"><span class="pseudo-link link-button" style="text-align:center;" onclick="app.appmgr.editUser(\'' + username + '\');" data-tooltip="Edit">' + username + '</span></td>';
     htmlList += '<td class="item-list">' + fullname + '</td>';
     htmlList += '<td class="item-list">' + localfullname + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + (item.is_admin ? 'Y' : '') + '</td>';
@@ -122,32 +111,33 @@ app.userlist.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + pwChangedDate + '</td>';
-    htmlList += '<td class="item-list" style="text-align:center;width:1.5em;">';
-    if (username == currentUsername) {
-      htmlList += '&nbsp;';
-    } else {
-      htmlList += '<span class="pseudo-link" style="color:#f88;" onclick="app.userlist.deleteUser(\'' + username + '\');">X</span>';
-    }
-    htmlList += '</td>';
     htmlList += '</tr>';
   }
   htmlList += '</table>';
 
-  var htmlHead = app.userlist.buildListHeader(app.userlist.USER_LIST_COLUMNS, sortIdx, sortOrder);
+  var htmlHead = app.appmgr.buildListHeader(app.appmgr.USER_LIST_COLUMNS, sortIdx, sortOrder);
   var html = htmlHead + htmlList; 
 
-  app.userlist.drawListContent(html);
+  app.appmgr.drawListContent(html);
 };
 
-app.userlist.getSessionList = function() {
-  if (app.userlist.tmrId > 0) {
-    clearTimeout(app.userlist.tmrId);
-    app.userlist.tmrId = 0;
-    app.userlist.interval = 1;
+app.appmgr.getDateTimeString = function(ts) {
+  var s = '---------- --:--:--.---';
+  if (ts > 0) {
+    s = util.getDateTimeString(ts, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
   }
-  app.callServerApi('GetSessionInfoList', null, app.userlist.getSessionListCb);
+  return s;
 };
-app.userlist.getSessionListCb = function(xhr, res, req) {
+
+app.appmgr.getSessionList = function() {
+  if (app.appmgr.tmrId > 0) {
+    clearTimeout(app.appmgr.tmrId);
+    app.appmgr.tmrId = 0;
+    app.appmgr.interval = 1;
+  }
+  app.callServerApi('GetSessionInfoList', null, app.appmgr.getSessionListCb);
+};
+app.appmgr.getSessionListCb = function(xhr, res, req) {
   if (res.status == 'FORBIDDEN') {
     location.href = location.href;
     return;
@@ -157,17 +147,17 @@ app.userlist.getSessionListCb = function(xhr, res, req) {
   }
   var data = res.body;
   var sessions = data.sessions;
-  app.userlist.sessions = sessions;
+  app.appmgr.sessions = sessions;
   app.currentSid = data.currentSid;
-  app.userlist.drawSessionList(sessions);
+  app.appmgr.drawSessionList(sessions);
 
-  if (app.userlist.interval) {
-    app.userlist.interval = 0;
-    app.userlist.queueNextUpdateSessionInfo();
+  if (app.appmgr.interval) {
+    app.appmgr.interval = 0;
+    app.appmgr.queueNextUpdateSessionInfo();
   }
 };
 
-app.userlist.drawSessionList = function(sessions) {
+app.appmgr.drawSessionList = function(sessions) {
   var now = util.now();
 
   var html = '<table>';
@@ -178,19 +168,19 @@ app.userlist.drawSessionList = function(sessions) {
   html += '<td>Session</td>';
   html += '<td>Last Accessed</td>';
   html += '<td>Elapsed</td>';
-  html += '<td style="font-weight:normal;">' + app.userlist.buildTimeLineHeader(now) + '</td>';
+  html += '<td style="font-weight:normal;">' + app.appmgr.buildTimeLineHeader(now) + '</td>';
   html += '<td>Addr</td>';
   html += '<td>User-Agent</td>';
   html += '<td>Logged in</td>';
   html += '</tr>';
 
   sessions = util.sortObjectList(sessions, 'lastAccessedTime', true, true);
-  html += app.userlist.buildSessionInfoHtml(sessions);
+  html += app.appmgr.buildSessionInfoHtml(sessions);
   html += '</table>';
   $el('#session-list').innerHTML = html;
 };
 
-app.userlist.buildTimeLineHeader = function(now) {
+app.appmgr.buildTimeLineHeader = function(now) {
   var currentInd = '<span class="blink1" style="color:#08c;">v</span>';
 
   var nowYYYYMMDD = util.getDateTimeString(now, '%YYYY%MM%DD');
@@ -201,7 +191,7 @@ app.userlist.buildTimeLineHeader = function(now) {
 
   var html = '';
   for (var i = 0; i <= 23; i++) {
-    var ts = app.userlist.getTimeSlot(i, nowHH, nowMM);
+    var ts = app.appmgr.getTimeSlot(i, nowHH, nowMM);
     var v = false;
     if (i < 10) {
       if (ts == 0) {
@@ -231,18 +221,18 @@ app.userlist.buildTimeLineHeader = function(now) {
   return html;
 };
 
-app.userlist.buildSessionInfoHtml = function(sessions) {
+app.appmgr.buildSessionInfoHtml = function(sessions) {
   var html = '';
   if (!sessions) return html;
   var now = util.now();
   var mn = util.getMidnightTimestamp(now);
   for (var i = 0; i < sessions.length; i++) {
     var session = sessions[i];
-    html += app.userlist.buildSessionInfoOne(session, now, mn);
+    html += app.appmgr.buildSessionInfoOne(session, now, mn);
   }
   return html;
 };
-app.userlist.buildSessionInfoOne = function(session, now, mn) {
+app.appmgr.buildSessionInfoOne = function(session, now, mn) {
   var username = session.username;
   var name = session.fullName;
   var ua = session.ua;
@@ -270,10 +260,10 @@ app.userlist.buildSessionInfoOne = function(session, now, mn) {
   }
 
   var led = '<span class="led" style="color:' + ledColor + '"></span>'
-  var ssidLink = '<span class="pseudo-link link-button" onclick="app.userlist.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
+  var ssidLink = '<span class="pseudo-link link-button" onclick="app.appmgr.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
   var timeId = 'tm-' + sid7;
   var tmspan = '<span id="' + timeId + '"></span>'
-  var timeline = app.userlist.buildTimeLine(now, laTime);
+  var timeline = app.appmgr.buildTimeLine(now, laTime);
 
   var html = '';
   html += '<tr class="item-list">';
@@ -292,7 +282,7 @@ app.userlist.buildSessionInfoOne = function(session, now, mn) {
   util.timecounter.start('#' + timeId, laTime);
   return html;
 };
-app.userlist.buildTimeLine = function(now, lastAccessedTime) {
+app.appmgr.buildTimeLine = function(now, lastAccessedTime) {
   var mn = util.getMidnightTimestamp(now);
   var nowYYYYMMDD = util.getDateTimeString(now, '%YYYY%MM%DD');
   var nowHHMM = util.getDateTimeString(now, '%HH:%mm');
@@ -316,11 +306,11 @@ app.userlist.buildTimeLine = function(now, lastAccessedTime) {
     }
     for (var j = 0; j < 4; j++) {
       var s = '-';
-      if ((accYYYYMMDD == nowYYYYMMDD) && (app.userlist.inTheTimeSlot(i, j, accHH, accMM))) {
+      if ((accYYYYMMDD == nowYYYYMMDD) && (app.appmgr.inTheTimeSlot(i, j, accHH, accMM))) {
         s = '</span><span style="color:#0c0;">*</span>' + span;
       }
       html += s;
-      if (app.userlist.inTheTimeSlot(i, j, nowHH, nowMM)) {
+      if (app.appmgr.inTheTimeSlot(i, j, nowHH, nowMM)) {
         html += '<span style="opacity:0.5;">';
         f = true;
       }
@@ -331,7 +321,7 @@ app.userlist.buildTimeLine = function(now, lastAccessedTime) {
   return html;
 };
 
-app.userlist.inTheTimeSlot = function(h, qM, hh, mm) {
+app.appmgr.inTheTimeSlot = function(h, qM, hh, mm) {
   if (hh == h) {
     if ((qM == 0) && (mm < 15)) {
       return true;
@@ -346,7 +336,7 @@ app.userlist.inTheTimeSlot = function(h, qM, hh, mm) {
   return false;
 };
 
-app.userlist.getTimeSlot = function(h, hh, mm) {
+app.appmgr.getTimeSlot = function(h, hh, mm) {
   if (h == hh) {
     if (mm == 0) {
       return 0;
@@ -363,11 +353,11 @@ app.userlist.getTimeSlot = function(h, hh, mm) {
   return -1;
 };
 
-app.userlist.drawListContent = function(html) {
+app.appmgr.drawListContent = function(html) {
   $el('#user-list').innerHTML = html;
 };
 
-app.userlist.buildListHeader = function(columns, sortIdx, sortOrder) {
+app.appmgr.buildListHeader = function(columns, sortIdx, sortOrder) {
   var html = '<table>';
   html += '<tr class="item-list-header">';
 
@@ -388,7 +378,7 @@ app.userlist.buildListHeader = function(columns, sortIdx, sortOrder) {
     }
 
     var sortButton = '<span class="sort-button" ';
-    sortButton += ' onclick="app.userlist.sortItemList(' + i + ', ' + nextSortType + ');"';
+    sortButton += ' onclick="app.appmgr.sortItemList(' + i + ', ' + nextSortType + ');"';
     sortButton += '>';
     sortButton += '<span';
     if (sortAscClz) {
@@ -409,20 +399,19 @@ app.userlist.buildListHeader = function(columns, sortIdx, sortOrder) {
     }
     html += '><span>' + label + '</span> ' + sortButton + '</th>';
   }
-  html += '<th class="item-list">&nbsp;</th>';
   html += '</tr>';
   return html;
 };
 
-app.userlist.sortItemList = function(sortIdx, sortOrder) {
+app.appmgr.sortItemList = function(sortIdx, sortOrder) {
   if (sortOrder > 2) {
     sortOrder = 0;
   }
-  app.userlist.listStatus.sortIdx = sortIdx;
-  app.userlist.listStatus.sortOrder = sortOrder;
-  app.userlist.drawList(app.userlist.itemList, sortIdx, sortOrder);
+  app.appmgr.listStatus.sortIdx = sortIdx;
+  app.appmgr.listStatus.sortOrder = sortOrder;
+  app.appmgr.drawList(app.appmgr.itemList, sortIdx, sortOrder);
 };
-app.userlist.confirmLogoutSession = function(username, sid) {
+app.appmgr.confirmLogoutSession = function(username, sid) {
   var cSid = app.currentSid;
   var ssid = util.snip(sid, 7, 7, '..');
   var m = 'Logout?\n\n';
@@ -433,50 +422,50 @@ app.userlist.confirmLogoutSession = function(username, sid) {
   m += username + '\n';
   m += 'sid: ' + sid;
   m += '</div>';
-  util.confirm(m, app.userlist.logoutSession, {data: sid});
+  util.confirm(m, app.appmgr.logoutSession, {data: sid});
 };
-app.userlist.logoutSession = function(sid) {
+app.appmgr.logoutSession = function(sid) {
   var params = {
     sid: sid
   };
-  app.callServerApi('logout', params, app.userlist.logoutSessionCb);
+  app.callServerApi('logout', params, app.appmgr.logoutSessionCb);
 };
-app.userlist.logoutSessionCb = function(xhr, res) {
+app.appmgr.logoutSessionCb = function(xhr, res) {
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
-  app.userlist.getSessionList();
+  app.appmgr.getSessionList();
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.newUser = function() {
-  app.userlist.editUser(null);
+app.appmgr.newUser = function() {
+  app.appmgr.editUser(null);
 };
 
-app.userlist.editUser = function(username) {
-  app.userlist.userEditMode = (username ? 'edit' : 'new');
-  if (!app.userlist.userEditWindow) {
-    app.userlist.userEditWindow = app.userlist.openUserInfoEditorWindow(app.userlist.userEditMode, username);
+app.appmgr.editUser = function(username) {
+  app.appmgr.userEditMode = (username ? 'edit' : 'new');
+  if (!app.appmgr.userEditWindow) {
+    app.appmgr.userEditWindow = app.appmgr.openUserInfoEditorWindow(app.appmgr.userEditMode, username);
   }
-  app.userlist.clearUserInfoEditor();
+  app.appmgr.clearUserInfoEditor();
   if (username) {
     var params = {
       username: username
     };
-    app.callServerApi('GetUserInfo', params, app.userlist.GetUserInfoCb);
+    app.callServerApi('GetUserInfo', params, app.appmgr.GetUserInfoCb);
   } else {
     $el('#username').focus();
   }
 };
 
-app.userlist.openUserInfoEditorWindow = function(mode, username) {
+app.appmgr.openUserInfoEditorWindow = function(mode, username) {
   var currentUsername = app.getUsername();
 
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
   if (username && (username != currentUsername)) {
-    html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="app.userlist.deleteUser(\'' + username + '\');">DEL</button></div>';
+    html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="app.appmgr.deleteUser(\'' + username + '\');">DEL</button></div>';
   }
   html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:350px;text-align:left;">';
 
@@ -533,8 +522,8 @@ app.userlist.openUserInfoEditorWindow = function(mode, username) {
   html += '<table>';
 
   html += '<div style="margin-top:24px;text-align:center;">';
-  html += '<button onclick="app.userlist.saveUserInfo();">OK</button>'
-  html += '<button style="margin-left:8px;" onclick="app.userlist.userEditWindow.close();">Cancel</button>'
+  html += '<button onclick="app.appmgr.saveUserInfo();">OK</button>'
+  html += '<button style="margin-left:8px;" onclick="app.appmgr.userEditWindow.close();">Cancel</button>'
   html += '</div>';
 
   html += '</div>';
@@ -560,7 +549,7 @@ app.userlist.openUserInfoEditorWindow = function(mode, username) {
         background: '#fff'
       }
     },
-    onclose: app.userlist.onUserEditWindowClose,
+    onclose: app.appmgr.onUserEditWindowClose,
     content: html
   };
 
@@ -568,16 +557,16 @@ app.userlist.openUserInfoEditorWindow = function(mode, username) {
   return win;
 };
 
-app.userlist.GetUserInfoCb = function(xhr, res) {
+app.appmgr.GetUserInfoCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
   }
   var info = res.body;
-  app.userlist.setUserInfoToEditor(info);
+  app.appmgr.setUserInfoToEditor(info);
 };
 
-app.userlist.setUserInfoToEditor = function(info) {
+app.appmgr.setUserInfoToEditor = function(info) {
   var username = info.username;
   $el('#username').value = username;
   if (username) {
@@ -596,7 +585,7 @@ app.userlist.setUserInfoToEditor = function(info) {
   $el('#flags').value = info.flags;
 };
 
-app.userlist.clearUserInfoEditor = function() {
+app.appmgr.clearUserInfoEditor = function() {
   var info = {
     username: '',
     fullname: '',
@@ -607,19 +596,19 @@ app.userlist.clearUserInfoEditor = function() {
     description: '',
     flags: ''
   };
-  app.userlist.setUserInfoToEditor(info);
+  app.appmgr.setUserInfoToEditor(info);
 };
 
-app.userlist.saveUserInfo = function() {
-  if (app.userlist.userEditMode == 'new') {
-    app.userlist.addUser();
+app.appmgr.saveUserInfo = function() {
+  if (app.appmgr.userEditMode == 'new') {
+    app.appmgr.addUser();
   } else {
-    app.userlist.updateUser();
+    app.appmgr.updateUser();
   }
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.addUser = function() {
+app.appmgr.addUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
   var localfullname = $el('#localfullname').value;
@@ -631,42 +620,42 @@ app.userlist.addUser = function() {
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
-  var clnsRes = app.userlist.cleanseUsername(username);
+  var clnsRes = app.appmgr.cleanseUsername(username);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
   username = clnsRes.val;
 
-  clnsRes = app.userlist.cleanseFullName(fullname);
+  clnsRes = app.appmgr.cleanseFullName(fullname);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
   fullname = clnsRes.val;
 
-  clnsRes = app.userlist.cleanseFullName(localfullname);
+  clnsRes = app.appmgr.cleanseFullName(localfullname);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
   localfullname = clnsRes.val;
 
-  clnsRes = app.userlist.cleanseGroups(groups);
+  clnsRes = app.appmgr.cleanseGroups(groups);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
   groups = clnsRes.val;
 
-  clnsRes = app.userlist.cleansePrivileges(privileges);
+  clnsRes = app.appmgr.cleansePrivileges(privileges);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
   privileges = clnsRes.val;
 
-  clnsRes = app.userlist.cleansePW(pw1, pw2, 'new');
+  clnsRes = app.appmgr.cleansePW(pw1, pw2, 'new');
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
@@ -688,20 +677,20 @@ app.userlist.addUser = function() {
     params.pw = app.common.getHash('SHA-256', pw, salt);
   }
 
-  app.callServerApi('AddUser', params, app.userlist.addUserCb);
+  app.callServerApi('AddUser', params, app.appmgr.addUserCb);
 };
 
-app.userlist.addUserCb = function(xhr, res) {
+app.appmgr.addUserCb = function(xhr, res) {
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
-  app.userlist.userEditWindow.close();
-  app.userlist.getUserList();
+  app.appmgr.userEditWindow.close();
+  app.appmgr.getUserList();
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.updateUser = function() {
+app.appmgr.updateUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
   var localfullname = $el('#localfullname').value;
@@ -713,7 +702,7 @@ app.userlist.updateUser = function() {
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
-  var clnsRes = app.userlist.cleansePW(pw1, pw2, 'edit');
+  var clnsRes = app.appmgr.cleansePW(pw1, pw2, 'edit');
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
@@ -736,49 +725,49 @@ app.userlist.updateUser = function() {
     params.pw = app.common.getHash('SHA-256', pw, salt);
   }
 
-  app.callServerApi('EditUser', params, app.userlist.updateUserCb);
+  app.callServerApi('EditUser', params, app.appmgr.updateUserCb);
 };
 
-app.userlist.updateUserCb = function(xhr, res) {
+app.appmgr.updateUserCb = function(xhr, res) {
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
-  app.userlist.userEditWindow.close();
-  app.userlist.getUserList();
+  app.appmgr.userEditWindow.close();
+  app.appmgr.getUserList();
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.deleteUser = function(username) {
+app.appmgr.deleteUser = function(username) {
   var opt = {
     data: username
   };
-  util.confirm('Delete ' + username + ' ?', app.userlist._deleteUser, opt);
+  util.confirm('Delete ' + username + ' ?', app.appmgr._deleteUser, opt);
 };
-app.userlist._deleteUser = function(username) {
+app.appmgr._deleteUser = function(username) {
   if (!username) {
     return;
   }
-  if (app.userlist.userEditWindow) {
-    app.userlist.userEditWindow.close();
+  if (app.appmgr.userEditWindow) {
+    app.appmgr.userEditWindow.close();
   }
   var params = {
     username: username,
   };
-  app.callServerApi('DeleteUser', params, app.userlist.deleteUserCb);
+  app.callServerApi('DeleteUser', params, app.appmgr.deleteUserCb);
 };
 
-app.userlist.deleteUserCb = function(xhr, res) {
+app.appmgr.deleteUserCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
   }
   app.showInfotip('OK');
-  app.userlist.getUserList();
+  app.appmgr.getUserList();
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.sortList = function(itemList, sortKey, desc) {
+app.appmgr.sortList = function(itemList, sortKey, desc) {
   var items = util.copyObject(itemList);
   var srcList = items;
   var asNum = true;
@@ -787,7 +776,7 @@ app.userlist.sortList = function(itemList, sortKey, desc) {
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.cleanseCommon = function(s) {
+app.appmgr.cleanseCommon = function(s) {
   s = s.trim();
   s = s.replace(/\t/g, ' ');
   var res = {
@@ -797,8 +786,8 @@ app.userlist.cleanseCommon = function(s) {
   return res;
 };
 
-app.userlist.cleanseUsername = function(s) {
-  var res = app.userlist.cleanseCommon(s);
+app.appmgr.cleanseUsername = function(s) {
+  var res = app.appmgr.cleanseCommon(s);
   if (res.msg) {
     return res;
   }
@@ -812,8 +801,8 @@ app.userlist.cleanseUsername = function(s) {
   return res;
 };
 
-app.userlist.cleanseFullName = function(s) {
-  var res = app.userlist.cleanseCommon(s);
+app.appmgr.cleanseFullName = function(s) {
+  var res = app.appmgr.cleanseCommon(s);
   if (res.msg) {
     return res;
   }
@@ -824,8 +813,8 @@ app.userlist.cleanseFullName = function(s) {
   return res;
 };
 
-app.userlist.cleanseLocalFullName = function(s) {
-  var res = app.userlist.cleanseCommon(s);
+app.appmgr.cleanseLocalFullName = function(s) {
+  var res = app.appmgr.cleanseCommon(s);
   if (res.msg) {
     return res;
   }
@@ -836,7 +825,7 @@ app.userlist.cleanseLocalFullName = function(s) {
   return res;
 };
 
-app.userlist.cleansePW = function(pw1, pw2, mode) {
+app.appmgr.cleansePW = function(pw1, pw2, mode) {
   var msg = null;
   if (mode == 'new') {
     if (pw1 == '') {
@@ -855,8 +844,8 @@ app.userlist.cleansePW = function(pw1, pw2, mode) {
   return res;
 };
 
-app.userlist.cleanseGroups = function(s) {
-  var res = app.userlist.cleanseCommon(s);
+app.appmgr.cleanseGroups = function(s) {
+  var res = app.appmgr.cleanseCommon(s);
   if (res.msg) {
     return res;
   }
@@ -868,8 +857,8 @@ app.userlist.cleanseGroups = function(s) {
   return res;
 };
 
-app.userlist.cleansePrivileges = function(s) {
-  var res = app.userlist.cleanseCommon(s);
+app.appmgr.cleansePrivileges = function(s) {
+  var res = app.appmgr.cleanseCommon(s);
   if (res.msg) {
     return res;
   }
@@ -882,22 +871,22 @@ app.userlist.cleansePrivileges = function(s) {
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.drawGroupStatus = function(s) {
+app.appmgr.drawGroupStatus = function(s) {
   $el('#groups-status').innerHTML = s;
 };
 
-app.userlist.getGroupList = function() {
-  app.callServerApi('GetGroupInfoList', null, app.userlist.getGroupListCb);
+app.appmgr.getGroupList = function() {
+  app.callServerApi('GetGroupInfoList', null, app.appmgr.getGroupListCb);
 };
-app.userlist.getGroupListCb = function(xhr, res) {
+app.appmgr.getGroupListCb = function(xhr, res) {
   if (res.status == 'OK') {
-    app.userlist.drawGroupStatus('');
+    app.appmgr.drawGroupStatus('');
     var list = res.body.grouplist;
-    app.userlist.drawGroupList(list);
+    app.appmgr.drawGroupList(list);
   }
 };
 
-app.userlist.drawGroupList = function(list) {
+app.appmgr.drawGroupList = function(list) {
   var html = '<table>';
   html += '<tr class="item-list-header">';
   html += '<th class="item-list" style="min-width:10em;">GID</th>';
@@ -912,23 +901,11 @@ app.userlist.drawGroupList = function(list) {
     var gid = group.gid;
     var privs = (group.privileges ? group.privileges : '');
     var desc = (group.description ? group.description : '');
-
-    var createdDate = '---------- --:--:--.---';
-    if (group.created_date > 0) {
-      var createdAt = group.created_date;
-      if (util.isInteger(createdAt)) createdAt;
-      createdDate = util.getDateTimeString(createdAt, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
-    }
-
-    var updatedDate = '---------- --:--:--.---';
-    if (group.updated_date > 0) {
-      var updatedAt = group.updated_date;
-      if (util.isInteger(updatedAt)) updatedAt;
-      updatedDate = util.getDateTimeString(updatedAt, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
-    }
+    var createdDate = app.appmgr.getDateTimeString(group.created_date);
+    var updatedDate = app.appmgr.getDateTimeString(group.updated_date);
 
     html += '<tr class="item-list">';
-    html += '<td class="item-list"><span class="pseudo-link link-button" onclick="app.userlist.editGroup(\'' + gid + '\');" data-tooltip="Edit">' + gid + '</span></td>';
+    html += '<td class="item-list"><span class="pseudo-link link-button" onclick="app.appmgr.editGroup(\'' + gid + '\');" data-tooltip="Edit">' + gid + '</span></td>';
     html += '<td class="item-list">' + privs + '</td>';
     html += '<td class="item-list">' + desc + '</td>';
     html += '<td class="item-list">' + createdDate + '</td>';
@@ -940,30 +917,30 @@ app.userlist.drawGroupList = function(list) {
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.newGroup = function() {
-  app.userlist.editGroup(null);
+app.appmgr.newGroup = function() {
+  app.appmgr.editGroup(null);
 };
 
-app.userlist.editGroup = function(gid) {
-  app.userlist.groupEditMode = (gid ? 'edit' : 'new');
-  if (!app.userlist.groupEditWindow) {
-    app.userlist.groupEditWindow = app.userlist.openGroupInfoEditorWindow(app.userlist.groupEditMode, gid);
+app.appmgr.editGroup = function(gid) {
+  app.appmgr.groupEditMode = (gid ? 'edit' : 'new');
+  if (!app.appmgr.groupEditWindow) {
+    app.appmgr.groupEditWindow = app.appmgr.openGroupInfoEditorWindow(app.appmgr.groupEditMode, gid);
   }
-  app.userlist.clearGroupInfoEditor();
+  app.appmgr.clearGroupInfoEditor();
   if (gid) {
     var params = {
       gid: gid
     };
-    app.callServerApi('GetGroupInfo', params, app.userlist.getGroupInfoCb);
+    app.callServerApi('GetGroupInfo', params, app.appmgr.getGroupInfoCb);
   } else {
     $el('#gid').focus();
   }
 };
 
-app.userlist.openGroupInfoEditorWindow = function(mode, gid) {
+app.appmgr.openGroupInfoEditorWindow = function(mode, gid) {
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
-  html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="app.userlist.deleteGroup(\'' + gid + '\');">DEL</button></div>';
+  html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="app.appmgr.deleteGroup(\'' + gid + '\');">DEL</button></div>';
   html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:110px;text-align:left;">';
 
   html += '<table>';
@@ -984,8 +961,8 @@ app.userlist.openGroupInfoEditorWindow = function(mode, gid) {
   html += '<table>';
 
   html += '<div style="margin-top:24px;text-align:center;">';
-  html += '<button onclick="app.userlist.saveGroupInfo();">OK</button>'
-  html += '<button style="margin-left:8px;" onclick="app.userlist.groupEditWindow.close();">Cancel</button>'
+  html += '<button onclick="app.appmgr.saveGroupInfo();">OK</button>'
+  html += '<button style="margin-left:8px;" onclick="app.appmgr.groupEditWindow.close();">Cancel</button>'
   html += '</div>';
 
   html += '</div>';
@@ -1011,7 +988,7 @@ app.userlist.openGroupInfoEditorWindow = function(mode, gid) {
         background: '#fff'
       }
     },
-    onclose: app.userlist.onGroupEditWindowClose,
+    onclose: app.appmgr.onGroupEditWindowClose,
     content: html
   };
 
@@ -1020,12 +997,12 @@ app.userlist.openGroupInfoEditorWindow = function(mode, gid) {
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.addGroup = function() {
+app.appmgr.addGroup = function() {
   var gid = $el('#gid').value;
   var privs = $el('#group-privs').value;
   var desc = $el('#group-desc').value;
 
-  clnsRes = app.userlist.cleansePrivileges(privs);
+  clnsRes = app.appmgr.cleansePrivileges(privs);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
@@ -1038,20 +1015,20 @@ app.userlist.addGroup = function() {
     description: desc
   };
 
-  app.callServerApi('AddGroup', params, app.userlist.addGroupCb);
+  app.callServerApi('AddGroup', params, app.appmgr.addGroupCb);
 };
 
-app.userlist.addGroupCb = function(xhr, res) {
+app.appmgr.addGroupCb = function(xhr, res) {
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
-  app.userlist.groupEditWindow.close();
-  app.userlist.getGroupList();
+  app.appmgr.groupEditWindow.close();
+  app.appmgr.getGroupList();
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.updateGroup = function() {
+app.appmgr.updateGroup = function() {
   var gid = $el('#gid').value;
   var privs = $el('#group-privs').value;
   var desc = $el('#group-desc').value;
@@ -1062,58 +1039,58 @@ app.userlist.updateGroup = function() {
     description: desc
   };
 
-  app.callServerApi('EditGroup', params, app.userlist.updateGroupCb);
+  app.callServerApi('EditGroup', params, app.appmgr.updateGroupCb);
 };
 
-app.userlist.updateGroupCb = function(xhr, res) {
+app.appmgr.updateGroupCb = function(xhr, res) {
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
-  app.userlist.groupEditWindow.close();
-  app.userlist.getGroupList();
+  app.appmgr.groupEditWindow.close();
+  app.appmgr.getGroupList();
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.deleteGroup = function(gid) {
+app.appmgr.deleteGroup = function(gid) {
   var opt = {
     data: gid
   };
-  util.confirm('Delete ' + gid + ' ?', app.userlist._deleteGroup, opt);
+  util.confirm('Delete ' + gid + ' ?', app.appmgr._deleteGroup, opt);
 };
-app.userlist._deleteGroup = function(gid) {
+app.appmgr._deleteGroup = function(gid) {
   if (!gid) {
     return;
   }
-  if (app.userlist.groupEditWindow) {
-    app.userlist.groupEditWindow.close();
+  if (app.appmgr.groupEditWindow) {
+    app.appmgr.groupEditWindow.close();
   }
   var params = {
     gid: gid
   };
-  app.callServerApi('DeleteGroup', params, app.userlist.deleteGroupCb);
+  app.callServerApi('DeleteGroup', params, app.appmgr.deleteGroupCb);
 };
 
-app.userlist.deleteGroupCb = function(xhr, res) {
+app.appmgr.deleteGroupCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
   }
   app.showInfotip('OK');
-  app.userlist.getGroupList();
+  app.appmgr.getGroupList();
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.getGroupInfoCb = function(xhr, res) {
+app.appmgr.getGroupInfoCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
   }
   var info = res.body;
-  app.userlist.setGroupInfoToEditor(info);
+  app.appmgr.setGroupInfoToEditor(info);
 };
 
-app.userlist.setGroupInfoToEditor = function(info) {
+app.appmgr.setGroupInfoToEditor = function(info) {
   var gid = info.gid;
   $el('#gid').value = gid;
   if (gid) {
@@ -1127,37 +1104,62 @@ app.userlist.setGroupInfoToEditor = function(info) {
   $el('#group-desc').value = (info.description ? info.description : '');
 };
 
-app.userlist.clearGroupInfoEditor = function() {
+app.appmgr.clearGroupInfoEditor = function() {
   var info = {
     gid: '',
     privileges: '',
     description: ''
   };
-  app.userlist.setGroupInfoToEditor(info);
+  app.appmgr.setGroupInfoToEditor(info);
 };
 
-app.userlist.saveGroupInfo = function() {
-  if (app.userlist.groupEditMode == 'new') {
-    app.userlist.addGroup();
+app.appmgr.saveGroupInfo = function() {
+  if (app.appmgr.groupEditMode == 'new') {
+    app.appmgr.addGroup();
   } else {
-    app.userlist.updateGroup();
+    app.appmgr.updateGroup();
   }
 };
 
 //-----------------------------------------------------------------------------
-app.userlist.onUserEditWindowClose = function() {
-  app.userlist.userEditWindow = null;
-  app.userlist.userEditMode = null;
+app.appmgr.onUserEditWindowClose = function() {
+  app.appmgr.userEditWindow = null;
+  app.appmgr.userEditMode = null;
 };
 
-app.userlist.onGroupEditWindowClose = function() {
-  app.userlist.groupEditWindow = null;
-  app.userlist.groupEditMode = null;
+app.appmgr.onGroupEditWindowClose = function() {
+  app.appmgr.groupEditWindow = null;
+  app.appmgr.groupEditMode = null;
 };
 
+//-----------------------------------------------------------------------------
+app.appmgr.resetApp = function() {
+  util.confirm('Reset WebApp?', app.appmgr.reset);
+};
+
+app.appmgr.reset = function() {
+  app.callServerApi('reset', null, app.appmgr.resetCb);
+};
+
+app.appmgr.resetCb = function(xhr, res) {
+  var msg;
+  if (res.status == 'OK') {
+    msg = 'OK: The system has been restarted successfully.';
+  } else {
+    msg = 'ERROR: ' + res.body;
+  }
+  $el('#message').textseq(msg, {cursor: 3});
+  setTimeout(app.appmgr.crearMessage, 5000)
+};
+
+app.appmgr.crearMessage = function() {
+  $el('#message').fadeOut();
+};
+
+//-----------------------------------------------------------------------------
 $onCtrlS = function(e) {
 };
 
 $onBeforeUnload = function(e) {
-  if ((app.userlist.userEditWindow) || (app.userlist.groupEditWindow)) e.returnValue = '';
+  if ((app.appmgr.userEditWindow) || (app.appmgr.groupEditWindow)) e.returnValue = '';
 };
