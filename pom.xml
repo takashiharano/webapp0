@@ -134,6 +134,12 @@
     </dependency>
 
     <dependency>
+      <groupId>com.libutil</groupId>
+      <artifactId>tiny-auth</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.bsb64</groupId>
       <artifactId>bsb64</artifactId>
       <version>1.0.0</version>

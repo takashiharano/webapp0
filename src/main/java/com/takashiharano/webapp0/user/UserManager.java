@@ -12,8 +12,8 @@ import java.util.Map.Entry;
 
 import com.libutil.FileUtil;
 import com.libutil.StrUtil;
+import com.libutil.auth.Authenticator;
 import com.takashiharano.webapp0.AppManager;
-import com.takashiharano.webapp0.auth.Authenticator;
 
 public class UserManager {
 
