@@ -7,6 +7,7 @@ package com.takashiharano.webapp0.action.system.users;
 
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.action.Action;
+import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
 
@@ -25,6 +26,9 @@ public class DeleteUserAction extends Action {
 
     String status = "OK";
     try {
+      SessionManager sessionManager = context.getSessionManager();
+      sessionManager.clearUserSessions(username);
+
       UserManager userManager = context.getUserManager();
       userManager.deleteUser(username);
     } catch (Exception e) {

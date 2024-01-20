@@ -387,6 +387,23 @@ public class SessionManager {
     Log.i("Logout: user=" + username);
   }
 
+  /**
+   * Clear all user sessions.
+   *
+   * @param username
+   *          target username
+   */
+  public void clearUserSessions(String username) {
+    for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
+      String sessionId = entry.getKey();
+      SessionInfo sessionInfo = sessionMap.get(sessionId);
+      String uName = sessionInfo.getUsername();
+      if (uName.equals(username)) {
+        sessionMap.remove(sessionId);
+      }
+    }
+  }
+
   private void invalidateSessionCookie(ProcessContext context) {
     Cookie cookie = new Cookie(SESSION_COOKIE_NAME, "");
     cookie.setMaxAge(0);
