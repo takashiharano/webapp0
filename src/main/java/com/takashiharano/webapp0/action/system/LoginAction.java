@@ -26,7 +26,6 @@ public class LoginAction extends Action {
 
   private String login(ProcessContext context) throws Exception {
     SessionManager sessionManager = context.getSessionManager();
-    sessionManager.cleanInvalidatedSessionInfo();
 
     String username = context.getRequestParameter("id");
     UserManager userManager = context.getUserManager();
@@ -40,10 +39,10 @@ public class LoginAction extends Action {
     String status;
 
     if ("OK".equals(result)) {
-      Log.i("Login: OK user=" + username);
       status = "OK";
-      sessionManager.onLoggedIn(context, username);
+      String sessionId = sessionManager.onLoggedIn(context, username);
       userManager.resetLoginFailedCount(username);
+      Log.i("Login: OK user=" + username + " sid=" + sessionId);
     } else {
       String msg;
       status = "NG";

@@ -1198,9 +1198,9 @@ public class ProcessContext {
   public void onAccess() {
     Log.setContext(this);
     long timestamp = System.currentTimeMillis();
+    setSessionCookieMaxAge();
     SessionManager sessionManager = getSessionManager();
     sessionManager.onAccess(this, timestamp);
-    setSessionCookieMaxAge();
     UserManager userManager = getUserManager();
     userManager.onAccess(this, timestamp);
   }

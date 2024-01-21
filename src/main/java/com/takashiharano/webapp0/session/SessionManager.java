@@ -42,6 +42,8 @@ public class SessionManager {
    *          timestamp of access time
    */
   public void onAccess(ProcessContext context, long timestamp) {
+    cleanInvalidatedSessionInfo();
+
     String sessinId = context.getSessionId();
     if (sessinId == null) {
       return;
@@ -66,6 +68,8 @@ public class SessionManager {
    * This is called by AppManager#onStop().
    */
   public void onStop() {
+    // Remove invalid info prior to save.
+    cleanInvalidatedSessionInfo();
     saveSessionInfo(sessionInfoFilePath);
   }
 
@@ -219,9 +223,6 @@ public class SessionManager {
    *          the file path to save session info
    */
   public void saveSessionInfo(String path) {
-    // Remove invalid info prior to save.
-    cleanInvalidatedSessionInfo();
-
     StringBuilder sb = new StringBuilder();
     int count = 0;
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
@@ -272,8 +273,9 @@ public class SessionManager {
    *          Process Context
    * @param username
    *          the user name
+   * @return new session id
    */
-  public void onLoggedIn(ProcessContext context, String username) {
+  public String onLoggedIn(ProcessContext context, String username) {
     SessionInfo session = getSessionInfo(context);
 
     if (session != null) {
@@ -281,7 +283,8 @@ public class SessionManager {
       removeSessionInfo(sessionId);
     }
 
-    createNewSession(context, username);
+    String sessionId = createNewSession(context, username);
+    return sessionId;
   }
 
   /**
@@ -291,8 +294,9 @@ public class SessionManager {
    *          Process Context
    * @param username
    *          the user name
+   * @return new session id
    */
-  private void createNewSession(ProcessContext context, String username) {
+  private String createNewSession(ProcessContext context, String username) {
     // Recreate session
     HttpServletRequest request = context.getRequest();
     HttpSession session = request.getSession();
@@ -303,8 +307,9 @@ public class SessionManager {
     String remoteHost = context.getRemoteHost();
     String userAgent = context.getUserAgent();
 
-    long createdTime = System.currentTimeMillis();
-    long lastAccessedTime = 0L;
+    long now = System.currentTimeMillis();
+    long createdTime = now;
+    long lastAccessedTime = now;
 
     SessionInfo info = new SessionInfo(sessionId, username, createdTime, lastAccessedTime, remoteAddr, remoteHost, userAgent);
     registerSessionInfo(info);
@@ -313,6 +318,8 @@ public class SessionManager {
     int sessionTimeoutSec = getSessionTimeout();
     session.setMaxInactiveInterval(sessionTimeoutSec);
     context.setSessionCookieMaxAge(sessionId, sessionTimeoutSec);
+
+    return sessionId;
   }
 
   /**
@@ -336,19 +343,16 @@ public class SessionManager {
     AppManager appManager = AppManager.getInstance();
     int sessionTimeoutSec = appManager.getConfigValueAsInteger("session_timeout_sec");
     long timeoutMillis = sessionTimeoutSec * 1000;
-    int count = 0;
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
       String sessionId = entry.getKey();
       SessionInfo sessionInfo = sessionMap.get(sessionId);
       long lastAccessedTime = sessionInfo.getLastAccessedTime();
       long elapsed = now - lastAccessedTime;
       if (elapsed > timeoutMillis) {
+        String username = sessionInfo.getUsername();
+        Log.i("Logout: (expired) user=" + username + " sid=" + sessionId);
         sessionMap.remove(sessionId);
-        count++;
       }
-    }
-    if (count > 0) {
-      Log.i(count + " session removed");
     }
   }
 
