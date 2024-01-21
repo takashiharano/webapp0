@@ -466,6 +466,10 @@ public class UserManager {
 
   /**
    * Load user status info from a storage.
+   *
+   * @param username
+   *          target username
+   * @return UserStatus object
    */
   public UserStatus loadUserStatus(String username) {
     String userDataPath = getUserDataPath(username);

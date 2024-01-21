@@ -362,7 +362,7 @@ public class User {
   /**
    * Sets the flag to the user flags.
    *
-   * @param state
+   * @param flag
    *          the flag to set
    */
   public void setFlag(int flag) {
@@ -443,6 +443,8 @@ public class User {
   /**
    * Returns all properties in JSON.
    *
+   * @param includeStatusInfo
+   *          If true, include status info
    * @return JSON string
    */
   public String toJSON(boolean includeStatusInfo) {

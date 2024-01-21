@@ -38,6 +38,8 @@ public class SessionManager {
    *
    * @param context
    *          Process Context
+   * @param timestamp
+   *          timestamp of access time
    */
   public void onAccess(ProcessContext context, long timestamp) {
     String sessinId = context.getSessionId();
