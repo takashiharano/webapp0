@@ -4,6 +4,7 @@
  * Copyright 2023 Takashi Harano
  */
 app.appmgr = {};
+app.appmgr.INSEC = false;
 
 app.appmgr.INTERVAL = 2 * 60 * 1000;
 app.appmgr.USER_LIST_COLUMNS = [
@@ -100,10 +101,10 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
       loginFailedTime = util.getDateTimeString(loginFailedInfo['time']);
     }
 
-    var createdDate = app.appmgr.getDateTimeString(item.created_date);
-    var updatedDate = app.appmgr.getDateTimeString(item.updated_date);
-    var pwChangedDate = app.appmgr.getDateTimeString(statusInfo.pw_changed_at);
-    var lastAccessedDate = app.appmgr.getDateTimeString(statusInfo.last_accessed);
+    var createdDate = app.appmgr.getDateTimeString(item.created_date, app.appmgr.INSEC);
+    var updatedDate = app.appmgr.getDateTimeString(item.updated_date, app.appmgr.INSEC);
+    var pwChangedDate = app.appmgr.getDateTimeString(statusInfo.pw_changed_at, app.appmgr.INSEC);
+    var lastAccessedDate = app.appmgr.getDateTimeString(statusInfo.last_accessed, app.appmgr.INSEC);
 
     var desc = (item.description ? item.description : '');
     var escDesc = util.escHtml(desc);
@@ -112,7 +113,7 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
       dispDesc += ' data-tooltip="' + escDesc + '"';
     }
     dispDesc += '>' + escDesc + '</span>';
-    var led = app.appmgr.buildLedHtml(now, statusInfo.last_accessed);
+    var led = app.appmgr.buildLedHtml(now, statusInfo.last_accessed, app.appmgr.INSEC);
 
     var cInd = ((username == currentUsername) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip="You">*</span>' : '<span style="margin-right:2px;">&nbsp;</span>');
     var dispUid = cInd + '<span class="pseudo-link link-button" style="text-align:center;" onclick="app.appmgr.editUser(\'' + username + '\');" data-tooltip="Edit">' + username + '</span>';
@@ -154,27 +155,34 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
   app.appmgr.drawListContent(html);
 };
 
-app.appmgr.buildLedHtml = function(now, ts) {
-  var tMs = ts * 1000;
+app.appmgr.buildLedHtml = function(now, ts, inSec) {
+  var COLORS = [
+    {t: 5 * util.MINUTE, color: '#4dd965'},
+    {t: 60 * util.MINUTE, color: '#ffba00'},
+    {t: 6 * util.HOUR, color: '#f44d41'},
+    {t: 24 * util.HOUR, color: '#a6342c'}
+  ];
+  var tMs = ts;
+  if (inSec) tMs = Math.floor(tMs * 1000);
   var elapsed = now - tMs;
   var ledColor = '#888';
-  if (elapsed <= 5 * util.MINUTE) {
-    ledColor = '#0f0';
-  } else if (elapsed <= 60 * util.MINUTE) {
-    ledColor = '#cc0';
-  } else if (elapsed <= 6 * util.HOUR) {
-    ledColor = '#a44';
-  } else if (elapsed <= 24 * util.HOUR) {
-    ledColor = '#822';
+  for (var i = 0; i < COLORS.length; i++) {
+    var c = COLORS[i];
+    if (elapsed <= c.t) {
+      ledColor = c.color;
+      break;
+    }
   }
-  var dt = app.appmgr.getDateTimeString(ts);
+  var dt = app.appmgr.getDateTimeString(tMs);
   var html = '<span class="led" style="color:' + ledColor + ';" data-tooltip="' + dt + '"></span>';
   return html;
 };
 
-app.appmgr.getDateTimeString = function(ts) {
+app.appmgr.getDateTimeString = function(ts, inSec) {
+  var tMs = ts;
+  if (inSec) tMs = Math.floor(tMs * 1000);
   var s = '---------- --:--:--.---';
-  if (ts > 0) {
+  if (tMs > 0) {
     s = util.getDateTimeString(ts, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
   }
   return s;
@@ -290,6 +298,7 @@ app.appmgr.buildSessionInfoOne = function(session, now, mn) {
   var ua = session.ua;
   var loginT = session.createdTime;
   var laTime = session.lastAccessedTime;
+  if (app.appmgr.INSEC) laTime = Math.floor(laTime * 1000);
   var loginTime = util.getDateTimeString(loginT, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
   var laTimeStr = util.getDateTimeString(laTime, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss')
   var sid = session['sid'];
@@ -965,8 +974,8 @@ app.appmgr.drawGroupList = function(list) {
     var gid = group.gid;
     var privs = (group.privileges ? group.privileges : '');
     var desc = (group.description ? group.description : '');
-    var createdDate = app.appmgr.getDateTimeString(group.created_date);
-    var updatedDate = app.appmgr.getDateTimeString(group.updated_date);
+    var createdDate = app.appmgr.getDateTimeString(group.created_date, app.appmgr.INSEC);
+    var updatedDate = app.appmgr.getDateTimeString(group.updated_date, app.appmgr.INSEC);
 
     html += '<tr class="item-list">';
     html += '<td class="item-list"><span class="pseudo-link link-button" onclick="app.appmgr.editGroup(\'' + gid + '\');" data-tooltip="Edit">' + gid + '</span></td>';
