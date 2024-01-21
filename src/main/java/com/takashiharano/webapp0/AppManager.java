@@ -64,6 +64,7 @@ public class AppManager {
   public void onStop() {
     getInstance().stopIntervalTsaks();
     sessionManager.onStop();
+    userManager.onStop();
     Log.i("[OK] ==> APP STOPPED");
   }
 

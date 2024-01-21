@@ -8,6 +8,7 @@ app.login = {};
 app.login.MESSAGES = {
   login_ok: 'Welcome!',
   login_ng: 'Failed. Please try again.',
+  login_locked: 'Locked.'
 };
 
 app.login.led = null;
@@ -49,7 +50,8 @@ app.login.loginCb = function(xhr, res) {
     var m = app.getMessage('login_ok');
     $el('#message').textseq(m, textseqOpt);
   } else {
-    m = app.getMessage('login_ng');
+    var msgId = ((res.status == 'LOCKED') ? 'login_locked' : 'login_ng');
+    m = app.getMessage(msgId);
     if (res.status == 'ERROR') {
       m = 'Server Error';
       log.e(m + ' ' + res.body);

@@ -11,14 +11,19 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.libutil.FileUtil;
+import com.libutil.Props;
 import com.libutil.StrUtil;
 import com.libutil.auth.Authenticator;
 import com.takashiharano.webapp0.AppManager;
+import com.takashiharano.webapp0.ProcessContext;
+import com.takashiharano.webapp0.util.Log;
 
 public class UserManager {
 
   private static final String USERS_FILE_NAME = "users.txt";
   private static final String USERS_PW_FILE_NAME = "userspw.txt";
+  private static final String USER_DATA_ROOT_DIR = "users";
+  private static final String USER_STATUS_FILE_NAME = "status.txt";
 
   private static UserManager instance;
 
@@ -44,14 +49,35 @@ public class UserManager {
   }
 
   /**
-   * Returns the user info of specified username.
-   * 
-   * @param username
-   *          target username
-   * @return the user info
+   * Callback for the web application shut down.<br>
+   * This is called by AppManager#onStop().
    */
-  public User getUserInfo(String username) {
-    return users.get(username);
+  public void onStop() {
+    try {
+      saveAllUserStatus();
+    } catch (Exception e) {
+      Log.e(e);
+    }
+  }
+
+  /**
+   * Updates last accessed time in user status info.
+   *
+   * @param context
+   *          Process Context
+   * @param timestamp
+   *          the timestamp of the current date-time
+   */
+  public void onAccess(ProcessContext context, long timestamp) {
+    String username = context.getUsername();
+    if (username == null) {
+      return;
+    }
+    UserStatus userStatus = getUserStatusInfo(username);
+    if (userStatus == null) {
+      return;
+    }
+    userStatus.setLastAccessed(timestamp);
   }
 
   /**
@@ -61,6 +87,17 @@ public class UserManager {
    */
   public Map<String, User> getAllUserInfo() {
     return users;
+  }
+
+  /**
+   * Returns the user info of specified username.
+   * 
+   * @param username
+   *          target username
+   * @return the user info
+   */
+  public User getUserInfo(String username) {
+    return users.get(username);
   }
 
   /**
@@ -171,10 +208,8 @@ public class UserManager {
         user.setUpdatedDate(updatedDate);
       }
 
-      if (fields.length > 10) {
-        long pwChangedDate = StrUtil.parseLong(fields[10]);
-        user.setPwChangedDate(pwChangedDate);
-      }
+      UserStatus userStatus = loadUserStatus(username);
+      user.setUserStatus(userStatus);
 
       users.put(username, user);
     }
@@ -187,7 +222,7 @@ public class UserManager {
    *           if an IO error occurres
    */
   public void saveUsers() throws IOException {
-    String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tDescription\tFlags\tCreated\tUpdated\tPwChanged\n";
+    String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tDescription\tFlags\tCreated\tUpdated\n";
     StringBuilder sb = new StringBuilder();
     sb.append(header);
     for (Entry<String, User> entry : users.entrySet()) {
@@ -203,7 +238,6 @@ public class UserManager {
       int flags = user.getFlags();
       long createdDate = user.getCreatedDate();
       long updatedDate = user.getUpdatedDate();
-      long pwChangedDate = user.getPwChangedDate();
 
       sb.append(username);
       sb.append("\t");
@@ -224,8 +258,6 @@ public class UserManager {
       sb.append(createdDate);
       sb.append("\t");
       sb.append(updatedDate);
-      sb.append("\t");
-      sb.append(pwChangedDate);
       sb.append("\n");
     }
 
@@ -281,9 +313,8 @@ public class UserManager {
     long now = System.currentTimeMillis();
     long createdDate = now;
     long updatedDate = now;
-    long pwChangedDate = now;
 
-    User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, flags, createdDate, updatedDate, pwChangedDate);
+    User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, flags, createdDate, updatedDate);
     if (StrUtil.isEmpty(userFlags)) {
       user.setFlag(User.FLAG_NEED_PW_CHANGE);
     }
@@ -373,17 +404,19 @@ public class UserManager {
       user.setUpdatedDate(now);
     }
 
+    UserStatus userStatus = getUserStatusInfo(username);
     if (pwHash != null) {
       int ret = authenticator.registerByHash(username, pwHash);
       if (ret < 0) {
         throw new Exception("PW_REGISTER_ERROR");
       }
-      user.setPwChangedDate(now);
       user.unsetFlag(User.FLAG_NEED_PW_CHANGE);
+      userStatus.setPwChangedTime(now);
     }
 
     try {
       saveUsers();
+      saveUserStatus(username, userStatus);
     } catch (IOException ioe) {
       throw new Exception("IO_ERROR_ON_USER_UPDATE");
     }
@@ -407,12 +440,17 @@ public class UserManager {
 
     authenticator.remove(username);
     users.remove(username);
+    deleteUserDataDir(username);
 
     try {
       saveUsers();
     } catch (IOException ioe) {
       throw new Exception("IO_ERROR_ON_USER_DELETE");
     }
+  }
+
+  public void unlockUser(String username) throws Exception {
+    resetLoginFailedCount(username);
   }
 
   /**
@@ -426,10 +464,156 @@ public class UserManager {
     return users.containsKey(username);
   }
 
+  /**
+   * Load user status info from a storage.
+   */
+  public UserStatus loadUserStatus(String username) {
+    String userDataPath = getUserDataPath(username);
+    String path = FileUtil.joinPath(userDataPath, USER_STATUS_FILE_NAME);
+    UserStatus userStatus;
+    try {
+      Props props = new Props(path);
+      long lastAccessed = props.getValueAsLong("last_accessed");
+      long pwChangedTime = props.getValueAsLong("pw_changed_at");
+      int loginFailedCount = props.getValueAsInteger("login_failed_count");
+      long loginFailedTime = props.getValueAsLong("login_failed_time");
+      userStatus = new UserStatus(lastAccessed, pwChangedTime, loginFailedCount, loginFailedTime);
+    } catch (Exception e) {
+      userStatus = new UserStatus();
+    }
+    return userStatus;
+  }
+
+  /**
+   * Write all user status info into a storage.
+   *
+   * @throws IOException
+   *           if an IO error occurres
+   */
+  public void saveAllUserStatus() throws IOException {
+    for (Entry<String, User> entry : users.entrySet()) {
+      String username = entry.getKey();
+      User user = entry.getValue();
+      UserStatus userStatus = user.getUserStatus();
+      saveUserStatus(username, userStatus);
+    }
+  }
+
+  public void saveUserStatus(String username, UserStatus userStatus) throws IOException {
+    long lastAccessed = userStatus.getLastAccessed();
+    long pwChangedTime = userStatus.getPwChangedTime();
+    int loginFailedCount = userStatus.getLoginFailedCount();
+    long loginFailedTime = userStatus.getLoginFailedTime();
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("last_accessed=");
+    sb.append(lastAccessed);
+    sb.append("\n");
+
+    sb.append("pw_changed_at=");
+    sb.append(pwChangedTime);
+    sb.append("\n");
+
+    sb.append("login_failed_count=");
+    sb.append(loginFailedCount);
+    sb.append("\n");
+
+    sb.append("login_failed_time=");
+    sb.append(loginFailedTime);
+    sb.append("\n");
+
+    String data = sb.toString();
+
+    String userDataPath = getUserDataPath(username);
+    String path = FileUtil.joinPath(userDataPath, USER_STATUS_FILE_NAME);
+    try {
+      FileUtil.write(path, data);
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+      throw ioe;
+    }
+  }
+
+  /**
+   * Returns the user status info of specified username.
+   * 
+   * @param username
+   *          target username
+   * @return the user status info
+   */
+  public UserStatus getUserStatusInfo(String username) {
+    UserStatus status = null;
+    User user = users.get(username);
+    if (user != null) {
+      status = user.getUserStatus();
+    }
+    return status;
+  }
+
+  public int getLoginFailedCount(String username) {
+    UserStatus userStatus = getUserStatusInfo(username);
+    if (userStatus == null) {
+      return -1;
+    }
+    return userStatus.getLoginFailedCount();
+  }
+
+  public long getLoginFailedTime(String username) {
+    UserStatus userStatus = getUserStatusInfo(username);
+    if (userStatus == null) {
+      return -1;
+    }
+    return userStatus.getLoginFailedTime();
+  }
+
+  public void setLoginFailedCount(String username, boolean reset) throws Exception {
+    UserStatus userStatus = getUserStatusInfo(username);
+    if (userStatus == null) {
+      throw new Exception("USER_STATUS_INFO_NOT_FOUND: user=" + username);
+    }
+
+    long timestamp = 0;
+    int count = 0;
+    if (!reset) {
+      timestamp = System.currentTimeMillis();
+      count = userStatus.getLoginFailedCount() + 1;
+    }
+
+    userStatus.setLoginFailedCount(count);
+    userStatus.setLoginFailedTime(timestamp);
+
+    saveUserStatus(username, userStatus);
+  }
+
+  public void incrementLoginFailedCount(String username) throws Exception {
+    setLoginFailedCount(username, false);
+  }
+
+  public void resetLoginFailedCount(String username) throws Exception {
+    setLoginFailedCount(username, true);
+  }
+
   private String getDataPath() {
     AppManager appManager = AppManager.getInstance();
     String workspacePath = appManager.getAppWorkspacePath();
     return workspacePath;
+  }
+
+  private String getUserDataRootPath() {
+    String dataPath = getDataPath();
+    String path = FileUtil.joinPath(dataPath, USER_DATA_ROOT_DIR);
+    return path;
+  }
+
+  private String getUserDataPath(String username) {
+    String rootPath = getUserDataRootPath();
+    String path = FileUtil.joinPath(rootPath, username);
+    return path;
+  }
+
+  private void deleteUserDataDir(String username) {
+    String path = getUserDataPath(username);
+    FileUtil.delete(path, true);
   }
 
 }

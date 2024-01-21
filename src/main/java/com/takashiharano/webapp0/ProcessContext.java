@@ -781,7 +781,18 @@ public class ProcessContext {
    * @return username
    */
   public String getUsername() {
-    String username = "";
+    return getUsername("");
+  }
+
+  /**
+   * Returns current username.
+   *
+   * @param defaultName
+   *          Default name if no information is available
+   * @return username
+   */
+  public String getUsername(String defaultName) {
+    String username = defaultName;
     User userInfo = getUserInfo();
     if (userInfo != null) {
       username = userInfo.getUsername();
@@ -1186,9 +1197,12 @@ public class ProcessContext {
    */
   public void onAccess() {
     Log.setContext(this);
+    long timestamp = System.currentTimeMillis();
     SessionManager sessionManager = getSessionManager();
-    sessionManager.onAccess(this);
+    sessionManager.onAccess(this, timestamp);
     setSessionCookieMaxAge();
+    UserManager userManager = getUserManager();
+    userManager.onAccess(this, timestamp);
   }
 
   /**

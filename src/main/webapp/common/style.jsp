@@ -113,6 +113,14 @@ td,th {
   font-size: 18px;
 }
 
+.text-red {
+  color: #f44;
+}
+
+.text-skyblue {
+  color: #0af;
+}
+
 #clock {
   margin-left: 1em;
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;

@@ -8,16 +8,18 @@ app.appmgr = {};
 app.appmgr.INTERVAL = 2 * 60 * 1000;
 app.appmgr.USER_LIST_COLUMNS = [
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
-  {key: 'fullname', label: 'Full Name', style: 'min-width:13em;'},
+  {key: 'fullname', label: 'Full Name', style: 'min-width:10em;'},
   {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
   {key: 'is_admin', label: 'Admin'},
   {key: 'groups', label: 'Groups', style: 'min-width:15em;'},
   {key: 'privileges', label: 'Privileges', style: 'min-width:15em;'},
   {key: 'description', label: 'Description', style: 'min-width:15em;'},
   {key: 'flags', label: 'Flags'},
+  {key: 'status_info.login_failed.count', label: 'Fail', sort: false},
   {key: 'created_date', label: 'Created'},
   {key: 'updated_date', label: 'Updated'},
-  {key: 'pw_changed_date', label: 'PwChanged'}
+  {key: 'status_info.pw_changed_at', label: 'PwChanged'},
+  {key: 'status_info.last_accessed', label: 'Last Accessed'}
 ];
 
 app.appmgr.listStatus = {
@@ -41,9 +43,13 @@ $onReady = function() {
 };
 
 app.appmgr.reload = function() {
+  app.appmgr.reloadUserInfo();
+  app.appmgr.getGroupList();
+};
+
+app.appmgr.reloadUserInfo = function() {
   app.appmgr.getUserList();
   app.appmgr.getSessionList();
-  app.appmgr.getGroupList();
 };
 
 app.appmgr.queueNextUpdateSessionInfo = function() {
@@ -70,6 +76,9 @@ app.appmgr.getUserInfoListCb = function(xhr, res) {
 };
 
 app.appmgr.drawList = function(items, sortIdx, sortOrder) {
+  var now = util.now();
+  var currentUsername = app.getUsername();
+
   if (sortIdx >= 0) {
     if (sortOrder > 0) {
       var srtDef = app.appmgr.USER_LIST_COLUMNS[sortIdx];
@@ -78,18 +87,23 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     }
   }
 
-  var currentUsername = app.getUsername();
-
   var htmlList = '';
   for (var i = 0; i < items.length; i++) {
     var item = items[i];
     var username = item.username;
     var fullname = item.fullname.replace(/ /g, '&nbsp');
     var localfullname = item.localfullname.replace(/ /g, '&nbsp');
+    var statusInfo = item.status_info;
+    var loginFailedInfo = statusInfo.login_failed;
+    if (loginFailedInfo) {
+      loginFailedCount = loginFailedInfo['count'];
+      loginFailedTime = util.getDateTimeString(loginFailedInfo['time']);
+    }
 
     var createdDate = app.appmgr.getDateTimeString(item.created_date);
     var updatedDate = app.appmgr.getDateTimeString(item.updated_date);
-    var pwChangedDate = app.appmgr.getDateTimeString(item.pw_changed_date);
+    var pwChangedDate = app.appmgr.getDateTimeString(statusInfo.pw_changed_at);
+    var lastAccessedDate = app.appmgr.getDateTimeString(statusInfo.last_accessed);
 
     var desc = (item.description ? item.description : '');
     var escDesc = util.escHtml(desc);
@@ -98,9 +112,14 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
       dispDesc += ' data-tooltip="' + escDesc + '"';
     }
     dispDesc += '>' + escDesc + '</span>';
+    var led = app.appmgr.buildLedHtml(now, statusInfo.last_accessed);
+
+    var cInd = ((username == currentUsername) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip="You">*</span>' : '<span style="margin-right:2px;">&nbsp;</span>');
+    var dispUid = cInd + '<span class="pseudo-link link-button" style="text-align:center;" onclick="app.appmgr.editUser(\'' + username + '\');" data-tooltip="Edit">' + username + '</span>';
 
     htmlList += '<tr class="item-list">';
-    htmlList += '<td class="item-list"><span class="pseudo-link link-button" style="text-align:center;" onclick="app.appmgr.editUser(\'' + username + '\');" data-tooltip="Edit">' + username + '</span></td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + led + '</td>';
+    htmlList += '<td class="item-list" style="padding-right:10px;">' + dispUid + '</td>';
     htmlList += '<td class="item-list">' + fullname + '</td>';
     htmlList += '<td class="item-list">' + localfullname + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + (item.is_admin ? 'Y' : '') + '</td>';
@@ -108,9 +127,23 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list">' + item.privileges + '</td>';
     htmlList += '<td class="item-list" style="max-width:20em">' + dispDesc + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + item.flags + '</td>';
+
+    htmlList += '<td class="item-list" style="text-align:center;width:1.5em;">';
+    if (loginFailedCount > 0) {
+      var clz = 'pseudo-link';
+      if ((appconfig.login_failure_max > 0) && (loginFailedCount >= appconfig.login_failure_max)) {
+        clz += ' text-red';
+      }
+      htmlList += '<span class="' + clz + '" data-tooltip="' + loginFailedTime + '" onclick="app.appmgr.confirmClearLoginFailedCount(\'' + username + '\');">' + loginFailedCount + '</span>';
+    } else {
+      htmlList += '';
+    }
+    htmlList += '</td>';
+
     htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + pwChangedDate + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + lastAccessedDate + '</td>';
     htmlList += '</tr>';
   }
   htmlList += '</table>';
@@ -119,6 +152,24 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
   var html = htmlHead + htmlList; 
 
   app.appmgr.drawListContent(html);
+};
+
+app.appmgr.buildLedHtml = function(now, ts) {
+  var tMs = ts * 1000;
+  var elapsed = now - tMs;
+  var ledColor = '#888';
+  if (elapsed <= 5 * util.MINUTE) {
+    ledColor = '#0f0';
+  } else if (elapsed <= 60 * util.MINUTE) {
+    ledColor = '#cc0';
+  } else if (elapsed <= 6 * util.HOUR) {
+    ledColor = '#a44';
+  } else if (elapsed <= 24 * util.HOUR) {
+    ledColor = '#822';
+  }
+  var dt = app.appmgr.getDateTimeString(ts);
+  var html = '<span class="led" style="color:' + ledColor + ';" data-tooltip="' + dt + '"></span>';
+  return html;
 };
 
 app.appmgr.getDateTimeString = function(ts) {
@@ -165,7 +216,7 @@ app.appmgr.drawSessionList = function(sessions) {
   html += '<td></td>';
   html += '<td>UID</td>';
   html += '<td>Name</td>';
-  html += '<td>Session</td>';
+  html += '<td><span style="margin-left:8px;">Session</span></td>';
   html += '<td>Last Accessed</td>';
   html += '<td>Elapsed</td>';
   html += '<td style="font-weight:normal;">' + app.appmgr.buildTimeLineHeader(now) + '</td>';
@@ -181,7 +232,7 @@ app.appmgr.drawSessionList = function(sessions) {
 };
 
 app.appmgr.buildTimeLineHeader = function(now) {
-  var currentInd = '<span class="blink1" style="color:#08c;">v</span>';
+  var currentInd = '<span class="blink1 text-skyblue">v</span>';
 
   var nowYYYYMMDD = util.getDateTimeString(now, '%YYYY%MM%DD');
   var nowHHMM = util.getDateTimeString(now, '%HH:%mm');
@@ -233,6 +284,7 @@ app.appmgr.buildSessionInfoHtml = function(sessions) {
   return html;
 };
 app.appmgr.buildSessionInfoOne = function(session, now, mn) {
+  var cSid = app.currentSid;
   var username = session.username;
   var name = session.fullName;
   var ua = session.ua;
@@ -246,21 +298,9 @@ app.appmgr.buildSessionInfoOne = function(session, now, mn) {
   var addr = session.addr;
   var brws = util.getBrowserInfo(ua);
   var ua = brws.name + ' ' + brws.version;
-
-  var elapsed = now - laTime;
-  var ledColor = '#888';
-  if (elapsed <= 10 * util.MINUTE) {
-    ledColor = '#0f0';
-  } else if (elapsed <= 30 * util.MINUTE) {
-    ledColor = '#0a0';
-  } else if (elapsed <= 6 * util.HOUR) {
-    ledColor = '#080';
-  } else if (laTime >= mn) {
-    ledColor = '#262';
-  }
-
-  var led = '<span class="led" style="color:' + ledColor + '"></span>'
+  var led = app.appmgr.buildLedHtml(now, laTime);
   var ssidLink = '<span class="pseudo-link link-button" onclick="app.appmgr.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
+  var dispSid = ((sid == cSid) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip="Current Session">*</span>' : '<span style="cursor:default;margin-right:2px;">&nbsp;</span>') + ssidLink;
   var timeId = 'tm-' + sid7;
   var tmspan = '<span id="' + timeId + '"></span>'
   var timeline = app.appmgr.buildTimeLine(now, laTime);
@@ -269,8 +309,8 @@ app.appmgr.buildSessionInfoOne = function(session, now, mn) {
   html += '<tr class="item-list">';
   html += '<td style="padding-right:4px;">' + led + '</td>';
   html += '<td style="padding-right:10px;">' + username + '</td>';
-  html += '<td style="padding-right:10px;">' + name + '</td>';
-  html += '<td style="padding-right:10px;">' + ssidLink + '</td>';
+  html += '<td style="padding-right:6px;">' + name + '</td>';
+  html += '<td style="padding-right:10px;">' + dispSid + '</td>';
   html += '<td style="padding-right:10px;">' + laTimeStr + '</td>';
   html += '<td style="padding-right:10px;text-align:right;">' + tmspan + '</td>';
   html += '<td>' + timeline + '</td>';
@@ -360,6 +400,7 @@ app.appmgr.drawListContent = function(html) {
 app.appmgr.buildListHeader = function(columns, sortIdx, sortOrder) {
   var html = '<table>';
   html += '<tr class="item-list-header">';
+  html += '<th class="item-list">&nbsp;</th>';
 
   for (var i = 0; i < columns.length; i++) {
     var column = columns[i];
@@ -758,6 +799,32 @@ app.appmgr._deleteUser = function(username) {
 };
 
 app.appmgr.deleteUserCb = function(xhr, res) {
+  if (res.status != 'OK') {
+    app.showInfotip(res.status);
+    return;
+  }
+  app.showInfotip('OK');
+  app.appmgr.getUserList();
+};
+
+//-----------------------------------------------------------------------------
+app.appmgr.confirmClearLoginFailedCount = function(username) {
+  var opt = {
+    data: username
+  };
+  util.confirm('Clear failure count for ' + username + ' ?', app.appmgr.clearLoginFailedCount, opt);
+};
+app.appmgr.clearLoginFailedCount = function(username) {
+  if (!username) {
+    return;
+  }
+  var params = {
+    username: username
+  };
+  app.callServerApi('UnlockUser', params, app.appmgr.clearLoginFailedCountCb);
+};
+
+app.appmgr.clearLoginFailedCountCb = function(xhr, res) {
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;

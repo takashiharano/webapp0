@@ -47,8 +47,8 @@ public class SessionInfo {
     return lastAccessedTime;
   }
 
-  public void updateLastAccessedTime() {
-    this.lastAccessedTime = System.currentTimeMillis();
+  public void updateLastAccessedTime(long timestamp) {
+    this.lastAccessedTime = timestamp;
   }
 
   public String getRemoteAddr() {

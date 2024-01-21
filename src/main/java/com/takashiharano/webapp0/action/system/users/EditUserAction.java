@@ -37,7 +37,7 @@ public class EditUserAction extends Action {
       UserManager userManager = context.getUserManager();
       userManager.updateUser(username, pwHash, fullname, localFullName, adminFlag, groups, privileges, description, userFlags);
       if (pwHash != null) {
-        info = "PW changed";
+        info = "PW_changed";
       }
     } catch (Exception e) {
       status = e.getMessage();

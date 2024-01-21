@@ -31,8 +31,9 @@ tr.item-list:hover {
   background: transparent;
 }
 
-#user-list {
+#contents {
   font-size: 12px;
+  font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
 }
 
 #message {
@@ -40,6 +41,11 @@ tr.item-list:hover {
   margin-left: 16px;
 }
 </style>
+<script>
+var appconfig = {
+  login_failure_max: <%= context.getConfigValueAsInteger("login_failure_max") %>
+};
+</script>
 </head>
 <body>
 <jsp:include page="common/header.jsp" />
@@ -49,6 +55,7 @@ tr.item-list:hover {
 <div style="margin-bottom:4px;">
 <b>Users</b><br>
 <button onclick="app.appmgr.newUser();">+</button>
+<button onclick="app.appmgr.reloadUserInfo();">RELOAD</button>
 </div>
 <div id="user-list"></div>
 

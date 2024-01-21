@@ -39,7 +39,7 @@ public class SessionManager {
    * @param context
    *          Process Context
    */
-  public void onAccess(ProcessContext context) {
+  public void onAccess(ProcessContext context, long timestamp) {
     String sessinId = context.getSessionId();
     if (sessinId == null) {
       return;
@@ -50,7 +50,7 @@ public class SessionManager {
       return;
     }
 
-    sessionInfo.updateLastAccessedTime();
+    sessionInfo.updateLastAccessedTime(timestamp);
 
     String remoteAddr = context.getRemoteAddress(true);
     sessionInfo.setRemoteAddr(remoteAddr);

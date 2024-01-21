@@ -1,2 +1,2 @@
-#Username	Name	LocalFullName	isAdmin	Groups	Privileges	Description	Status	Created	Updated	PwChanged
-admin	Administrator		1				0	0	0	0
+#Username	Name	LocalFullName	isAdmin	Groups	Privileges	Description	Flags	Created	Updated
+admin	Administrator		1				0	0	0

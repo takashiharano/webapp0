@@ -29,7 +29,7 @@ public class User {
   private int flags;
   private long createdDate;
   private long updatedDate;
-  private long pwChangedDate;
+  private UserStatus userStatus;
 
   public User(String username, boolean isAdmin) {
     this.username = username;
@@ -40,10 +40,10 @@ public class User {
   }
 
   public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, String description, int flags) {
-    this(username, fullname, localFullName, isAdmin, groups, privileges, description, flags, 0L, 0L, 0L);
+    this(username, fullname, localFullName, isAdmin, groups, privileges, description, flags, 0L, 0L);
   }
 
-  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, String description, int flags, long createdDate, long updatedDate, long pwChangedDate) {
+  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, String description, int flags, long createdDate, long updatedDate) {
     this.username = username;
     this.fullname = fullname;
     this.localFullName = localFullName;
@@ -54,7 +54,7 @@ public class User {
     this.flags = flags;
     this.createdDate = createdDate;
     this.updatedDate = updatedDate;
-    this.pwChangedDate = pwChangedDate;
+    this.userStatus = new UserStatus();
   }
 
   /**
@@ -428,23 +428,16 @@ public class User {
     this.updatedDate = updatedDate;
   }
 
-  /**
-   * Returns the date the user last changed their password.
-   *
-   * @return the last changed date in unix millis.
-   */
-  public long getPwChangedDate() {
-    return pwChangedDate;
+  public UserStatus getUserStatus() {
+    return userStatus;
   }
 
-  /**
-   * Sets the date the user last changed their password.
-   *
-   * @param pwChangedDate
-   *          the last changed date in unix millis.
-   */
-  public void setPwChangedDate(long pwChangedDate) {
-    this.pwChangedDate = pwChangedDate;
+  public void setUserStatus(UserStatus userStatus) {
+    this.userStatus = userStatus;
+  }
+
+  public String toJSON() {
+    return toJSON(false);
   }
 
   /**
@@ -452,7 +445,7 @@ public class User {
    *
    * @return JSON string
    */
-  public String toJSON() {
+  public String toJSON(boolean includeStatusInfo) {
     JsonBuilder jb = new JsonBuilder();
     jb.append("username", getUsername());
     jb.append("fullname", getFullName());
@@ -464,7 +457,12 @@ public class User {
     jb.append("flags", getFlags());
     jb.append("created_date", getCreatedDate());
     jb.append("updated_date", getUpdatedDate());
-    jb.append("pw_changed_date", getPwChangedDate());
+
+    if (includeStatusInfo) {
+      String jb1 = userStatus.toJSON();
+      jb.appendObject("status_info", jb1);
+    }
+
     String json = jb.toString();
     return json;
   }
