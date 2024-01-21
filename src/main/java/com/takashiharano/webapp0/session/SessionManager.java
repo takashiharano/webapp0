@@ -20,6 +20,7 @@ import com.libutil.RandomGenerator;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.util.Log;
+import com.takashiharano.webapp0.util.Util;
 
 public class SessionManager {
 
@@ -146,9 +147,10 @@ public class SessionManager {
    *
    * @param sessionId
    *          target session id
+   * @return removed session info
    */
-  public void removeSessionInfo(String sessionId) {
-    sessionMap.remove(sessionId);
+  public SessionInfo removeSessionInfo(String sessionId) {
+    return sessionMap.remove(sessionId);
   }
 
   /**
@@ -350,10 +352,24 @@ public class SessionManager {
       long elapsed = now - lastAccessedTime;
       if (elapsed > timeoutMillis) {
         String username = sessionInfo.getUsername();
-        Log.i("Logout: (expired) user=" + username + " sid=" + sessionId);
+        Log.i("Logout: (expired) user=" + username + " sid=" + Util.snipSessionId(sessionId));
         sessionMap.remove(sessionId);
       }
     }
+  }
+
+  /**
+   * Logout.
+   *
+   * @param context
+   *          Process Context
+   */
+  public void logout(ProcessContext context) {
+    HttpSession httpSession = context.getHttpSession();
+    String sessionId = context.getSessionId();
+    logout(sessionId);
+    httpSession.invalidate();
+    invalidateSessionCookie(context);
   }
 
   /**
@@ -364,33 +380,15 @@ public class SessionManager {
    * @return true if logged out successfully.
    */
   public boolean logout(String sessionId) {
-    SessionInfo info = sessionMap.get(sessionId);
+    SessionInfo info = removeSessionInfo(sessionId);
     if (info == null) {
-      Log.e("sid " + sessionId + " was not found");
+      Log.e("Session not found: sid=" + Util.snipSessionId(sessionId));
       return false;
     }
     String username = info.getUsername();
-    removeSessionInfo(sessionId);
     cleanInvalidatedSessionInfo();
-    Log.i("Logout: user=" + username);
+    Log.i("Logout: user=" + username + " sid=" + Util.snipSessionId(sessionId));
     return true;
-  }
-
-  /**
-   * Logout.
-   *
-   * @param context
-   *          Process Context
-   */
-  public void logout(ProcessContext context) {
-    String username = context.getUsername();
-    HttpSession httpSession = context.getHttpSession();
-    String sessionId = context.getSessionId();
-    removeSessionInfo(sessionId);
-    httpSession.invalidate();
-    invalidateSessionCookie(context);
-    cleanInvalidatedSessionInfo();
-    Log.i("Logout: user=" + username);
   }
 
   /**

@@ -10,6 +10,7 @@ import com.takashiharano.webapp0.action.Action;
 import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
+import com.takashiharano.webapp0.util.Util;
 
 public class LoginAction extends Action {
 
@@ -42,7 +43,7 @@ public class LoginAction extends Action {
       status = "OK";
       String sessionId = sessionManager.onLoggedIn(context, username);
       userManager.resetLoginFailedCount(username);
-      Log.i("Login: OK user=" + username + " sid=" + sessionId);
+      Log.i("Login: OK user=" + username + " sid=" + Util.snipSessionId(sessionId));
     } else {
       String msg;
       status = "NG";

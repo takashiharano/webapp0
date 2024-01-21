@@ -473,9 +473,6 @@ app.appmgr.logoutSession = function(sid) {
 };
 app.appmgr.logoutSessionCb = function(xhr, res) {
   app.showInfotip(res.status);
-  if (res.status != 'OK') {
-    return;
-  }
   app.appmgr.getSessionList();
 };
 
