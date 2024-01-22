@@ -5,6 +5,8 @@
  */
 app.appmgr = {};
 app.appmgr.INSEC = false;
+app.appmgr.dialogFgColor = '#000';
+app.appmgr.dialogBgColor = '#fff';
 
 app.appmgr.INTERVAL = 2 * 60 * 1000;
 app.appmgr.USER_LIST_COLUMNS = [
@@ -76,6 +78,59 @@ app.appmgr.getUserInfoListCb = function(xhr, res) {
   app.appmgr.drawList(infoList, 0, 1);
 };
 
+app.appmgr.buildListHeader = function(columns, sortIdx, sortOrder) {
+  var html = '<table>';
+  html += '<tr class="item-list-header">';
+  html += '<th class="item-list">&nbsp;</th>';
+
+  for (var i = 0; i < columns.length; i++) {
+    var column = columns[i];
+    var label = column['label'];
+    var sortable = (column['sort'] === false ? false : true);
+
+    var sortAscClz = '';
+    var sortDescClz = '';
+    var nextSortType = 1;
+    if (i == sortIdx) {
+      if (sortOrder == 1) {
+        sortAscClz = 'sort-active';
+      } else if (sortOrder == 2) {
+        sortDescClz = 'sort-active';
+      }
+      nextSortType = sortOrder + 1;
+    }
+
+    var sortButton = '<span class="sort-button" ';
+    sortButton += ' onclick="app.appmgr.sortItemList(' + i + ', ' + nextSortType + ');"';
+    sortButton += '>';
+    sortButton += '<span';
+    if (sortAscClz) {
+       sortButton += ' class="' + sortAscClz + '"';
+    }
+    sortButton += '>▲</span>';
+    sortButton += '<br>';
+    sortButton += '<span';
+    if (sortDescClz) {
+       sortButton += ' class="' + sortDescClz + '"';
+    }
+    sortButton += '>▼</span>';
+    sortButton += '</span>';
+
+    html += '<th class="item-list"';
+    if (column.style) {
+      html += ' style="' + column.style + '"';
+    }
+    html += '><span>' + label + '</span>';
+    if (sortable) {
+      html += ' ' + sortButton;
+    }
+    html += '</th>';
+  }
+
+  html += '</tr>';
+  return html;
+};
+
 app.appmgr.drawList = function(items, sortIdx, sortOrder) {
   var now = util.now();
   var currentUsername = app.getUsername();
@@ -95,11 +150,8 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     var fullname = item.fullname.replace(/ /g, '&nbsp');
     var localfullname = item.localfullname.replace(/ /g, '&nbsp');
     var statusInfo = item.status_info;
-    var loginFailedInfo = statusInfo.login_failed;
-    if (loginFailedInfo) {
-      loginFailedCount = loginFailedInfo['count'];
-      loginFailedTime = util.getDateTimeString(loginFailedInfo['time']);
-    }
+    var loginFailedCount = statusInfo.login_failed_count;
+    var loginFailedTime = util.getDateTimeString(statusInfo.login_failed_time);
 
     var createdDate = app.appmgr.getDateTimeString(item.created_date, app.appmgr.INSEC);
     var updatedDate = app.appmgr.getDateTimeString(item.updated_date, app.appmgr.INSEC);
@@ -183,7 +235,7 @@ app.appmgr.getDateTimeString = function(ts, inSec) {
   if (inSec) tMs = Math.floor(tMs * 1000);
   var s = '---------- --:--:--.---';
   if (tMs > 0) {
-    s = util.getDateTimeString(ts, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
+    s = util.getDateTimeString(tMs, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
   }
   return s;
 };
@@ -234,7 +286,7 @@ app.appmgr.drawSessionList = function(sessions) {
   html += '</tr>';
 
   sessions = util.sortObjectList(sessions, 'lastAccessedTime', true, true);
-  html += app.appmgr.buildSessionInfoHtml(sessions);
+  html += app.appmgr.buildSessionInfoHtml(sessions, now);
   html += '</table>';
   $el('#session-list').innerHTML = html;
 };
@@ -280,10 +332,9 @@ app.appmgr.buildTimeLineHeader = function(now) {
   return html;
 };
 
-app.appmgr.buildSessionInfoHtml = function(sessions) {
+app.appmgr.buildSessionInfoHtml = function(sessions, now) {
   var html = '';
   if (!sessions) return html;
-  var now = util.now();
   var mn = util.getMidnightTimestamp(now);
   for (var i = 0; i < sessions.length; i++) {
     var session = sessions[i];
@@ -406,53 +457,6 @@ app.appmgr.drawListContent = function(html) {
   $el('#user-list').innerHTML = html;
 };
 
-app.appmgr.buildListHeader = function(columns, sortIdx, sortOrder) {
-  var html = '<table>';
-  html += '<tr class="item-list-header">';
-  html += '<th class="item-list">&nbsp;</th>';
-
-  for (var i = 0; i < columns.length; i++) {
-    var column = columns[i];
-    var label = column['label'];
-
-    var sortAscClz = '';
-    var sortDescClz = '';
-    var nextSortType = 1;
-    if (i == sortIdx) {
-      if (sortOrder == 1) {
-        sortAscClz = 'sort-active';
-      } else if (sortOrder == 2) {
-        sortDescClz = 'sort-active';
-      }
-      nextSortType = sortOrder + 1;
-    }
-
-    var sortButton = '<span class="sort-button" ';
-    sortButton += ' onclick="app.appmgr.sortItemList(' + i + ', ' + nextSortType + ');"';
-    sortButton += '>';
-    sortButton += '<span';
-    if (sortAscClz) {
-       sortButton += ' class="' + sortAscClz + '"';
-    }
-    sortButton += '>▲</span>';
-    sortButton += '<br>';
-    sortButton += '<span';
-    if (sortDescClz) {
-       sortButton += ' class="' + sortDescClz + '"';
-    }
-    sortButton += '>▼</span>';
-    sortButton += '</span>';
-
-    html += '<th class="item-list"';
-    if (column.style) {
-      html += ' style="' + column.style + '"';
-    }
-    html += '><span>' + label + '</span> ' + sortButton + '</th>';
-  }
-  html += '</tr>';
-  return html;
-};
-
 app.appmgr.sortItemList = function(sortIdx, sortOrder) {
   if (sortOrder > 2) {
     sortOrder = 0;
@@ -461,6 +465,7 @@ app.appmgr.sortItemList = function(sortIdx, sortOrder) {
   app.appmgr.listStatus.sortOrder = sortOrder;
   app.appmgr.drawList(app.appmgr.itemList, sortIdx, sortOrder);
 };
+
 app.appmgr.confirmLogoutSession = function(username, sid) {
   var cSid = app.currentSid;
   var ssid = util.snip(sid, 7, 7, '..');
@@ -593,7 +598,8 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
     },
     body: {
       style: {
-        background: '#fff'
+        color: app.appmgr.dialogFgColor,
+        background: app.appmgr.dialogBgColor
       }
     },
     onclose: app.appmgr.onUserEditWindowClose,
@@ -1058,7 +1064,8 @@ app.appmgr.openGroupInfoEditorWindow = function(mode, gid) {
     },
     body: {
       style: {
-        background: '#fff'
+        color: app.appmgr.dialogFgColor,
+        background: app.appmgr.dialogBgColor
       }
     },
     onclose: app.appmgr.onGroupEditWindowClose,

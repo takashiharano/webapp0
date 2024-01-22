@@ -66,16 +66,12 @@ public class UserStatus {
   }
 
   public String toJSON() {
-    JsonBuilder jb1 = new JsonBuilder();
-    jb1.append("count", loginFailedCount);
-    jb1.append("time", loginFailedTime);
-
     JsonBuilder jb = new JsonBuilder();
     jb.append("last_accessed", lastAccessed);
     jb.append("pw_changed_at", pwChangedTime);
-    jb.appendObject("login_failed", jb1.toString());
+    jb.append("login_failed_count", loginFailedCount);
+    jb.append("login_failed_time", loginFailedTime);
     String json = jb.toString();
-
     return json;
   }
 
