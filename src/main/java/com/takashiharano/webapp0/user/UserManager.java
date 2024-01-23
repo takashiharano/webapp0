@@ -481,9 +481,9 @@ public class UserManager {
       long pwChangedTime = props.getValueAsLong("pw_changed_at");
       int loginFailedCount = props.getValueAsInteger("login_failed_count");
       long loginFailedTime = props.getValueAsLong("login_failed_time");
-      userStatus = new UserStatus(lastAccessed, pwChangedTime, loginFailedCount, loginFailedTime);
+      userStatus = new UserStatus(username, lastAccessed, pwChangedTime, loginFailedCount, loginFailedTime);
     } catch (Exception e) {
-      userStatus = new UserStatus();
+      userStatus = new UserStatus(username);
     }
     return userStatus;
   }

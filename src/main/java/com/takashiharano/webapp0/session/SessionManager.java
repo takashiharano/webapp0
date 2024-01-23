@@ -122,6 +122,26 @@ public class SessionManager {
   }
 
   /**
+   * Returns user session count.
+   *
+   * @param username
+   *          target username
+   * @return the session count for the user
+   */
+  public int getSessionCount(String username) {
+    int count = 0;
+    for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
+      String sessionId = entry.getKey();
+      SessionInfo info = sessionMap.get(sessionId);
+      String user = info.getUsername();
+      if (user.equals(username)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /**
    * Returns the session timeout in seconds.<br>
    * The value is defined in app.properties with "session_timeout_sec" field.
    *

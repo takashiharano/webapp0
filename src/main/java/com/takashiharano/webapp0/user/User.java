@@ -54,7 +54,7 @@ public class User {
     this.flags = flags;
     this.createdDate = createdDate;
     this.updatedDate = updatedDate;
-    this.userStatus = new UserStatus();
+    this.userStatus = new UserStatus(username);
   }
 
   /**

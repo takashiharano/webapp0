@@ -6,19 +6,23 @@
 package com.takashiharano.webapp0.user;
 
 import com.libutil.JsonBuilder;
+import com.takashiharano.webapp0.AppManager;
+import com.takashiharano.webapp0.session.SessionManager;
 
 public class UserStatus {
 
+  private String username;
   private long lastAccessed;
   private long pwChangedTime;
   private int loginFailedCount;
   private long loginFailedTime;
 
-  public UserStatus() {
-    this(0L, 0L, 0, 0L);
+  public UserStatus(String username) {
+    this(username, 0L, 0L, 0, 0L);
   }
 
-  public UserStatus(long lastAccessed, long pwChangedTime, int loginFailedCount, long loginFailedTime) {
+  public UserStatus(String username, long lastAccessed, long pwChangedTime, int loginFailedCount, long loginFailedTime) {
+    this.username = username;
     this.lastAccessed = lastAccessed;
     this.pwChangedTime = pwChangedTime;
     this.loginFailedCount = loginFailedCount;
@@ -65,12 +69,21 @@ public class UserStatus {
     this.loginFailedTime = loginFailedTime;
   }
 
+  public int getSessionCount() {
+    AppManager appManager = AppManager.getInstance();
+    SessionManager sessionManager = appManager.getSessionManager();
+    int count = sessionManager.getSessionCount(username);
+    return count;
+  }
+
   public String toJSON() {
+    int sessionCount = getSessionCount();
     JsonBuilder jb = new JsonBuilder();
     jb.append("last_accessed", lastAccessed);
     jb.append("pw_changed_at", pwChangedTime);
     jb.append("login_failed_count", loginFailedCount);
     jb.append("login_failed_time", loginFailedTime);
+    jb.append("sessions", sessionCount);
     String json = jb.toString();
     return json;
   }

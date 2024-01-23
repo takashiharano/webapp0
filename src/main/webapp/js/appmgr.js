@@ -7,6 +7,14 @@ app.appmgr = {};
 app.appmgr.INSEC = false;
 app.appmgr.dialogFgColor = '#000';
 app.appmgr.dialogBgColor = '#fff';
+app.appmgr.dialogTitleFgColor = '#fff';
+app.appmgr.dialogTitleBgColor = 'linear-gradient(150deg, rgba(0,32,255,0.8),rgba(0,82,255,0.8))';
+
+app.appmgr.LED_COLORS = [
+  {t: 10 * util.MINUTE, color: '#4dd965'},
+  {t: 3 * util.HOUR, color: '#ffba00'},
+  {t: 0, color: '#f44d41'},
+];
 
 app.appmgr.INTERVAL = 2 * 60 * 1000;
 app.appmgr.USER_LIST_COLUMNS = [
@@ -22,7 +30,8 @@ app.appmgr.USER_LIST_COLUMNS = [
   {key: 'created_date', label: 'Created'},
   {key: 'updated_date', label: 'Updated'},
   {key: 'status_info.pw_changed_at', label: 'PwChanged'},
-  {key: 'status_info.last_accessed', label: 'Last Accessed'}
+  {key: 'status_info.last_accessed', label: 'Last Accessed'},
+  {key: 'status_info.sessions', label: 'S'}
 ];
 
 app.appmgr.listStatus = {
@@ -61,7 +70,7 @@ app.appmgr.queueNextUpdateSessionInfo = function() {
 
 app.appmgr.updateSessionInfo = function() {
   app.appmgr.interval = 1;
-  app.appmgr.getSessionList();
+  app.appmgr.reloadUserInfo();
 };
 
 app.appmgr.getUserList = function() {
@@ -157,6 +166,7 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     var updatedDate = app.appmgr.getDateTimeString(item.updated_date, app.appmgr.INSEC);
     var pwChangedDate = app.appmgr.getDateTimeString(statusInfo.pw_changed_at, app.appmgr.INSEC);
     var lastAccessedDate = app.appmgr.getDateTimeString(statusInfo.last_accessed, app.appmgr.INSEC);
+    var sessions = statusInfo.sessions;
 
     var desc = (item.description ? item.description : '');
     var escDesc = util.escHtml(desc);
@@ -165,7 +175,8 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
       dispDesc += ' data-tooltip="' + escDesc + '"';
     }
     dispDesc += '>' + escDesc + '</span>';
-    var led = app.appmgr.buildLedHtml(now, statusInfo.last_accessed, app.appmgr.INSEC);
+    var active = (sessions > 0);
+    var led = app.appmgr.buildLedHtml(now, statusInfo.last_accessed, app.appmgr.INSEC, active);
 
     var cInd = ((username == currentUsername) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip="You">*</span>' : '<span style="margin-right:2px;">&nbsp;</span>');
     var dispUid = cInd + '<span class="pseudo-link link-button" style="text-align:center;" onclick="app.appmgr.editUser(\'' + username + '\');" data-tooltip="Edit">' + username + '</span>';
@@ -197,6 +208,7 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + pwChangedDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + lastAccessedDate + '</td>';
+    htmlList += '<td class="item-list" style="text-align:right;">' + sessions + '</td>';
     htmlList += '</tr>';
   }
   htmlList += '</table>';
@@ -207,22 +219,19 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
   app.appmgr.drawListContent(html);
 };
 
-app.appmgr.buildLedHtml = function(now, ts, inSec) {
-  var COLORS = [
-    {t: 5 * util.MINUTE, color: '#4dd965'},
-    {t: 60 * util.MINUTE, color: '#ffba00'},
-    {t: 6 * util.HOUR, color: '#f44d41'},
-    {t: 24 * util.HOUR, color: '#a6342c'}
-  ];
+app.appmgr.buildLedHtml = function(now, ts, inSec, active) {
+  var COLORS = app.appmgr.LED_COLORS;
   var tMs = ts;
   if (inSec) tMs = Math.floor(tMs * 1000);
   var elapsed = now - tMs;
   var ledColor = '#888';
-  for (var i = 0; i < COLORS.length; i++) {
-    var c = COLORS[i];
-    if (elapsed <= c.t) {
-      ledColor = c.color;
-      break;
+  if (active) {
+    for (var i = 0; i < COLORS.length; i++) {
+      var c = COLORS[i];
+      if ((elapsed <= c.t) || (c.t == 0)) {
+        ledColor = c.color;
+        break;
+      }
     }
   }
   var dt = app.appmgr.getDateTimeString(tMs);
@@ -358,7 +367,7 @@ app.appmgr.buildSessionInfoOne = function(session, now, mn) {
   var addr = session.addr;
   var brws = util.getBrowserInfo(ua);
   var ua = brws.name + ' ' + brws.version;
-  var led = app.appmgr.buildLedHtml(now, laTime);
+  var led = app.appmgr.buildLedHtml(now, laTime, false, true);
   var ssidLink = '<span class="pseudo-link link-button" onclick="app.appmgr.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
   var dispSid = ((sid == cSid) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip="Current Session">*</span>' : '<span style="cursor:default;margin-right:2px;">&nbsp;</span>') + ssidLink;
   var timeId = 'tm-' + sid7;
@@ -435,7 +444,6 @@ app.appmgr.inTheTimeSlot = function(h, qM, hh, mm) {
   }
   return false;
 };
-
 app.appmgr.getTimeSlot = function(h, hh, mm) {
   if (h == hh) {
     if (mm == 0) {
@@ -487,7 +495,7 @@ app.appmgr.logoutSession = function(sid) {
 };
 app.appmgr.logoutSessionCb = function(xhr, res) {
   app.showInfotip(res.status);
-  app.appmgr.getSessionList();
+  app.appmgr.reloadUserInfo();
 };
 
 //-----------------------------------------------------------------------------
@@ -594,7 +602,11 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
     hidden: false,
     modal: false,
     title: {
-      text: ((mode == 'new') ? 'New' : 'Edit') +' User'
+      text: ((mode == 'new') ? 'New' : 'Edit') +' User',
+      style: {
+        color: app.appmgr.dialogTitleFgColor,
+        background: app.appmgr.dialogTitleBgColor
+      }
     },
     body: {
       style: {
@@ -1060,7 +1072,11 @@ app.appmgr.openGroupInfoEditorWindow = function(mode, gid) {
     hidden: false,
     modal: false,
     title: {
-      text: ((mode == 'new') ? 'New' : 'Edit') +' Group'
+      text: ((mode == 'new') ? 'New' : 'Edit') +' Group',
+      style: {
+        color: app.appmgr.dialogTitleFgColor,
+        background: app.appmgr.dialogTitleBgColor
+      }
     },
     body: {
       style: {
