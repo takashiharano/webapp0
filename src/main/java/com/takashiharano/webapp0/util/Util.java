@@ -7,14 +7,7 @@ package com.takashiharano.webapp0.util;
 
 import java.util.Set;
 
-import com.libutil.StrUtil;
-
 public class Util {
-
-  public static String snipSessionId(String sessionId) {
-    String s = StrUtil.snip(sessionId, 7, 2);
-    return s;
-  }
 
   public static String convertSetToOneLineString(Set<String> items, String separator) {
     StringBuilder sb = new StringBuilder();

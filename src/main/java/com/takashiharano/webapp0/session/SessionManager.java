@@ -6,8 +6,12 @@
 package com.takashiharano.webapp0.session;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -17,14 +21,15 @@ import javax.servlet.http.HttpSession;
 import com.libutil.FileUtil;
 import com.libutil.HashUtil;
 import com.libutil.RandomGenerator;
+import com.libutil.StrUtil;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.util.Log;
-import com.takashiharano.webapp0.util.Util;
 
 public class SessionManager {
 
   public static final String SESSION_COOKIE_NAME = AppManager.MODULE_NAME + "_sid";
+  private static final int DEFAULT_MAX_SESSIONS_PER_USER = 10;
 
   private String sessionInfoFilePath;
   private ConcurrentHashMap<String, SessionInfo> sessionMap;
@@ -90,8 +95,60 @@ public class SessionManager {
    *          the session info
    */
   public void registerSessionInfo(SessionInfo info) {
+    String username = info.getUsername();
+    AppManager appManager = AppManager.getInstance();
+    int max = appManager.getConfigValueAsInteger("max_sessions_per_user", DEFAULT_MAX_SESSIONS_PER_USER);
+    int n = max - 1;
+    trimSessionInfo(username, n);
+
     String sessionId = info.getSessionId();
     sessionMap.put(sessionId, info);
+  }
+
+  private void trimSessionInfo(String username, int n) {
+    List<Long> timeList = new ArrayList<>();
+    int count = 0;
+    for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
+      String sessionId = entry.getKey();
+      SessionInfo info = sessionMap.get(sessionId);
+      String user = info.getUsername();
+      if (user.equals(username)) {
+        long time = info.getLastAccessedTime();
+        timeList.add(time);
+        count++;
+      }
+    }
+
+    if (count <= n) {
+      return;
+    }
+
+    timeList.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+    for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
+      String sessionId = entry.getKey();
+      SessionInfo info = sessionMap.get(sessionId);
+      String user = info.getUsername();
+      if (user.equals(username)) {
+        long time = info.getLastAccessedTime();
+        if (!inListSizeRange(timeList, n, time)) {
+          Log.i("Logout: EXCEED_MAX user=" + username + " sid=" + info.getShortSessionId());
+          removeSessionInfo(sessionId);
+        }
+      }
+    }
+  }
+
+  private boolean inListSizeRange(List<Long> vList, int n, long v) {
+    if (n > vList.size()) {
+      n = vList.size();
+    }
+    for (int i = 0; i < n; i++) {
+      if (v == vList.get(i)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -295,18 +352,21 @@ public class SessionManager {
    *          Process Context
    * @param username
    *          the user name
-   * @return new session id
+   * @return new session object
    */
-  public String onLoggedIn(ProcessContext context, String username) {
-    SessionInfo session = getSessionInfo(context);
+  public SessionInfo onLoggedIn(ProcessContext context, String username) {
+    SessionInfo currentSession = getSessionInfo(context);
 
-    if (session != null) {
-      String sessionId = session.getSessionId();
+    if (currentSession != null) {
+      String sessionId = currentSession.getSessionId();
+      Log.i("Logout: RENEW user=" + username + " sid=" + currentSession.getShortSessionId());
       removeSessionInfo(sessionId);
     }
 
-    String sessionId = createNewSession(context, username);
-    return sessionId;
+    SessionInfo sessionInfo = createNewSession(context, username);
+    registerSessionInfo(sessionInfo);
+
+    return sessionInfo;
   }
 
   /**
@@ -316,9 +376,9 @@ public class SessionManager {
    *          Process Context
    * @param username
    *          the user name
-   * @return new session id
+   * @return new session object
    */
-  private String createNewSession(ProcessContext context, String username) {
+  private SessionInfo createNewSession(ProcessContext context, String username) {
     // Recreate session
     HttpServletRequest request = context.getRequest();
     HttpSession session = request.getSession();
@@ -333,15 +393,14 @@ public class SessionManager {
     long createdTime = now;
     long lastAccessedTime = now;
 
-    SessionInfo info = new SessionInfo(sessionId, username, createdTime, lastAccessedTime, remoteAddr, remoteHost, userAgent);
-    registerSessionInfo(info);
+    SessionInfo sessionInfo = new SessionInfo(sessionId, username, createdTime, lastAccessedTime, remoteAddr, remoteHost, userAgent);
 
     // Set session expiration
     int sessionTimeoutSec = getSessionTimeout();
     session.setMaxInactiveInterval(sessionTimeoutSec);
     context.setSessionCookieMaxAge(sessionId, sessionTimeoutSec);
 
-    return sessionId;
+    return sessionInfo;
   }
 
   /**
@@ -372,7 +431,7 @@ public class SessionManager {
       long elapsed = now - lastAccessedTime;
       if (elapsed > timeoutMillis) {
         String username = sessionInfo.getUsername();
-        Log.i("Logout: (expired) user=" + username + " sid=" + Util.snipSessionId(sessionId));
+        Log.i("Logout: EXPIRED user=" + username + " sid=" + sessionInfo.getShortSessionId());
         sessionMap.remove(sessionId);
       }
     }
@@ -400,14 +459,15 @@ public class SessionManager {
    * @return true if logged out successfully.
    */
   public boolean logout(String sessionId) {
-    SessionInfo info = removeSessionInfo(sessionId);
-    if (info == null) {
-      Log.e("Session not found: sid=" + Util.snipSessionId(sessionId));
+    String shortSid = getShortSessionId(sessionId);
+    SessionInfo sessionInfo = removeSessionInfo(sessionId);
+    if (sessionInfo == null) {
+      Log.e("Logout: SESION_NOT_FOUND: sid=" + shortSid);
       return false;
     }
-    String username = info.getUsername();
+    String username = sessionInfo.getUsername();
     cleanInvalidatedSessionInfo();
-    Log.i("Logout: user=" + username + " sid=" + Util.snipSessionId(sessionId));
+    Log.i("Logout: OK user=" + username + " sid=" + shortSid);
     return true;
   }
 
@@ -433,6 +493,10 @@ public class SessionManager {
     cookie.setMaxAge(0);
     HttpServletResponse response = context.getResponse();
     response.addCookie(cookie);
+  }
+
+  private String getShortSessionId(String sessionId) {
+    return StrUtil.snip(sessionId, 7, 2);
   }
 
 }

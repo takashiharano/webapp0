@@ -6,6 +6,7 @@
 package com.takashiharano.webapp0.session;
 
 import com.libutil.JsonBuilder;
+import com.libutil.StrUtil;
 
 public class SessionInfo {
 
@@ -33,6 +34,10 @@ public class SessionInfo {
 
   public String getSessionId() {
     return sessionId;
+  }
+
+  public String getShortSessionId() {
+    return StrUtil.snip(sessionId, 7, 2);
   }
 
   public String getUsername() {

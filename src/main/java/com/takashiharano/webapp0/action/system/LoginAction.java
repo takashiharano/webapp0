@@ -7,10 +7,10 @@ package com.takashiharano.webapp0.action.system;
 
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.action.Action;
+import com.takashiharano.webapp0.session.SessionInfo;
 import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.util.Log;
-import com.takashiharano.webapp0.util.Util;
 
 public class LoginAction extends Action {
 
@@ -41,9 +41,9 @@ public class LoginAction extends Action {
 
     if ("OK".equals(result)) {
       status = "OK";
-      String sessionId = sessionManager.onLoggedIn(context, username);
+      SessionInfo sessionInfo = sessionManager.onLoggedIn(context, username);
       userManager.resetLoginFailedCount(username);
-      Log.i("Login: OK user=" + username + " sid=" + Util.snipSessionId(sessionId));
+      Log.i("Login: OK user=" + username + " sid=" + sessionInfo.getShortSessionId());
     } else {
       String msg;
       status = "NG";
