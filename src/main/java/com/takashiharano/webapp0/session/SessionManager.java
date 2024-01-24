@@ -496,7 +496,7 @@ public class SessionManager {
   }
 
   private String getShortSessionId(String sessionId) {
-    return StrUtil.snip(sessionId, 7, 2);
+    return StrUtil.snip(sessionId, 7, 3);
   }
 
 }

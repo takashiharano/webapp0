@@ -37,7 +37,7 @@ public class SessionInfo {
   }
 
   public String getShortSessionId() {
-    return StrUtil.snip(sessionId, 7, 2);
+    return StrUtil.snip(sessionId, 7, 3);
   }
 
   public String getUsername() {
