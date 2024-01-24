@@ -16,7 +16,7 @@ app.appmgr.LED_COLORS = [
   {t: 0, color: '#f44d41'},
 ];
 
-app.appmgr.INTERVAL = 2 * 60 * 1000;
+app.appmgr.INTERVAL = 60000;
 app.appmgr.USER_LIST_COLUMNS = [
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
   {key: 'fullname', label: 'Full Name', style: 'min-width:10em;'},
@@ -287,7 +287,7 @@ app.appmgr.drawSessionList = function(sessions) {
   html += '<td>Name</td>';
   html += '<td><span style="margin-left:8px;">Session</span></td>';
   html += '<td>Last Accessed</td>';
-  html += '<td>Elapsed</td>';
+  html += '<td style="min-width:98px;">Elapsed</td>';
   html += '<td style="font-weight:normal;">' + app.appmgr.buildTimeLineHeader(now) + '</td>';
   html += '<td>Addr</td>';
   html += '<td>User-Agent</td>';
@@ -388,8 +388,11 @@ app.appmgr.buildSessionInfoOne = function(session, now, mn) {
   html += '<td style="padding-right:10px;">' + loginTime + '</td>';
   html += '</tr>';
 
-  util.timecounter.start('#' + timeId, laTime);
+  setTimeout(app.appmgr.startElapsedCounter, 0, {timeId: '#' + timeId, laTime: laTime});
   return html;
+};
+app.appmgr.startElapsedCounter = function(param) {
+  util.timecounter.start(param.timeId, param.laTime);
 };
 app.appmgr.buildTimeLine = function(now, lastAccessedTime) {
   var mn = util.getMidnightTimestamp(now);
