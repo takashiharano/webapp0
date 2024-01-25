@@ -12,7 +12,7 @@ app.appmgr.dialogTitleBgColor = 'linear-gradient(150deg, rgba(0,32,255,0.8),rgba
 
 app.appmgr.LED_COLORS = [
   {t: 10 * util.MINUTE, color: '#4dd965'},
-  {t: 3 * util.HOUR, color: '#ffba00'},
+  {t: 8 * util.HOUR, color: '#ffba00'},
   {t: 0, color: '#f44d41'},
 ];
 
