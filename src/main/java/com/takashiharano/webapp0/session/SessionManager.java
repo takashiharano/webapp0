@@ -24,6 +24,8 @@ import com.libutil.RandomGenerator;
 import com.libutil.StrUtil;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
+import com.takashiharano.webapp0.user.UserManager;
+import com.takashiharano.webapp0.user.UserStatus;
 import com.takashiharano.webapp0.util.Log;
 
 public class SessionManager {
@@ -185,7 +187,7 @@ public class SessionManager {
    *          target username
    * @return the session count for the user
    */
-  public int getSessionCount(String username) {
+  public int countUserSessions(String username) {
     int count = 0;
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
       String sessionId = entry.getKey();
@@ -460,14 +462,32 @@ public class SessionManager {
    */
   public boolean logout(String sessionId) {
     String shortSid = getShortSessionId(sessionId);
+
     SessionInfo sessionInfo = removeSessionInfo(sessionId);
     if (sessionInfo == null) {
       Log.e("Logout: SESION_NOT_FOUND: sid=" + shortSid);
       return false;
     }
+
     String username = sessionInfo.getUsername();
     cleanInvalidatedSessionInfo();
     Log.i("Logout: OK user=" + username + " sid=" + shortSid);
+
+    int count = countUserSessions(username);
+    if (count == 0) {
+      UserManager userManager = UserManager.getInstance();
+      UserStatus userStatus = userManager.getUserStatusInfo(username);
+      if (userStatus != null) {
+        long timestamp = System.currentTimeMillis();
+        userStatus.setLastLogout(timestamp);
+        try {
+          userManager.saveUserStatus(username);
+        } catch (IOException ioe) {
+          Log.e("Write user status error: user=" + username + ": " + ioe);
+        }
+      }
+    }
+
     return true;
   }
 

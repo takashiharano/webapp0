@@ -13,6 +13,8 @@ public class UserStatus {
 
   private String username;
   private long lastAccessed;
+  private long lastLogin;
+  private long lastLogout;
   private long pwChangedTime;
   private int loginFailedCount;
   private long loginFailedTime;
@@ -24,6 +26,8 @@ public class UserStatus {
   public UserStatus(String username, long lastAccessed, long pwChangedTime, int loginFailedCount, long loginFailedTime) {
     this.username = username;
     this.lastAccessed = lastAccessed;
+    this.lastLogin = 0L;
+    this.lastLogout = 0L;
     this.pwChangedTime = pwChangedTime;
     this.loginFailedCount = loginFailedCount;
     this.loginFailedTime = loginFailedTime;
@@ -35,6 +39,22 @@ public class UserStatus {
 
   public void setLastAccessed(long lastAccessed) {
     this.lastAccessed = lastAccessed;
+  }
+
+  public long getLastLogin() {
+    return lastLogin;
+  }
+
+  public void setLastLogin(long lastLogin) {
+    this.lastLogin = lastLogin;
+  }
+
+  public long getLastLogout() {
+    return lastLogout;
+  }
+
+  public void setLastLogout(long lastLogout) {
+    this.lastLogout = lastLogout;
   }
 
   public long getPwChangedTime() {
@@ -72,7 +92,7 @@ public class UserStatus {
   public int getSessionCount() {
     AppManager appManager = AppManager.getInstance();
     SessionManager sessionManager = appManager.getSessionManager();
-    int count = sessionManager.getSessionCount(username);
+    int count = sessionManager.countUserSessions(username);
     return count;
   }
 
@@ -80,6 +100,8 @@ public class UserStatus {
     int sessionCount = getSessionCount();
     JsonBuilder jb = new JsonBuilder();
     jb.append("last_accessed", lastAccessed);
+    jb.append("last_login", lastLogin);
+    jb.append("last_logout", lastLogout);
     jb.append("pw_changed_at", pwChangedTime);
     jb.append("login_failed_count", loginFailedCount);
     jb.append("login_failed_time", loginFailedTime);

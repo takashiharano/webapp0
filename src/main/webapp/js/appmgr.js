@@ -27,11 +27,13 @@ app.appmgr.USER_LIST_COLUMNS = [
   {key: 'description', label: 'Description', style: 'min-width:15em;'},
   {key: 'flags', label: 'Flags'},
   {key: 'status_info.login_failed.count', label: 'Fail', sort: false},
+  {key: 'status_info.sessions', label: 'S'},
+  {key: 'status_info.last_accessed', label: 'Last Accessed'},
+  {key: 'status_info.last_login', label: 'Last Login'},
+  {key: 'status_info.last_logout', label: 'Last Logout'},
   {key: 'created_date', label: 'Created'},
   {key: 'updated_date', label: 'Updated'},
-  {key: 'status_info.pw_changed_at', label: 'PwChanged'},
-  {key: 'status_info.last_accessed', label: 'Last Accessed'},
-  {key: 'status_info.sessions', label: 'S'}
+  {key: 'status_info.pw_changed_at', label: 'PwChanged'}
 ];
 
 app.appmgr.listStatus = {
@@ -161,13 +163,13 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     var statusInfo = item.status_info;
     var loginFailedCount = statusInfo.login_failed_count;
     var loginFailedTime = util.getDateTimeString(statusInfo.login_failed_time);
-
+    var sessions = statusInfo.sessions;
+    var lastAccessedDate = app.appmgr.getDateTimeString(statusInfo.last_accessed, app.appmgr.INSEC);
+    var lastLoginDate = app.appmgr.getDateTimeString(statusInfo.last_login, app.appmgr.INSEC);
+    var lastLogoutDate = app.appmgr.getDateTimeString(statusInfo.last_logout, app.appmgr.INSEC);
     var createdDate = app.appmgr.getDateTimeString(item.created_date, app.appmgr.INSEC);
     var updatedDate = app.appmgr.getDateTimeString(item.updated_date, app.appmgr.INSEC);
     var pwChangedDate = app.appmgr.getDateTimeString(statusInfo.pw_changed_at, app.appmgr.INSEC);
-    var lastAccessedDate = app.appmgr.getDateTimeString(statusInfo.last_accessed, app.appmgr.INSEC);
-    var sessions = statusInfo.sessions;
-
     var desc = (item.description ? item.description : '');
     var escDesc = util.escHtml(desc);
     var dispDesc = '<span style="display:inline-block;width:100%;overflow:hidden;text-overflow:ellipsis;"';
@@ -204,11 +206,13 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     }
     htmlList += '</td>';
 
+    htmlList += '<td class="item-list" style="text-align:right;">' + sessions + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + lastAccessedDate + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + lastLoginDate + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;">' + lastLogoutDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + createdDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + updatedDate + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + pwChangedDate + '</td>';
-    htmlList += '<td class="item-list" style="text-align:center;">' + lastAccessedDate + '</td>';
-    htmlList += '<td class="item-list" style="text-align:right;">' + sessions + '</td>';
     htmlList += '</tr>';
   }
   htmlList += '</table>';
@@ -279,7 +283,6 @@ app.appmgr.getSessionListCb = function(xhr, res, req) {
 
 app.appmgr.drawSessionList = function(sessions) {
   var now = util.now();
-
   var html = '<table>';
   html += '<tr style="font-weight:bold;">';
   html += '<td></td>';

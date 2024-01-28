@@ -482,6 +482,11 @@ public class UserManager {
       int loginFailedCount = props.getValueAsInteger("login_failed_count");
       long loginFailedTime = props.getValueAsLong("login_failed_time");
       userStatus = new UserStatus(username, lastAccessed, pwChangedTime, loginFailedCount, loginFailedTime);
+
+      long lastLogin = props.getValueAsLong("last_login");
+      long lastLogout = props.getValueAsLong("last_logout");
+      userStatus.setLastLogin(lastLogin);
+      userStatus.setLastLogout(lastLogout);
     } catch (Exception e) {
       userStatus = new UserStatus(username);
     }
@@ -503,8 +508,16 @@ public class UserManager {
     }
   }
 
+  public void saveUserStatus(String username) throws IOException {
+    User user = users.get(username);
+    UserStatus userStatus = user.getUserStatus();
+    saveUserStatus(username, userStatus);
+  }
+
   public void saveUserStatus(String username, UserStatus userStatus) throws IOException {
     long lastAccessed = userStatus.getLastAccessed();
+    long lastLogin = userStatus.getLastLogin();
+    long lastLogout = userStatus.getLastLogout();
     long pwChangedTime = userStatus.getPwChangedTime();
     int loginFailedCount = userStatus.getLoginFailedCount();
     long loginFailedTime = userStatus.getLoginFailedTime();
@@ -512,6 +525,14 @@ public class UserManager {
     StringBuilder sb = new StringBuilder();
     sb.append("last_accessed=");
     sb.append(lastAccessed);
+    sb.append("\n");
+
+    sb.append("last_login=");
+    sb.append(lastLogin);
+    sb.append("\n");
+
+    sb.append("last_logout=");
+    sb.append(lastLogout);
     sb.append("\n");
 
     sb.append("pw_changed_at=");

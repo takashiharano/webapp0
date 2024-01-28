@@ -10,6 +10,7 @@ import com.takashiharano.webapp0.action.Action;
 import com.takashiharano.webapp0.session.SessionInfo;
 import com.takashiharano.webapp0.session.SessionManager;
 import com.takashiharano.webapp0.user.UserManager;
+import com.takashiharano.webapp0.user.UserStatus;
 import com.takashiharano.webapp0.util.Log;
 
 public class LoginAction extends Action {
@@ -41,8 +42,7 @@ public class LoginAction extends Action {
 
     if ("OK".equals(result)) {
       status = "OK";
-      SessionInfo sessionInfo = sessionManager.onLoggedIn(context, username);
-      userManager.resetLoginFailedCount(username);
+      SessionInfo sessionInfo = onLogin(context, sessionManager, userManager, username);
       Log.i("Login: OK user=" + username + " sid=" + sessionInfo.getShortSessionId());
     } else {
       String msg;
@@ -61,6 +61,15 @@ public class LoginAction extends Action {
     }
 
     return status;
+  }
+
+  private SessionInfo onLogin(ProcessContext context, SessionManager sessionManager, UserManager userManager, String username) throws Exception {
+    long now = System.currentTimeMillis();
+    SessionInfo sessionInfo = sessionManager.onLoggedIn(context, username);
+    UserStatus userStatus = userManager.getUserStatusInfo(username);
+    userStatus.setLastLogin(now);
+    userManager.resetLoginFailedCount(username);
+    return sessionInfo;
   }
 
   private boolean isLocked(ProcessContext context, UserManager userManager, String username) throws Exception {
