@@ -18,6 +18,7 @@ app.appmgr.LED_COLORS = [
 
 app.appmgr.INTERVAL = 60000;
 app.appmgr.USER_LIST_COLUMNS = [
+  {key: 'status_info.last_accessed', label: ''},
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
   {key: 'fullname', label: 'Full Name', style: 'min-width:10em;'},
   {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
@@ -37,7 +38,7 @@ app.appmgr.USER_LIST_COLUMNS = [
 ];
 
 app.appmgr.listStatus = {
-  sortIdx: 0,
+  sortIdx: 1,
   sortOrder: 1
 };
 
@@ -86,14 +87,13 @@ app.appmgr.getUserInfoListCb = function(xhr, res) {
   }
   var infoList = res.body.userlist;
   app.appmgr.itemList = infoList;
-  app.appmgr.drawList(infoList, 0, 1);
+  var listStatus = app.appmgr.listStatus;
+  app.appmgr.drawList(infoList, listStatus.sortIdx, listStatus.sortOrder);
 };
 
 app.appmgr.buildListHeader = function(columns, sortIdx, sortOrder) {
   var html = '<table>';
   html += '<tr class="item-list-header">';
-  html += '<th class="item-list">&nbsp;</th>';
-
   for (var i = 0; i < columns.length; i++) {
     var column = columns[i];
     var label = column['label'];
@@ -137,7 +137,6 @@ app.appmgr.buildListHeader = function(columns, sortIdx, sortOrder) {
     }
     html += '</th>';
   }
-
   html += '</tr>';
   return html;
 };
