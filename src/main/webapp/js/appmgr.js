@@ -18,7 +18,7 @@ app.appmgr.LED_COLORS = [
 
 app.appmgr.INTERVAL = 60000;
 app.appmgr.USER_LIST_COLUMNS = [
-  {key: 'status_info.last_accessed', label: ''},
+  {key: 'elapsed', label: ''},
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
   {key: 'fullname', label: 'Full Name', style: 'min-width:10em;'},
   {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
@@ -38,11 +38,11 @@ app.appmgr.USER_LIST_COLUMNS = [
 ];
 
 app.appmgr.listStatus = {
-  sortIdx: 1,
+  sortIdx: 0,
   sortOrder: 1
 };
 
-app.appmgr.itemList = [];
+app.appmgr.userList = [];
 app.appmgr.sessions = null;
 app.appmgr.currentSid = null;
 app.appmgr.userEditWindow = null;
@@ -85,10 +85,26 @@ app.appmgr.getUserInfoListCb = function(xhr, res) {
     app.showInfotip(res.status);
     return;
   }
-  var infoList = res.body.userlist;
-  app.appmgr.itemList = infoList;
+  var now = util.now();
+  var users = res.body.userlist;
+  var userList = [];
+  for (var i = 0; i < users.length; i++) {
+    var user = users[i];
+    var statusInfo = user.status_info;
+    var lastAccessedDate = statusInfo.last_accessed;
+    var dt = app.appmgr.elapsedSinceLastAccess(now, lastAccessedDate);
+    user.elapsed = dt;
+    userList.push(user);
+  }
+  app.appmgr.userList = userList;
   var listStatus = app.appmgr.listStatus;
-  app.appmgr.drawList(infoList, listStatus.sortIdx, listStatus.sortOrder);
+  app.appmgr.drawList(userList, listStatus.sortIdx, listStatus.sortOrder);
+};
+
+app.appmgr.elapsedSinceLastAccess = function(now, t) {
+  if (app.appmgr.INSEC) t = Math.floor(t * 1000);
+  var dt = now - t;
+  return dt;
 };
 
 app.appmgr.buildListHeader = function(columns, sortIdx, sortOrder) {
@@ -199,7 +215,7 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
       if ((appconfig.login_failure_max > 0) && (loginFailedCount >= appconfig.login_failure_max)) {
         clz += ' text-red';
       }
-      htmlList += '<span class="' + clz + '" data-tooltip="' + loginFailedTime + '" onclick="app.appmgr.confirmClearLoginFailedCount(\'' + username + '\');">' + loginFailedCount + '</span>';
+      htmlList += '<span class="' + clz + '" data-tooltip="Last failed: ' + loginFailedTime + '" onclick="app.appmgr.confirmClearLoginFailedCount(\'' + username + '\');">' + loginFailedCount + '</span>';
     } else {
       htmlList += '';
     }
@@ -238,7 +254,7 @@ app.appmgr.buildLedHtml = function(now, ts, inSec, active) {
     }
   }
   var dt = app.appmgr.getDateTimeString(tMs);
-  var html = '<span class="led" style="color:' + ledColor + ';" data-tooltip="' + dt + '"></span>';
+  var html = '<span class="led" style="color:' + ledColor + ';" data-tooltip="Last accessed: ' + dt + '"></span>';
   return html;
 };
 
@@ -476,7 +492,7 @@ app.appmgr.sortItemList = function(sortIdx, sortOrder) {
   }
   app.appmgr.listStatus.sortIdx = sortIdx;
   app.appmgr.listStatus.sortOrder = sortOrder;
-  app.appmgr.drawList(app.appmgr.itemList, sortIdx, sortOrder);
+  app.appmgr.drawList(app.appmgr.userList, sortIdx, sortOrder);
 };
 
 app.appmgr.confirmLogoutSession = function(username, sid) {
