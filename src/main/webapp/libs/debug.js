@@ -1,11 +1,11 @@
 /*!
  * debug.js
  * Copyright 2015 Takashi Harano
- * Released under the MIT license
+ * License: MIT
  * https://debugjs.net/
  */
 var DebugJS = DebugJS || function() {
-  this.v = '202401102217';
+  this.v = '202404070026';
 
   this.DEFAULT_OPTIONS = {
     visible: false,
@@ -227,6 +227,8 @@ var DebugJS = DebugJS || function() {
   this.wdBtn = null;
   this.preserveLogBtn = null;
   this.suspendLogBtn = null;
+  this.zoomInBtn = null;
+  this.zoomOutBtn = null;
   this.pinBtn = null;
   this.clpBtn = null;
   this.hdrInfBtn = null;
@@ -453,6 +455,7 @@ var DebugJS = DebugJS || function() {
     textstep: 1,
     testvallimit: 4096,
     wait: 500,
+    t0: '--------T------',
     timer: '-00:00:00.000',
     wdt: 500,
     mousemovesim: 'false',
@@ -462,6 +465,7 @@ var DebugJS = DebugJS || function() {
     batcont: this.setPropBatContCb,
     indent: this.setPropIndentCb,
     pointmsgsize: this.setPropPointMsgSizeCb,
+    t0: this.setT0Cb,
     timer: this.setPropTimerCb,
     consolelog: this.setPropConsoleLogCb
   };
@@ -581,7 +585,7 @@ DebugJS.CMD_ATTR_DISABLED = 0x10;
 DebugJS.CMD_ECHO_MAX_LEN = 256;
 DebugJS.DBGWIN_MIN_W = 292;
 DebugJS.DBGWIN_MIN_H = 155;
-DebugJS.DBGWIN_EXPAND_W = 900;
+DebugJS.DBGWIN_EXPAND_W = 1200;
 DebugJS.DBGWIN_EXPAND_H = 600;
 DebugJS.DBGWIN_EXPAND_H2 = 640;
 DebugJS.SIZE_ST_NORMAL = 0;
@@ -1318,14 +1322,16 @@ DebugJS.prototype = {
       ctx.winCtrlBtnPanel = document.createElement('span');
       ctx.headPanel.appendChild(ctx.winCtrlBtnPanel);
     }
+    ctx.zoomInBtn = ctx.createHdrBtn('zoomInBtn', '+', 3, fontSize, ctx.zoomIn, null, null, 'HDRINF_BTN_COLOR', false, 'Zoom in');
+    ctx.zoomOutBtn = ctx.createHdrBtn('zoomOutBtn', '-', 3, fontSize, ctx.zoomOut, null, null, 'HDRINF_BTN_COLOR', false, 'Zoom out');
     if (ctx.logHdrPanel || ctx.infoPanel) {
       ctx.hdrInfBtn = ctx.createHdrBtn('hdrInfBtn', '=', 3, fontSize, ctx.toggleHeaderInfo, null, null, 'HDRINF_BTN_COLOR', false, 'Show header info');
     }
+    if ((ctx.uiStatus & DebugJS.UI_ST_DYNAMIC) && opt.usePinButton) {
+      ctx.pinBtn = ctx.createHdrBtn('pinBtn', 'P', 3, fontSize, ctx.toggleDraggable, 'uiStatus', 'UI_ST_DRAGGABLE', 'PIN_BTN_COLOR', true, 'Fix the window position');
+    }
     if (opt.useCommandLine) {
       ctx.clpBtn = ctx.createHdrBtn('clpBtn', 'C', 3, fontSize, DebugJS.copyContent, null, null, 'CLP_BTN_COLOR', false, 'Copy to clipboard');
-    }
-    if ((ctx.uiStatus & DebugJS.UI_ST_DYNAMIC) && opt.usePinButton) {
-      ctx.pinBtn = ctx.createHdrBtn('pinBtn', 'P', 3, fontSize, ctx.toggleDraggable, 'uiStatus', 'UI_ST_DRAGGABLE', 'PIN_BTN_COLOR', true, 'Fix the window in its position');
     }
     if (opt.useSuspendLogButton) {
       ctx.suspendLogBtn = ctx.createHdrBtn('suspendLogBtn', '/', 3, fontSize, ctx.toggleLogSuspend, 'status', 'ST_LOG_SUSPEND', 'LOG_SUSPEND_BTN_COLOR', false, 'Suspend log');
@@ -2732,6 +2738,19 @@ DebugJS.prototype = {
         }
         break;
 
+     case 48: // 0
+     case 96:
+        if (e.altKey) DebugJS.zoom(ctx.opt.zoom);
+        break;
+     case 107: // +
+     case 187:
+        if (e.altKey) ctx.zoomInOut(ctx, 1);
+        break;
+     case 109: // -
+     case 189:
+        if (e.altKey) ctx.zoomInOut(ctx, 0);
+        break;
+
       case 112: // F1
         if (e.ctrlKey && (ctx.uiStatus & DebugJS.UI_ST_DYNAMIC)) {
           ctx.win.style.top = 0;
@@ -2764,6 +2783,17 @@ DebugJS.prototype = {
     var ctx = DebugJS.ctx;
     if (ctx.opt.useDeviceInfo) ctx.updateStatusInfoOnKeyUp(ctx, e);
     if (e.keyCode == 18) ctx.enableDraggable(ctx);
+  },
+
+  zoomIn: function() {
+    DebugJS.ctx.zoomInOut(DebugJS.ctx, 1);
+  },
+  zoomOut: function() {
+    DebugJS.ctx.zoomInOut(DebugJS.ctx, 0);
+  },
+  zoomInOut: function(ctx, m) {
+    var v = (m ? (ctx.zoom * 1.4) : (ctx.zoom / 1.4));
+    DebugJS.zoom(DebugJS.round(v, 1));
   },
 
   procOnProtectedD: function(ctx, e) {
@@ -3584,15 +3614,6 @@ DebugJS.prototype = {
     html += addSysInfoProp('scrollY      ', setStyleIfObjNA(window.scrollY), 'sys-scroll-y');
     html += addSysInfoProp('onload       ', foldingTxt(window.onload, 'winOnload', OMIT_LAST));
     html += addSysInfoProp('onunload     ', foldingTxt(window.onunload, 'winOnunload', OMIT_LAST));
-    html += addSysInfoProp('onclick      ', foldingTxt(window.onclick, 'winOnclick', OMIT_LAST));
-    html += addSysInfoProp('onmousedown  ', foldingTxt(window.onmousedown, 'winOnmousedown', OMIT_LAST));
-    html += addSysInfoProp('onmousemove  ', foldingTxt(window.onmousemove, 'winOnmousemove', OMIT_LAST));
-    html += addSysInfoProp('onmouseup    ', foldingTxt(window.onmousedown, 'winOnmouseup', OMIT_LAST));
-    html += addSysInfoProp('onkeydown    ', foldingTxt(window.onkeydown, 'winOnkeydown', OMIT_LAST));
-    html += addSysInfoProp('onkeypress   ', foldingTxt(window.onkeypress, 'winOnkeypress', OMIT_LAST));
-    html += addSysInfoProp('onkeyup      ', foldingTxt(window.onkeyup, 'winOnkeyup', OMIT_LAST));
-    html += addSysInfoProp('onresize     ', foldingTxt(window.oncontextmenu, 'winOnresize', OMIT_LAST));
-    html += addSysInfoProp('onscroll     ', foldingTxt(window.oncontextmenu, 'winOnscroll', OMIT_LAST));
     html += addSysInfoProp('onselect     ', foldingTxt(window.oncontextmenu, 'winOnselect', OMIT_LAST));
     html += addSysInfoProp('onselectstart', foldingTxt(window.oncontextmenu, 'winOnselectstart', OMIT_LAST));
     html += addSysInfoProp('oncontextmenu', foldingTxt(window.oncontextmenu, 'winOncontextmenu', OMIT_LAST));
@@ -4256,7 +4277,7 @@ DebugJS.prototype = {
     DebugJS.el = elm;
     if (DebugJS.G_EL_AVAILABLE) window.el = elm;
     if (DebugJS.ctx.status & DebugJS.ST_ELM_EDIT) {
-      DebugJS.ctx.updateEditable(DebugJS.ctx, elm);
+      DebugJS.ctx.updateEditable(DebugJS.ctx, elm, 1);
     }
     DebugJS._log.s('&lt;' + elm.tagName + '&gt; object has been exported to <span style="color:' + DebugJS.KEYWRD_COLOR + '">' + (DebugJS.G_EL_AVAILABLE ? 'el' : ((dbg == DebugJS) ? 'dbg' : 'DebugJS') + '.el') + '</span>');
   },
@@ -4271,13 +4292,26 @@ DebugJS.prototype = {
       }
     }
   },
-  updateEditable: function(ctx, el) {
+  updateEditable: function(ctx, el, f) {
     if ((ctx.fontChkTargetEl) && (ctx.fontChkTargetEl.contentEditableBak)) {
       ctx.fontChkTargetEl.contentEditable = ctx.fontChkTargetEl.contentEditableBak;
     }
     ctx.fontChkTargetEl = el;
     ctx.fontChkTargetEl.contentEditableBak = el.contentEditable;
     ctx.fontChkTargetEl.contentEditable = true;
+    if (f) {
+      var s = window.getComputedStyle(el);
+      var c = s.color;
+      if (!c.match(/rgba/)) {
+        c = c.replace(/\s/g, '').replace(/rgb\(/, '').replace(/\)/, '').split(',');
+        ctx.setFgRGB(ctx, c[0], c[1], c[2]);
+      }
+      c = s.backgroundColor;
+      if (!c.match(/rgba/)) {
+        c = c.replace(/\s/g, '').replace(/rgb\(/, '').replace(/\)/, '').split(',');
+        ctx.setBgRGB(ctx, c[0], c[1], c[2]);
+      }
+    }
   },
   getEvtHandlerStr: function(handler, name) {
     var MAX_LEN = 300;
@@ -4354,7 +4388,7 @@ DebugJS.prototype = {
       var res = r;
       if (typeof r == 'string') res = DebugJS.quoteStr(r);
       if (echo) DebugJS._log.res(res);
-      if (Number.isInteger(r)) DebugJS.cmdInt('' + r, echo);
+      if ((Number.isInteger(r) && code.match(/[&|<>]/))) DebugJS.cmdInt('' + r, echo);
     } catch (e) {DebugJS._log.e(e);}
     return r;
   },
@@ -4883,6 +4917,7 @@ DebugJS.prototype = {
     ctx.toolStatus &= ~DebugJS.TOOL_ST_SW_TPLUS;
     ctx.toolStatus &= ~DebugJS.TOOL_ST_SW_END;
     ctx.timerT0 = 0;
+    ctx.props.t0 = '--------T------';
     var timerV = ctx.calcTimerInitVal(ctx);
     ctx.timerSwT0 = Date.now() - timerV;
     ctx.timerSwVal = timerV;
@@ -5122,10 +5157,10 @@ DebugJS.prototype = {
     ctx.onChangeBgRGB();
   },
   buildRangeFg: function(ctx, color, cU, cL) {
-    return '<tr><td><span style="color:' + color + '">' + cU + '</span>:</td><td><input type="range" min="0" max="255" step="1" id="' + ctx.id + '-fg-range-' + cL + '" class="dbg-txt-range" oninput="DebugJS.ctx.onChangeFgColor(true);" onchange="DebugJS.ctx.onChangeFgColor(true);"></td><td><span id="' + ctx.id + '-fg-' + cL + '"></span></td></tr>';
+    return '<tr><td><span style="color:' + color + '">' + cU + '</span>:</td><td><input type="range" min="0" max="255" step="1" id="' + ctx.id + '-fg-range-' + cL + '" class="dbg-txt-range" oninput="DebugJS.ctx.onChangeFgColor(1);" onchange="DebugJS.ctx.onChangeFgColor(1);"></td><td><span id="' + ctx.id + '-fg-' + cL + '"></span></td></tr>';
   },
   buildRangeBg: function(ctx, color, cU, cL) {
-    return '<tr><td><span style="color:' + color + '">' + cU + '</span>:</td><td><input type="range" min="0" max="255" step="1" id="' + ctx.id + '-bg-range-' + cL + '" class="dbg-txt-range" oninput="DebugJS.ctx.onChangeBgColor(true);" onchange="DebugJS.ctx.onChangeBgColor(true);"></td><td><span id="' + ctx.id + '-bg-' + cL + '"></span></td></tr>';
+    return '<tr><td><span style="color:' + color + '">' + cU + '</span>:</td><td><input type="range" min="0" max="255" step="1" id="' + ctx.id + '-bg-range-' + cL + '" class="dbg-txt-range" oninput="DebugJS.ctx.onChangeBgColor(1);" onchange="DebugJS.ctx.onChangeBgColor(1);"></td><td><span id="' + ctx.id + '-bg-' + cL + '"></span></td></tr>';
   },
   toggleTxtItalic: function(btn) {
     var ctx = DebugJS.ctx;
@@ -5151,13 +5186,25 @@ DebugJS.prototype = {
       ctx.updateEditable(ctx, ctx.fontChkTxt);
     } else {
       ctx.status |= b;
-      if (DebugJS.el) ctx.updateEditable(ctx, DebugJS.el);
+      if (DebugJS.el) ctx.updateEditable(ctx, DebugJS.el, 1);
     }
     ctx.updateElBtn(btn);
   },
   updateElBtn: function(btn) {
     var c = (DebugJS.ctx.status & DebugJS.ST_ELM_EDIT ? DebugJS.ctx.opt.btnColor : DebugJS.COLOR_INACT);
     DebugJS.setStyle(btn, 'color', c);
+  },
+  setFgRGB: function(ctx, r, g, b) {
+    ctx.fontChkRangeFg.r.value = r;
+    ctx.fontChkRangeFg.g.value = g;
+    ctx.fontChkRangeFg.b.value = b;
+    ctx.onChangeFgColor(1);
+  },
+  setBgRGB: function(ctx, r, g, b) {
+    ctx.fontChkRangeBg.r.value = r;
+    ctx.fontChkRangeBg.g.value = g;
+    ctx.fontChkRangeBg.b.value = b;
+    ctx.onChangeBgColor(1);
   },
   onChangeFgRGB: function() {
     var ctx = DebugJS.ctx;
@@ -5167,7 +5214,7 @@ DebugJS.prototype = {
     ctx.fontChkRangeFg.r.value = rgb10.r;
     ctx.fontChkRangeFg.g.value = rgb10.g;
     ctx.fontChkRangeFg.b.value = rgb10.b;
-    ctx.onChangeFgColor(null);
+    ctx.onChangeFgColor(0);
     DebugJS.setStyle(ctx.fontChkTargetEl, 'color', rgb16);
   },
   onChangeBgRGB: function() {
@@ -5181,10 +5228,10 @@ DebugJS.prototype = {
     ctx.fontChkRangeBg.r.value = rgb10.r;
     ctx.fontChkRangeBg.g.value = rgb10.g;
     ctx.fontChkRangeBg.b.value = rgb10.b;
-    ctx.onChangeBgColor(null);
+    ctx.onChangeBgColor(0);
     DebugJS.setStyle(ctx.fontChkTargetEl, 'background', rgb16);
   },
-  onChangeFgColor: function(callFromRange) {
+  onChangeFgColor: function(callFmRng) {
     var ctx = DebugJS.ctx;
     var fgR = ctx.fontChkRangeFg.r.value;
     var fgG = ctx.fontChkRangeFg.g.value;
@@ -5193,12 +5240,12 @@ DebugJS.prototype = {
     ctx.fontChkLabelFg.r.innerText = fgR;
     ctx.fontChkLabelFg.g.innerText = fgG;
     ctx.fontChkLabelFg.b.innerText = fgB;
-    if (callFromRange) {
+    if (callFmRng) {
       ctx.fontChkInputFgRGB.value = rgb16.r + rgb16.g + rgb16.b;
       DebugJS.setStyle(ctx.fontChkTargetEl, 'color', 'rgb(' + fgR + ',' + fgG + ',' + fgB + ')');
     }
   },
-  onChangeBgColor: function(callFromRange) {
+  onChangeBgColor: function(callFmRng) {
     var ctx = DebugJS.ctx;
     var bgR = ctx.fontChkRangeBg.r.value;
     var bgG = ctx.fontChkRangeBg.g.value;
@@ -5207,7 +5254,7 @@ DebugJS.prototype = {
     ctx.fontChkLabelBg.r.innerText = bgR;
     ctx.fontChkLabelBg.g.innerText = bgG;
     ctx.fontChkLabelBg.b.innerText = bgB;
-    if (callFromRange) {
+    if (callFmRng) {
       ctx.fontChkInputBgRGB.value = rgb16.r + rgb16.g + rgb16.b;
       DebugJS.setStyle(ctx.fontChkTargetEl, 'background', 'rgb(' + bgR + ',' + bgG + ',' + bgB + ')');
     }
@@ -5220,11 +5267,11 @@ DebugJS.prototype = {
     ctx.onChangeFontSize(null);
     DebugJS.setStyle(ctx.fontChkTargetEl, 'font-size', fontSize + unit);
   },
-  onChangeFontSize: function(callFromRange) {
+  onChangeFontSize: function(callFmRng) {
     var ctx = DebugJS.ctx;
     var fontSize = ctx.fontChkFontSize.range.value;
     var unit = ctx.fontChkFontSize.unit.value;
-    if (callFromRange) {
+    if (callFmRng) {
       ctx.fontChkFontSize.input.value = fontSize;
       DebugJS.setStyle(ctx.fontChkTargetEl, 'font-size', fontSize + unit);
     }
@@ -9488,6 +9535,10 @@ DebugJS.prototype = {
     var el = area.pre;
     if (el) DebugJS.setStyle(el, 'font-size', v);
   },
+  setT0Cb: function(ctx, v) {
+    DebugJS.stopwatch.t0(1, v);
+    return v;
+  },
   setPropTimerCb: function(ctx, v) {
     var tm = DebugJS.timerstr2struct(v);
     ctx.timerSign = tm.sign;
@@ -12211,6 +12262,22 @@ DebugJS.checkRadix = function(v) {
     return 10;
   }
   return 0;
+};
+
+DebugJS.round = function(v, scale) {
+  return DebugJS._shift(Math.round(DebugJS._shift(v, scale, false)), scale, true);
+};
+DebugJS.floor = function(v, scale) {
+  return DebugJS._shift(Math.floor(DebugJS._shift(v, scale, false)), scale, true);
+};
+DebugJS.ceil = function(v, scale) {
+  return DebugJS._shift(Math.ceil(DebugJS._shift(v, scale, false)), scale, true);
+};
+DebugJS._shift = function(v, scale, rvs) {
+  if (scale == undefined) scale = 0;
+  if (rvs) scale = -scale;
+  var a = ('' + v).split('e');
+  return +(a[0] + 'e' + (a[1] ? (+a[1] + scale) : scale));
 };
 
 DebugJS.arr = {};
