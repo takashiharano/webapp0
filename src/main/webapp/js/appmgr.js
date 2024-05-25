@@ -108,8 +108,7 @@ app.appmgr.elapsedSinceLastAccess = function(now, t) {
 };
 
 app.appmgr.buildListHeader = function(columns, sortIdx, sortOrder) {
-  var html = '<table>';
-  html += '<tr class="item-list-header">';
+  var html = '<tr class="item-list-header">';
   for (var i = 0; i < columns.length; i++) {
     var column = columns[i];
     var label = column['label'];
@@ -230,10 +229,13 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list" style="text-align:center;">' + pwChangedDate + '</td>';
     htmlList += '</tr>';
   }
-  htmlList += '</table>';
 
   var htmlHead = app.appmgr.buildListHeader(app.appmgr.USER_LIST_COLUMNS, sortIdx, sortOrder);
-  var html = htmlHead + htmlList; 
+  var html = '<div style="width:100%;max-height:400px;overflow:auto;">';
+  html += '<table>';
+  html += htmlHead + htmlList; 
+  html += '</table>';
+  html += '</div>';
 
   app.appmgr.drawListContent(html);
 };
@@ -298,7 +300,8 @@ app.appmgr.getSessionListCb = function(xhr, res, req) {
 
 app.appmgr.drawSessionList = function(sessions) {
   var now = util.now();
-  var html = '<table>';
+  var html = '<div style="width:100%;max-height:400px;overflow:auto;">';
+  html += '<table>';
   html += '<tr style="font-weight:bold;">';
   html += '<td></td>';
   html += '<td>UID</td>';
@@ -315,6 +318,7 @@ app.appmgr.drawSessionList = function(sessions) {
   sessions = util.sortObjectList(sessions, 'lastAccessedTime', true, true);
   html += app.appmgr.buildSessionInfoHtml(sessions, now);
   html += '</table>';
+  html += '</div>';
   $el('#session-list').innerHTML = html;
 };
 
@@ -525,17 +529,19 @@ app.appmgr.newUser = function() {
 };
 
 app.appmgr.editUser = function(username) {
-  app.appmgr.userEditMode = (username ? 'edit' : 'new');
+  var mode = (username ? 'edit' : 'new');
+  app.appmgr.userEditMode = mode;
   if (!app.appmgr.userEditWindow) {
-    app.appmgr.userEditWindow = app.appmgr.openUserInfoEditorWindow(app.appmgr.userEditMode, username);
+    app.appmgr.userEditWindow = app.appmgr.openUserInfoEditorWindow(mode, username);
   }
   app.appmgr.clearUserInfoEditor();
-  if (username) {
+  if (mode == 'edit') {
     var params = {
       username: username
     };
     app.callServerApi('GetUserInfo', params, app.appmgr.GetUserInfoCb);
   } else {
+    $el('#flags').value = '1';
     $el('#username').focus();
   }
 };
@@ -554,7 +560,7 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
   html += '  <tr>';
   html += '    <td>Username</td>';
   html += '    <td style="width:256px;">';
-  html += '      <input type="text" id="username" style="width:100%;">';
+  html += '      <input type="text" id="username" style="width:100%;" onblur="app.appmgr.onUsernameBlur();">';
   html += '    </td>';
   html += '  </tr>';
   html += '  <tr>';
@@ -600,7 +606,7 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
   html += '    <td>Re-type</td>';
   html += '    <td><input type="password" id="pw2" style="width:100%;"></td>';
   html += '  </tr>';
-  html += '<table>';
+  html += '</table>';
 
   html += '<div style="margin-top:24px;text-align:center;">';
   html += '<button onclick="app.appmgr.saveUserInfo();">OK</button>'
@@ -641,6 +647,30 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
 
   var win = util.newWindow(opt);
   return win;
+};
+
+app.appmgr.onUsernameBlur = function() {
+  var fullname = $el('#fullname').value;
+  if (fullname) return;
+  var username = $el('#username').value;
+  if (username.match()) {
+    fullname = app.appmgr.mail2name(username);
+  }
+  $el('#fullname').value = fullname;
+};
+
+app.appmgr.mail2name = function(m) {
+  var a = m.split('@');
+  a = a[0].split('.');
+  if (a.length == 1) return a[0];
+  var s = '';
+  for (var i = 0; i < a.length; i++) {
+    if (i > 0) {
+      s += ' ';
+    }
+    s += util.capitalize(a[i]);
+  }
+  return s;
 };
 
 app.appmgr.GetUserInfoCb = function(xhr, res) {
@@ -999,7 +1029,8 @@ app.appmgr.getGroupListCb = function(xhr, res) {
 };
 
 app.appmgr.drawGroupList = function(list) {
-  var html = '<table>';
+  var html = '<div style="width:100%;max-height:300px;overflow:auto;">';
+  html += '<table>';
   html += '<tr class="item-list-header">';
   html += '<th class="item-list" style="min-width:10em;">GID</th>';
   html += '<th class="item-list" style="min-width:20em;">Prvileges</th>';
@@ -1025,6 +1056,7 @@ app.appmgr.drawGroupList = function(list) {
     html += '</tr>';
   }
   html += '</table>';
+  html += '</div>';
   $el('#group-list').innerHTML = html;
 };
 
@@ -1070,7 +1102,7 @@ app.appmgr.openGroupInfoEditorWindow = function(mode, gid) {
   html += '    <td>Description</td>';
   html += '    <td><input type="text" id="group-desc" style="width:100%;"></td>';
   html += '  </tr>';
-  html += '<table>';
+  html += '</table>';
 
   html += '<div style="margin-top:24px;text-align:center;">';
   html += '<button onclick="app.appmgr.saveGroupInfo();">OK</button>'
