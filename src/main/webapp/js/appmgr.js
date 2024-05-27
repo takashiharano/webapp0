@@ -214,7 +214,7 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
       if ((appconfig.login_failure_max > 0) && (loginFailedCount >= appconfig.login_failure_max)) {
         clz += ' text-red';
       }
-      htmlList += '<span class="' + clz + '" data-tooltip2="Last failed: ' + loginFailedTime + '" onclick="app.appmgr.confirmClearLoginFailedCount(\'' + username + '\');">' + loginFailedCount + '</span>';
+      htmlList += '<span class="' + clz + '" data-tooltip="Last failed: ' + loginFailedTime + '" onclick="app.appmgr.confirmClearLoginFailedCount(\'' + username + '\');">' + loginFailedCount + '</span>';
     } else {
       htmlList += '';
     }
@@ -390,7 +390,7 @@ app.appmgr.buildSessionInfoOne = function(session, now, mn) {
   var brws = util.getBrowserInfo(ua);
   var ua = brws.name + ' ' + brws.version;
   var led = app.appmgr.buildLedHtml(now, laTime, false, true);
-  var ssidLink = '<span class="pseudo-link link-button" onclick="app.appmgr.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip2="' + sid + '">' + ssid + '</span>';
+  var ssidLink = '<span class="pseudo-link link-button" onclick="app.appmgr.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
   var dispSid = ((sid == cSid) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip2="Current Session">*</span>' : '<span style="cursor:default;margin-right:2px;">&nbsp;</span>') + ssidLink;
   var timeId = 'tm-' + sid7;
   var tmspan = '<span id="' + timeId + '"></span>'
