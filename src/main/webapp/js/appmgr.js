@@ -194,8 +194,8 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     var active = (sessions > 0);
     var led = app.appmgr.buildLedHtml(now, statusInfo.last_accessed, app.appmgr.INSEC, active);
 
-    var cInd = ((username == currentUsername) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip="You">*</span>' : '<span style="margin-right:2px;">&nbsp;</span>');
-    var dispUid = cInd + '<span class="pseudo-link link-button" style="text-align:center;" onclick="app.appmgr.editUser(\'' + username + '\');" data-tooltip="Edit">' + username + '</span>';
+    var cInd = ((username == currentUsername) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip2="You">*</span>' : '<span style="margin-right:2px;">&nbsp;</span>');
+    var dispUid = cInd + '<span class="pseudo-link link-button" style="text-align:center;" onclick="app.appmgr.editUser(\'' + username + '\');" data-tooltip2="Edit">' + username + '</span>';
 
     htmlList += '<tr class="item-list">';
     htmlList += '<td class="item-list" style="text-align:center;">' + led + '</td>';
@@ -214,7 +214,7 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
       if ((appconfig.login_failure_max > 0) && (loginFailedCount >= appconfig.login_failure_max)) {
         clz += ' text-red';
       }
-      htmlList += '<span class="' + clz + '" data-tooltip="Last failed: ' + loginFailedTime + '" onclick="app.appmgr.confirmClearLoginFailedCount(\'' + username + '\');">' + loginFailedCount + '</span>';
+      htmlList += '<span class="' + clz + '" data-tooltip2="Last failed: ' + loginFailedTime + '" onclick="app.appmgr.confirmClearLoginFailedCount(\'' + username + '\');">' + loginFailedCount + '</span>';
     } else {
       htmlList += '';
     }
@@ -390,8 +390,8 @@ app.appmgr.buildSessionInfoOne = function(session, now, mn) {
   var brws = util.getBrowserInfo(ua);
   var ua = brws.name + ' ' + brws.version;
   var led = app.appmgr.buildLedHtml(now, laTime, false, true);
-  var ssidLink = '<span class="pseudo-link link-button" onclick="app.appmgr.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
-  var dispSid = ((sid == cSid) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip="Current Session">*</span>' : '<span style="cursor:default;margin-right:2px;">&nbsp;</span>') + ssidLink;
+  var ssidLink = '<span class="pseudo-link link-button" onclick="app.appmgr.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip2="' + sid + '">' + ssid + '</span>';
+  var dispSid = ((sid == cSid) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip2="Current Session">*</span>' : '<span style="cursor:default;margin-right:2px;">&nbsp;</span>') + ssidLink;
   var timeId = 'tm-' + sid7;
   var tmspan = '<span id="' + timeId + '"></span>'
   var timeline = app.appmgr.buildTimeLine(now, laTime);
@@ -504,7 +504,7 @@ app.appmgr.confirmLogoutSession = function(username, sid) {
   var ssid = util.snip(sid, 7, 7, '..');
   var m = 'Logout?\n\n';
   if (sid == cSid) {
-    m += '<span style="color:#f44;font-weight:bold;">[CURRENT SESSION]</span>\n';
+    m += '<span style="color:#f66;font-weight:bold;">[CURRENT SESSION]</span>\n';
   }
   m += '<div style="text-align:left;">';
   m += username + '\n';
@@ -1048,7 +1048,7 @@ app.appmgr.drawGroupList = function(list) {
     var updatedDate = app.appmgr.getDateTimeString(group.updated_date, app.appmgr.INSEC);
 
     html += '<tr class="item-list">';
-    html += '<td class="item-list"><span class="pseudo-link link-button" onclick="app.appmgr.editGroup(\'' + gid + '\');" data-tooltip="Edit">' + gid + '</span></td>';
+    html += '<td class="item-list"><span class="pseudo-link link-button" onclick="app.appmgr.editGroup(\'' + gid + '\');" data-tooltip2="Edit">' + gid + '</span></td>';
     html += '<td class="item-list">' + privs + '</td>';
     html += '<td class="item-list">' + desc + '</td>';
     html += '<td class="item-list">' + createdDate + '</td>';
