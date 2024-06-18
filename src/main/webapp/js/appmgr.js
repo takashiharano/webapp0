@@ -502,12 +502,15 @@ app.appmgr.sortItemList = function(sortIdx, sortOrder) {
 app.appmgr.confirmLogoutSession = function(username, sid) {
   var cSid = app.currentSid;
   var ssid = util.snip(sid, 7, 7, '..');
+  var currentUsername = app.getUsername();
   var m = 'Logout?\n\n';
   if (sid == cSid) {
     m += '<span style="color:#f66;font-weight:bold;">[CURRENT SESSION]</span>\n';
   }
   m += '<div style="text-align:left;">';
-  m += username + '\n';
+  m += username;
+  if (username == currentUsername) m += ' <span style="color:#26c;">(You)</span>';
+  m += '\n';
   m += 'sid: ' + sid;
   m += '</div>';
   util.confirm(m, app.appmgr.logoutSession, {data: sid});
