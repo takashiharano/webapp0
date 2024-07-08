@@ -31,6 +31,10 @@ tr.item-list:hover {
   background: transparent;
 }
 
+.timeline-span {
+  opacity: 0.6;
+}
+
 #contents {
   font-size: 12px;
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
