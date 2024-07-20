@@ -563,12 +563,10 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
   }
   html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:350px;text-align:left;">';
 
-  html += '<table>';
+  html += '<table class="edit-table">';
   html += '  <tr>';
   html += '    <td>Username</td>';
-  html += '    <td style="width:256px;">';
-  html += '      <input type="text" id="username" style="width:100%;" onblur="app.appmgr.onUsernameBlur();">';
-  html += '    </td>';
+  html += '    <td style="width:256px;"><input type="text" id="username" style="width:100%;" onblur="app.appmgr.onUsernameBlur();"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Full name</td>';

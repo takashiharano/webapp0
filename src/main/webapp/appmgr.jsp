@@ -26,6 +26,14 @@ tr.item-list:hover {
   background: #ecfaff;
 }
 
+table.edit-table {
+  width: 100%;
+}
+
+.edit-table td {
+  white-space: pre;
+}
+
 .edit-disabled {
   border: none !important;
   background: transparent;
