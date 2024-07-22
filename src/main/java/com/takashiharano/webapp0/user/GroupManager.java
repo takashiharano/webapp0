@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.libutil.CsvBuilder;
 import com.libutil.FileUtil;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.util.CsvFieldGetter;
@@ -241,8 +242,10 @@ public class GroupManager {
    */
   public void saveGroups() throws IOException {
     String header = "#GID\tName\tPrivileges\tDescription\tCreated\tUpdated\n";
-    StringBuilder sb = new StringBuilder();
-    sb.append(header);
+
+    CsvBuilder csvBuilder = new CsvBuilder("\t", false);
+    csvBuilder.appendAsIs(header);
+
     for (Entry<String, Group> entry : groups.entrySet()) {
       Group group = entry.getValue();
       String gid = group.getGid();
@@ -252,23 +255,18 @@ public class GroupManager {
       long createdDate = group.getCreatedDate();
       long updatedDate = group.getUpdatedDate();
 
-      sb.append(gid);
-      sb.append("\t");
-      sb.append(name);
-      sb.append("\t");
-      sb.append(privileges);
-      sb.append("\t");
-      sb.append(description);
-      sb.append("\t");
-      sb.append(createdDate);
-      sb.append("\t");
-      sb.append(updatedDate);
-      sb.append("\n");
+      csvBuilder.append(gid);
+      csvBuilder.append(name);
+      csvBuilder.append(privileges);
+      csvBuilder.append(description);
+      csvBuilder.append(createdDate);
+      csvBuilder.append(updatedDate);
+      csvBuilder.nextRecord();
     }
 
     String dataPath = getDataPath();
     String groupsFilePath = FileUtil.joinPath(dataPath, GROUPS_FILE_NAME);
-    String data = sb.toString();
+    String data = csvBuilder.toString();
     try {
       FileUtil.write(groupsFilePath, data);
     } catch (IOException ioe) {

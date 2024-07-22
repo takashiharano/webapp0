@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.libutil.CsvBuilder;
 import com.libutil.FileUtil;
 import com.libutil.Props;
 import com.libutil.StrUtil;
@@ -183,8 +184,11 @@ public class UserManager {
    */
   public void saveUsers() throws IOException {
     String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tDescription\tFlags\tCreated\tUpdated\n";
-    StringBuilder sb = new StringBuilder();
-    sb.append(header);
+
+    CsvBuilder csvBuilder = new CsvBuilder("\t", false);
+    csvBuilder.setLineBreak("\n");
+    csvBuilder.appendAsIs(header);
+
     for (Entry<String, User> entry : users.entrySet()) {
       User user = entry.getValue();
       String username = user.getUsername();
@@ -199,31 +203,22 @@ public class UserManager {
       long createdDate = user.getCreatedDate();
       long updatedDate = user.getUpdatedDate();
 
-      sb.append(username);
-      sb.append("\t");
-      sb.append(fullname);
-      sb.append("\t");
-      sb.append(localFullName);
-      sb.append("\t");
-      sb.append(adminFlag);
-      sb.append("\t");
-      sb.append(groups);
-      sb.append("\t");
-      sb.append(privileges);
-      sb.append("\t");
-      sb.append(description);
-      sb.append("\t");
-      sb.append(flags);
-      sb.append("\t");
-      sb.append(createdDate);
-      sb.append("\t");
-      sb.append(updatedDate);
-      sb.append("\n");
+      csvBuilder.append(username);
+      csvBuilder.append(fullname);
+      csvBuilder.append(localFullName);
+      csvBuilder.append(adminFlag);
+      csvBuilder.append(groups);
+      csvBuilder.append(privileges);
+      csvBuilder.append(description);
+      csvBuilder.append(flags);
+      csvBuilder.append(createdDate);
+      csvBuilder.append(updatedDate);
+      csvBuilder.nextRecord();
     }
 
     String dataPath = getDataPath();
     String usersFilePath = FileUtil.joinPath(dataPath, USERS_FILE_NAME);
-    String data = sb.toString();
+    String data = csvBuilder.toString();
     try {
       FileUtil.write(usersFilePath, data);
     } catch (IOException ioe) {
