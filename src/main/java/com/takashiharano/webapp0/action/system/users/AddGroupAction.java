@@ -15,6 +15,7 @@ public class AddGroupAction extends Action {
   @Override
   public void process(ProcessContext context) throws Exception {
     String gid = context.getRequestParameter("gid");
+    String name = context.getRequestParameter("name");
     String privileges = context.getRequestParameter("privileges");
     String description = context.getRequestParameter("description");
 
@@ -33,7 +34,7 @@ public class AddGroupAction extends Action {
 
     String status = "OK";
     try {
-      groupManager.regieterNewGroup(gid, privileges, description);
+      groupManager.regieterNewGroup(gid, name, privileges, description);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("Group regieter error: " + status);

@@ -1038,6 +1038,7 @@ app.appmgr.drawGroupList = function(list) {
   html += '<table>';
   html += '<tr class="item-list-header">';
   html += '<th class="item-list" style="min-width:10em;">GID</th>';
+  html += '<th class="item-list" style="min-width:15em;">Name</th>';
   html += '<th class="item-list" style="min-width:20em;">Prvileges</th>';
   html += '<th class="item-list" style="min-width:20em;">Description</th>';
   html += '<th class="item-list">Created</th>';
@@ -1047,6 +1048,7 @@ app.appmgr.drawGroupList = function(list) {
   for (var i = 0; i < list.length; i++) {
     var group = list[i];
     var gid = group.gid;
+    var name = group.name;
     var privs = (group.privileges ? group.privileges : '');
     var desc = (group.description ? group.description : '');
     var createdDate = app.appmgr.getDateTimeString(group.created_date, app.appmgr.INSEC);
@@ -1054,6 +1056,7 @@ app.appmgr.drawGroupList = function(list) {
 
     html += '<tr class="item-list">';
     html += '<td class="item-list"><span class="pseudo-link link-button" onclick="app.appmgr.editGroup(\'' + gid + '\');" data-tooltip2="Edit">' + gid + '</span></td>';
+    html += '<td class="item-list">' + name + '</td>';
     html += '<td class="item-list">' + privs + '</td>';
     html += '<td class="item-list">' + desc + '</td>';
     html += '<td class="item-list">' + createdDate + '</td>';
@@ -1090,7 +1093,7 @@ app.appmgr.openGroupInfoEditorWindow = function(mode, gid) {
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
   html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="app.appmgr.deleteGroup(\'' + gid + '\');">DEL</button></div>';
-  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:110px;text-align:left;">';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:120px;text-align:left;">';
 
   html += '<table>';
   html += '  <tr>';
@@ -1098,6 +1101,10 @@ app.appmgr.openGroupInfoEditorWindow = function(mode, gid) {
   html += '    <td style="width:256px;">';
   html += '      <input type="text" id="gid" style="width:100%;">';
   html += '    </td>';
+  html += '  </tr>';
+  html += '  <tr>';
+  html += '    <td>Name</td>';
+  html += '    <td><input type="text" id="group-name" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Privileges</td>';
@@ -1123,9 +1130,9 @@ app.appmgr.openGroupInfoEditorWindow = function(mode, gid) {
     pos: 'c',
     closeButton: true,
     width: 480,
-    height: 200,
+    height: 240,
     minWidth: 480,
-    minHeight: 360,
+    minHeight: 240,
     scale: 1,
     hidden: false,
     modal: false,
@@ -1152,9 +1159,15 @@ app.appmgr.openGroupInfoEditorWindow = function(mode, gid) {
 
 //-----------------------------------------------------------------------------
 app.appmgr.addGroup = function() {
-  var gid = $el('#gid').value;
+  var gid = $el('#gid').value.trim();
+  var name = $el('#group-name').value;
   var privs = $el('#group-privs').value;
   var desc = $el('#group-desc').value;
+
+  if (!gid) {
+    app.showInfotip('Group ID is required.', 2000);
+    return;
+  }
 
   clnsRes = app.appmgr.cleansePrivileges(privs);
   if (clnsRes.msg) {
@@ -1165,6 +1178,7 @@ app.appmgr.addGroup = function() {
 
   var params = {
     gid: gid,
+    name: name,
     privileges: privs,
     description: desc
   };
@@ -1184,11 +1198,13 @@ app.appmgr.addGroupCb = function(xhr, res) {
 //-----------------------------------------------------------------------------
 app.appmgr.updateGroup = function() {
   var gid = $el('#gid').value;
+  var name = $el('#group-name').value;
   var privs = $el('#group-privs').value;
   var desc = $el('#group-desc').value;
 
   var params = {
     gid: gid,
+    name: name,
     privileges: privs,
     description: desc
   };
@@ -1254,6 +1270,7 @@ app.appmgr.setGroupInfoToEditor = function(info) {
     $el('#gid').disabled = false;
     $el('#gid').removeClass('edit-disabled');
   }
+  $el('#group-name').value = info.name;
   $el('#group-privs').value = info.privileges;
   $el('#group-desc').value = (info.description ? info.description : '');
 };
@@ -1261,6 +1278,7 @@ app.appmgr.setGroupInfoToEditor = function(info) {
 app.appmgr.clearGroupInfoEditor = function() {
   var info = {
     gid: '',
+    name: '',
     privileges: '',
     description: ''
   };

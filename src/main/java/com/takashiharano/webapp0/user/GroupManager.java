@@ -60,24 +60,27 @@ public class GroupManager {
   }
 
   /**
-   * Write user info into a storage.
+   * Write group info into a storage.
    *
    * @throws IOException
    *           if an IO error occurred
    */
   public void saveGroups() throws IOException {
-    String header = "#GID\tPrivileges\tDescription\tCreated\tUpdated\n";
+    String header = "#GID\tName\tPrivileges\tDescription\tCreated\tUpdated\n";
     StringBuilder sb = new StringBuilder();
     sb.append(header);
     for (Entry<String, Group> entry : groups.entrySet()) {
       Group group = entry.getValue();
       String gid = group.getGid();
+      String name = group.getName();
       String privileges = group.getPrivilegesInOneLine();
       String description = group.getDescription();
       long createdDate = group.getCreatedDate();
       long updatedDate = group.getUpdatedDate();
 
       sb.append(gid);
+      sb.append("\t");
+      sb.append(name);
       sb.append("\t");
       sb.append(privileges);
       sb.append("\t");
@@ -105,6 +108,8 @@ public class GroupManager {
    *
    * @param gid
    *          Group id
+   * @param name
+   *          Group name
    * @param privileges
    *          Privileges
    * @param description
@@ -113,7 +118,7 @@ public class GroupManager {
    * @throws Exception
    *           if an error occurred
    */
-  public Group regieterNewGroup(String gid, String privileges, String description) throws Exception {
+  public Group regieterNewGroup(String gid, String name, String privileges, String description) throws Exception {
     if (groups.containsKey(gid)) {
       throw new Exception("GROUP_ALREADY_EXISTS");
     }
@@ -122,7 +127,7 @@ public class GroupManager {
     long createdDate = now;
     long updatedDate = now;
 
-    Group group = new Group(gid, privileges, description, createdDate, updatedDate);
+    Group group = new Group(gid, name, privileges, description, createdDate, updatedDate);
     groups.put(gid, group);
 
     try {
@@ -139,6 +144,8 @@ public class GroupManager {
    *
    * @param gid
    *          Group id
+   * @param name
+   *          Group name
    * @param privileges
    *          Privileges
    * @param description
@@ -147,13 +154,18 @@ public class GroupManager {
    * @throws Exception
    *           if an error occurred
    */
-  public Group updateGroup(String gid, String privileges, String description) throws Exception {
+  public Group updateGroup(String gid, String name, String privileges, String description) throws Exception {
     Group group = groups.get(gid);
     if (group == null) {
       throw new Exception("GROUP_NOT_FOUND");
     }
 
     boolean updated = false;
+
+    if (name != null) {
+      group.setName(name);
+      updated = true;
+    }
 
     if (privileges != null) {
       group.setPrivileges(privileges);
@@ -252,12 +264,13 @@ public class GroupManager {
       String[] fields = line.split("\t");
 
       String gid = AppUtil.getFieldValue(fields, 0);
-      String privileges = AppUtil.getFieldValue(fields, 1);
-      String description = AppUtil.getFieldValue(fields, 2);
-      long createdDate = AppUtil.getFieldValueAsLong(fields, 3);
-      long updatedDate = AppUtil.getFieldValueAsLong(fields, 4);
+      String name = AppUtil.getFieldValue(fields, 1);
+      String privileges = AppUtil.getFieldValue(fields, 2);
+      String description = AppUtil.getFieldValue(fields, 3);
+      long createdDate = AppUtil.getFieldValueAsLong(fields, 4);
+      long updatedDate = AppUtil.getFieldValueAsLong(fields, 5);
 
-      Group group = new Group(gid, privileges, description);
+      Group group = new Group(gid, name, privileges, description);
       group.setCreatedDate(createdDate);
       group.setUpdatedDate(updatedDate);
 

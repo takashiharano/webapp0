@@ -16,17 +16,19 @@ import com.takashiharano.webapp0.util.AppUtil;
  */
 public class Group {
   private String gid;
+  private String name;
   private Set<String> privileges;
   private String description;
   private long createdDate;
   private long updatedDate;
 
-  public Group(String gid, String privileges, String description) {
-    this(gid, privileges, description, 0L, 0L);
+  public Group(String gid, String name, String privileges, String description) {
+    this(gid, name, privileges, description, 0L, 0L);
   }
 
-  public Group(String gid, String privileges, String description, long createdDate, long updatedDate) {
+  public Group(String gid, String name, String privileges, String description, long createdDate, long updatedDate) {
     this.gid = gid;
+    this.name = name;
     setPrivileges(privileges);
     this.description = description;
     this.setCreatedDate(createdDate);
@@ -50,6 +52,25 @@ public class Group {
    */
   public void setGid(String gid) {
     this.gid = gid;
+  }
+
+  /**
+   * Returns the group name.
+   *
+   * @return group name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Sets the group name.
+   *
+   * @param name
+   *          group name
+   */
+  public void setName(String name) {
+    this.name = name;
   }
 
   /**
@@ -185,6 +206,7 @@ public class Group {
   public String toJSON() {
     JsonBuilder jb = new JsonBuilder();
     jb.append("gid", getGid());
+    jb.append("name", getName());
     jb.append("privileges", getPrivilegesInOneLine());
     jb.append("description", getDescription());
     jb.append("created_date", getCreatedDate());
