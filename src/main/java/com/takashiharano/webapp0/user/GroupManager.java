@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 
 import com.libutil.FileUtil;
 import com.takashiharano.webapp0.AppManager;
-import com.takashiharano.webapp0.util.AppUtil;
+import com.takashiharano.webapp0.util.CsvFieldGetter;
 
 public class GroupManager {
 
@@ -57,50 +57,6 @@ public class GroupManager {
    */
   public Map<String, Group> getAllGroupInfo() {
     return groups;
-  }
-
-  /**
-   * Write group info into a storage.
-   *
-   * @throws IOException
-   *           if an IO error occurred
-   */
-  public void saveGroups() throws IOException {
-    String header = "#GID\tName\tPrivileges\tDescription\tCreated\tUpdated\n";
-    StringBuilder sb = new StringBuilder();
-    sb.append(header);
-    for (Entry<String, Group> entry : groups.entrySet()) {
-      Group group = entry.getValue();
-      String gid = group.getGid();
-      String name = group.getName();
-      String privileges = group.getPrivilegesInOneLine();
-      String description = group.getDescription();
-      long createdDate = group.getCreatedDate();
-      long updatedDate = group.getUpdatedDate();
-
-      sb.append(gid);
-      sb.append("\t");
-      sb.append(name);
-      sb.append("\t");
-      sb.append(privileges);
-      sb.append("\t");
-      sb.append(description);
-      sb.append("\t");
-      sb.append(createdDate);
-      sb.append("\t");
-      sb.append(updatedDate);
-      sb.append("\n");
-    }
-
-    String dataPath = getDataPath();
-    String groupsFilePath = FileUtil.joinPath(dataPath, GROUPS_FILE_NAME);
-    String data = sb.toString();
-    try {
-      FileUtil.write(groupsFilePath, data);
-    } catch (IOException ioe) {
-      ioe.printStackTrace();
-      throw ioe;
-    }
   }
 
   /**
@@ -250,31 +206,74 @@ public class GroupManager {
     String dataPath = getDataPath();
     String groupsFilePath = FileUtil.joinPath(dataPath, GROUPS_FILE_NAME);
 
-    String[] text = FileUtil.readTextAsArray(groupsFilePath);
-    if (text == null) {
+    String[] lines = FileUtil.readTextAsArray(groupsFilePath);
+    if (lines == null) {
       return;
     }
 
-    for (int i = 0; i < text.length; i++) {
-      String line = text[i];
+    for (int i = 0; i < lines.length; i++) {
+      String line = lines[i];
       if (line.startsWith("#")) {
         continue;
       }
 
-      String[] fields = line.split("\t");
-
-      String gid = AppUtil.getFieldValue(fields, 0);
-      String name = AppUtil.getFieldValue(fields, 1);
-      String privileges = AppUtil.getFieldValue(fields, 2);
-      String description = AppUtil.getFieldValue(fields, 3);
-      long createdDate = AppUtil.getFieldValueAsLong(fields, 4);
-      long updatedDate = AppUtil.getFieldValueAsLong(fields, 5);
+      CsvFieldGetter csvFieldGetter = new CsvFieldGetter(line);
+      String gid = csvFieldGetter.getFieldValue();
+      String name = csvFieldGetter.getFieldValue();
+      String privileges = csvFieldGetter.getFieldValue();
+      String description = csvFieldGetter.getFieldValue();
+      long createdDate = csvFieldGetter.getFieldValueAsLong();
+      long updatedDate = csvFieldGetter.getFieldValueAsLong();
 
       Group group = new Group(gid, name, privileges, description);
       group.setCreatedDate(createdDate);
       group.setUpdatedDate(updatedDate);
 
       groups.put(gid, group);
+    }
+  }
+
+  /**
+   * Write group info into a storage.
+   *
+   * @throws IOException
+   *           if an IO error occurred
+   */
+  public void saveGroups() throws IOException {
+    String header = "#GID\tName\tPrivileges\tDescription\tCreated\tUpdated\n";
+    StringBuilder sb = new StringBuilder();
+    sb.append(header);
+    for (Entry<String, Group> entry : groups.entrySet()) {
+      Group group = entry.getValue();
+      String gid = group.getGid();
+      String name = group.getName();
+      String privileges = group.getPrivilegesInOneLine();
+      String description = group.getDescription();
+      long createdDate = group.getCreatedDate();
+      long updatedDate = group.getUpdatedDate();
+
+      sb.append(gid);
+      sb.append("\t");
+      sb.append(name);
+      sb.append("\t");
+      sb.append(privileges);
+      sb.append("\t");
+      sb.append(description);
+      sb.append("\t");
+      sb.append(createdDate);
+      sb.append("\t");
+      sb.append(updatedDate);
+      sb.append("\n");
+    }
+
+    String dataPath = getDataPath();
+    String groupsFilePath = FileUtil.joinPath(dataPath, GROUPS_FILE_NAME);
+    String data = sb.toString();
+    try {
+      FileUtil.write(groupsFilePath, data);
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+      throw ioe;
     }
   }
 

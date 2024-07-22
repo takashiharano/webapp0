@@ -16,7 +16,7 @@ import com.libutil.StrUtil;
 import com.libutil.auth.Authenticator;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
-import com.takashiharano.webapp0.util.AppUtil;
+import com.takashiharano.webapp0.util.CsvFieldGetter;
 import com.takashiharano.webapp0.util.Log;
 
 public class UserManager {
@@ -145,25 +145,24 @@ public class UserManager {
     String passFile = FileUtil.joinPath(dataPath, USERS_PW_FILE_NAME);
     authenticator = new Authenticator(passFile, 1);
 
-    String[] text = FileUtil.readTextAsArray(usersFile);
-    for (int i = 0; i < text.length; i++) {
-      String line = text[i];
+    String[] lines = FileUtil.readTextAsArray(usersFile);
+    for (int i = 0; i < lines.length; i++) {
+      String line = lines[i];
       if (line.startsWith("#")) {
         continue;
       }
 
-      String[] fields = line.split("\t");
-
-      String username = AppUtil.getFieldValue(fields, 0);
-      String fullname = AppUtil.getFieldValue(fields, 1);
-      String localFullName = AppUtil.getFieldValue(fields, 2);
-      boolean isAdmin = AppUtil.getFieldValueAsBoolean(fields, 3, "1");
-      String groups = AppUtil.getFieldValue(fields, 4);
-      String privileges = AppUtil.getFieldValue(fields, 5);
-      String description = AppUtil.getFieldValue(fields, 6);
-      int status = AppUtil.getFieldValueAsInteger(fields, 7, User.FLAG_NEED_PW_CHANGE);
-      long createdDate = AppUtil.getFieldValueAsLong(fields, 8);
-      long updatedDate = AppUtil.getFieldValueAsLong(fields, 9);
+      CsvFieldGetter csvFieldGetter = new CsvFieldGetter(line);
+      String username = csvFieldGetter.getFieldValue();
+      String fullname = csvFieldGetter.getFieldValue();
+      String localFullName = csvFieldGetter.getFieldValue();
+      boolean isAdmin = csvFieldGetter.getFieldValueAsBoolean("1");
+      String groups = csvFieldGetter.getFieldValue();
+      String privileges = csvFieldGetter.getFieldValue();
+      String description = csvFieldGetter.getFieldValue();
+      int status = csvFieldGetter.getFieldValueAsInteger(User.FLAG_NEED_PW_CHANGE);
+      long createdDate = csvFieldGetter.getFieldValueAsLong();
+      long updatedDate = csvFieldGetter.getFieldValueAsLong();
 
       User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, status);
       user.setCreatedDate(createdDate);
