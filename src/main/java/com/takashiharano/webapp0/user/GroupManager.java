@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.libutil.FileUtil;
-import com.libutil.StrUtil;
 import com.takashiharano.webapp0.AppManager;
+import com.takashiharano.webapp0.util.AppUtil;
 
 public class GroupManager {
 
@@ -251,29 +251,15 @@ public class GroupManager {
 
       String[] fields = line.split("\t");
 
-      String gid = fields[0];
-
-      String privileges = null;
-      if (fields.length > 1) {
-        privileges = fields[1];
-      }
-
-      String description = null;
-      if (fields.length > 2) {
-        description = fields[2];
-      }
+      String gid = AppUtil.getFieldValue(fields, 0);
+      String privileges = AppUtil.getFieldValue(fields, 1);
+      String description = AppUtil.getFieldValue(fields, 2);
+      long createdDate = AppUtil.getFieldValueAsLong(fields, 3);
+      long updatedDate = AppUtil.getFieldValueAsLong(fields, 4);
 
       Group group = new Group(gid, privileges, description);
-
-      if (fields.length > 3) {
-        long createdDate = StrUtil.parseLong(fields[3]);
-        group.setCreatedDate(createdDate);
-      }
-
-      if (fields.length > 4) {
-        long updatedDate = StrUtil.parseLong(fields[4]);
-        group.setUpdatedDate(updatedDate);
-      }
+      group.setCreatedDate(createdDate);
+      group.setUpdatedDate(updatedDate);
 
       groups.put(gid, group);
     }

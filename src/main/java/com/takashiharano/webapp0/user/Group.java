@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.libutil.JsonBuilder;
-import com.takashiharano.webapp0.util.Util;
+import com.takashiharano.webapp0.util.AppUtil;
 
 /**
  * Group entity.
@@ -78,7 +78,7 @@ public class Group {
    * @return the privileges in the format "priv1[SEP]priv2[SEP]priv3..."
    */
   public String getPrivilegesInOneLine(String separator) {
-    return Util.convertSetToOneLineString(privileges, separator);
+    return AppUtil.convertSetToOneLineString(privileges, separator);
   }
 
   /**

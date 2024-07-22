@@ -16,6 +16,7 @@ import com.libutil.StrUtil;
 import com.libutil.auth.Authenticator;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
+import com.takashiharano.webapp0.util.AppUtil;
 import com.takashiharano.webapp0.util.Log;
 
 public class UserManager {
@@ -153,60 +154,20 @@ public class UserManager {
 
       String[] fields = line.split("\t");
 
-      String username = fields[0];
-
-      String fullname = null;
-      if (fields.length > 1) {
-        fullname = fields[1];
-      }
-
-      String localFullName = null;
-      if (fields.length > 2) {
-        localFullName = fields[2];
-      }
-
-      String adminFlag = "";
-      boolean isAdmin = false;
-      if (fields.length > 3) {
-        adminFlag = fields[3];
-        isAdmin = "1".equals(adminFlag);
-      }
-
-      String groups = null;
-      if (fields.length > 4) {
-        groups = fields[4];
-      }
-
-      String privileges = null;
-      if (fields.length > 5) {
-        privileges = fields[5];
-      }
-
-      String description = null;
-      if (fields.length > 6) {
-        description = fields[6];
-      }
-
-      int status = User.FLAG_NEED_PW_CHANGE;
-      if (fields.length > 7) {
-        try {
-          status = Integer.parseInt(fields[7]);
-        } catch (Exception e) {
-          // nop
-        }
-      }
+      String username = AppUtil.getFieldValue(fields, 0);
+      String fullname = AppUtil.getFieldValue(fields, 1);
+      String localFullName = AppUtil.getFieldValue(fields, 2);
+      boolean isAdmin = AppUtil.getFieldValueAsBoolean(fields, 3, "1");
+      String groups = AppUtil.getFieldValue(fields, 4);
+      String privileges = AppUtil.getFieldValue(fields, 5);
+      String description = AppUtil.getFieldValue(fields, 6);
+      int status = AppUtil.getFieldValueAsInteger(fields, 7, User.FLAG_NEED_PW_CHANGE);
+      long createdDate = AppUtil.getFieldValueAsLong(fields, 8);
+      long updatedDate = AppUtil.getFieldValueAsLong(fields, 9);
 
       User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, status);
-
-      if (fields.length > 8) {
-        long createdDate = StrUtil.parseLong(fields[8]);
-        user.setCreatedDate(createdDate);
-      }
-
-      if (fields.length > 9) {
-        long updatedDate = StrUtil.parseLong(fields[9]);
-        user.setUpdatedDate(updatedDate);
-      }
+      user.setCreatedDate(createdDate);
+      user.setUpdatedDate(updatedDate);
 
       UserStatus userStatus = loadUserStatus(username);
       user.setUserStatus(userStatus);
