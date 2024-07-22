@@ -22,9 +22,12 @@ public class User {
   private String username;
   private String fullname;
   private String localFullName;
+  private String email;
   private boolean admin;
   private Set<String> groups;
   private Set<String> privileges;
+  private String info1;
+  private String info2;
   private String description;
   private int flags;
   private long createdDate;
@@ -39,17 +42,20 @@ public class User {
     this.flags = FLAG_NONE;
   }
 
-  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, String description, int flags) {
-    this(username, fullname, localFullName, isAdmin, groups, privileges, description, flags, 0L, 0L);
+  public User(String username, String fullname, String localFullName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags) {
+    this(username, fullname, localFullName, email, isAdmin, groups, privileges, info1, info2, description, flags, 0L, 0L);
   }
 
-  public User(String username, String fullname, String localFullName, boolean isAdmin, String groups, String privileges, String description, int flags, long createdDate, long updatedDate) {
+  public User(String username, String fullname, String localFullName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags, long createdDate, long updatedDate) {
     this.username = username;
     this.fullname = fullname;
     this.localFullName = localFullName;
+    this.email = email;
     this.admin = isAdmin;
     setGroups(groups);
     setPrivileges(privileges);
+    this.info1 = info1;
+    this.info2 = info2;
     setDescription(description);
     this.flags = flags;
     this.createdDate = createdDate;
@@ -102,6 +108,25 @@ public class User {
    */
   public void setLocalFullName(String localFullName) {
     this.localFullName = localFullName;
+  }
+
+  /**
+   * Returns email address.
+   *
+   * @return email address
+   */
+  public String getEmail() {
+    return email;
+  }
+
+  /**
+   * Sets email address.
+   *
+   * @param email
+   *          email address
+   */
+  public void setEmail(String email) {
+    this.email = email;
   }
 
   /**
@@ -318,6 +343,44 @@ public class User {
   }
 
   /**
+   * Returns the info1.
+   *
+   * @return the info1
+   */
+  public String getInfo1() {
+    return info1;
+  }
+
+  /**
+   * Sets the info1.
+   *
+   * @param info1
+   *          the info1
+   */
+  public void setInfo1(String info1) {
+    this.info1 = info1;
+  }
+
+  /**
+   * Returns the info2.
+   *
+   * @return the info2
+   */
+  public String getInfo2() {
+    return info2;
+  }
+
+  /**
+   * Sets the info2.
+   *
+   * @param info2
+   *          the info2
+   */
+  public void setInfo2(String info2) {
+    this.info2 = info2;
+  }
+
+  /**
    * Returns the user description.
    *
    * @return the description
@@ -452,9 +515,12 @@ public class User {
     jb.append("username", getUsername());
     jb.append("fullname", getFullName());
     jb.append("localfullname", getLocalFullName());
+    jb.append("email", getEmail());
     jb.append("is_admin", isAdmin());
     jb.append("groups", getGroupsInOneLine());
     jb.append("privileges", getPrivilegesInOneLine());
+    jb.append("info1", getInfo1());
+    jb.append("info2", getInfo2());
     jb.append("description", getDescription());
     jb.append("flags", getFlags());
     jb.append("created_date", getCreatedDate());

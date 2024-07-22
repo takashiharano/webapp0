@@ -22,10 +22,6 @@ td.item-list,th.item-list {
   white-space: nowrap;
 }
 
-tr.item-list:hover {
-  background: #ecfaff;
-}
-
 table.edit-table {
   width: 100%;
 }
@@ -69,7 +65,7 @@ var appconfig = {
 <button onclick="app.appmgr.newUser();">+</button>
 <button onclick="app.appmgr.reloadUserInfo();">RELOAD</button>
 </div>
-<div id="user-list"></div>
+<div id="user-list" style="width:100%;max-height:400px;overflow:auto;"></div>
 
 <pre style="margin-top:20px;">Sessions
 <div id="session-list"></div></pre>

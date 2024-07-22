@@ -157,15 +157,18 @@ public class UserManager {
       String username = csvFieldGetter.getFieldValue();
       String fullname = csvFieldGetter.getFieldValue();
       String localFullName = csvFieldGetter.getFieldValue();
+      String email = csvFieldGetter.getFieldValue();
       boolean isAdmin = csvFieldGetter.getFieldValueAsBoolean("1");
       String groups = csvFieldGetter.getFieldValue();
       String privileges = csvFieldGetter.getFieldValue();
+      String info1 = csvFieldGetter.getFieldValue();
+      String info2 = csvFieldGetter.getFieldValue();
       String description = csvFieldGetter.getFieldValue();
       int status = csvFieldGetter.getFieldValueAsInteger(User.FLAG_NEED_PW_CHANGE);
       long createdDate = csvFieldGetter.getFieldValueAsLong();
       long updatedDate = csvFieldGetter.getFieldValueAsLong();
 
-      User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, status);
+      User user = new User(username, fullname, localFullName, email, isAdmin, groups, privileges, info1, info2, description, status);
       user.setCreatedDate(createdDate);
       user.setUpdatedDate(updatedDate);
 
@@ -194,10 +197,13 @@ public class UserManager {
       String username = user.getUsername();
       String fullname = user.getFullName();
       String localFullName = user.getLocalFullName();
+      String email = user.getEmail();
       boolean isAdmin = user.isAdmin();
       String adminFlag = (isAdmin ? "1" : "0");
       String groups = user.getGroupsInOneLine();
       String privileges = user.getPrivilegesInOneLine();
+      String info1 = user.getInfo1();
+      String info2 = user.getInfo2();
       String description = user.getDescription();
       int flags = user.getFlags();
       long createdDate = user.getCreatedDate();
@@ -206,9 +212,12 @@ public class UserManager {
       csvBuilder.append(username);
       csvBuilder.append(fullname);
       csvBuilder.append(localFullName);
+      csvBuilder.append(email);
       csvBuilder.append(adminFlag);
       csvBuilder.append(groups);
       csvBuilder.append(privileges);
+      csvBuilder.append(info1);
+      csvBuilder.append(info2);
       csvBuilder.append(description);
       csvBuilder.append(flags);
       csvBuilder.append(createdDate);
@@ -238,12 +247,18 @@ public class UserManager {
    *          Full name
    * @param localFullName
    *          Local full name
+   * @param email
+   *          Email address
    * @param adminFlag
    *          Administrator flag. 1=admin / 0=otherwise
    * @param groups
    *          Groups
    * @param privileges
    *          Privileges
+   * @param info1
+   *          info1
+   * @param info2
+   *          info2
    * @param description
    *          user description
    * @param userFlags
@@ -252,7 +267,7 @@ public class UserManager {
    * @throws Exception
    *           if an error occurres
    */
-  public User regieterNewUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String description, String userFlags) throws Exception {
+  public User regieterNewUser(String username, String pwHash, String fullname, String localFullName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String description, String userFlags) throws Exception {
     if (users.containsKey(username)) {
       throw new Exception("USER_ALREADY_EXISTS");
     }
@@ -269,7 +284,7 @@ public class UserManager {
     long createdDate = now;
     long updatedDate = now;
 
-    User user = new User(username, fullname, localFullName, isAdmin, groups, privileges, description, flags, createdDate, updatedDate);
+    User user = new User(username, fullname, localFullName, email, isAdmin, groups, privileges, info1, info2, description, flags, createdDate, updatedDate);
     if (StrUtil.isEmpty(userFlags)) {
       user.setFlag(User.FLAG_NEED_PW_CHANGE);
     }
@@ -295,12 +310,18 @@ public class UserManager {
    *          Full name
    * @param localFullName
    *          Local full name
+   * @param email
+   *          Email address
    * @param adminFlag
    *          Administrator flag. 1=admin / 0=otherwise
    * @param groups
    *          Groups
    * @param privileges
    *          Privileges
+   * @param info1
+   *          info1
+   * @param info2
+   *          info2
    * @param description
    *          user description
    * @param userFlags
@@ -309,7 +330,7 @@ public class UserManager {
    * @throws Exception
    *           if an error occurres
    */
-  public User updateUser(String username, String pwHash, String fullname, String localFullName, String adminFlag, String groups, String privileges, String description, String userFlags) throws Exception {
+  public User updateUser(String username, String pwHash, String fullname, String localFullName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String description, String userFlags) throws Exception {
     User user = users.get(username);
     if (user == null) {
       throw new Exception("USER_NOT_FOUND");
@@ -333,6 +354,11 @@ public class UserManager {
       updated = true;
     }
 
+    if (email != null) {
+      user.setEmail(email);
+      updated = true;
+    }
+
     if (groups != null) {
       user.setGroups(groups);
       updated = true;
@@ -340,6 +366,16 @@ public class UserManager {
 
     if (privileges != null) {
       user.setPrivileges(privileges);
+      updated = true;
+    }
+
+    if (info1 != null) {
+      user.setInfo1(info1);
+      updated = true;
+    }
+
+    if (info2 != null) {
+      user.setInfo2(info2);
       updated = true;
     }
 

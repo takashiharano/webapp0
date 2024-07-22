@@ -27,7 +27,7 @@ public class ChangePasswordAction extends Action {
     String status = "OK";
     try {
       UserManager userManager = context.getUserManager();
-      userManager.updateUser(username, pwHash, null, null, null, null, null, null, null);
+      userManager.updateUser(username, pwHash, null, null, null, null, null, null, null, null, null, null);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("Change password error: " + status);

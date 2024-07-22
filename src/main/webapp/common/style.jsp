@@ -82,6 +82,18 @@ td,th {
   padding: 2px 4px;
 }
 
+.row-odd {
+  background: #fff;
+}
+
+.row-even {
+  background: #f4fdff;
+}
+
+tr.item-list:hover {
+  background: #ecfaff;
+}
+
 .link-button {
   color: #00a;
 }

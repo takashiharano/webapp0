@@ -22,9 +22,12 @@ app.appmgr.USER_LIST_COLUMNS = [
   {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
   {key: 'fullname', label: 'Full Name', style: 'min-width:10em;'},
   {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
+  {key: 'email', label: 'Email', style: 'min-width:10em;'},
   {key: 'is_admin', label: 'Admin'},
   {key: 'groups', label: 'Groups', style: 'min-width:15em;'},
   {key: 'privileges', label: 'Privileges', style: 'min-width:15em;'},
+  {key: 'info1', label: 'Info1', style: 'min-width:5em;'},
+  {key: 'info2', label: 'Info2', style: 'min-width:5em;'},
   {key: 'description', label: 'Description', style: 'min-width:15em;'},
   {key: 'flags', label: 'Flags'},
   {key: 'status_info.login_failed.count', label: 'Fail', sort: false},
@@ -98,7 +101,7 @@ app.appmgr.getUserInfoListCb = function(xhr, res) {
   }
   app.appmgr.userList = userList;
   var listStatus = app.appmgr.listStatus;
-  app.appmgr.drawList(userList, listStatus.sortIdx, listStatus.sortOrder);
+  app.appmgr.drawUserList(userList, listStatus.sortIdx, listStatus.sortOrder);
 };
 
 app.appmgr.elapsedSinceLastAccess = function(now, t) {
@@ -156,15 +159,15 @@ app.appmgr.buildListHeader = function(columns, sortIdx, sortOrder) {
   return html;
 };
 
-app.appmgr.drawList = function(items, sortIdx, sortOrder) {
+app.appmgr.drawUserList = function(items, sortIdx, sortOrder) {
   var now = util.now();
   var currentUsername = app.getUsername();
 
   if (sortIdx >= 0) {
     if (sortOrder > 0) {
       var srtDef = app.appmgr.USER_LIST_COLUMNS[sortIdx];
-      var desc = (sortOrder == 2);
-      items = app.appmgr.sortList(items, srtDef.key, desc, srtDef.meta);
+      var isDesc = (sortOrder == 2);
+      items = app.appmgr.sortList(items, srtDef.key, isDesc);
     }
   }
 
@@ -174,6 +177,7 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     var username = item.username;
     var fullname = item.fullname.replace(/ /g, '&nbsp');
     var localfullname = item.localfullname.replace(/ /g, '&nbsp');
+    var email = item.email;
     var statusInfo = item.status_info;
     var loginFailedCount = statusInfo.login_failed_count;
     var loginFailedTime = util.getDateTimeString(statusInfo.login_failed_time);
@@ -184,6 +188,8 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
     var createdDate = app.appmgr.getDateTimeString(item.created_date, app.appmgr.INSEC);
     var updatedDate = app.appmgr.getDateTimeString(item.updated_date, app.appmgr.INSEC);
     var pwChangedDate = app.appmgr.getDateTimeString(statusInfo.pw_changed_at, app.appmgr.INSEC);
+    var info1 = item.info1;
+    var info2 = item.info2;
     var desc = (item.description ? item.description : '');
     var escDesc = util.escHtml(desc);
     var dispDesc = '<span style="display:inline-block;width:100%;overflow:hidden;text-overflow:ellipsis;"';
@@ -196,15 +202,25 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
 
     var cInd = ((username == currentUsername) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip2="You">*</span>' : '<span style="margin-right:2px;">&nbsp;</span>');
     var dispUid = cInd + '<span class="pseudo-link link-button" style="text-align:center;" onclick="app.appmgr.editUser(\'' + username + '\');" data-tooltip2="Edit">' + username + '</span>';
+    var dispFullname = app.appmgr.buildCopyableLabel(fullname);
+    var dispLocalFullname = app.appmgr.buildCopyableLabel(localfullname);
+    var dispEmail = app.appmgr.buildCopyableLabel(email);
+    var dispInfo1 = app.appmgr.buildCopyableLabel(info1);
+    var dispInfo2 = app.appmgr.buildCopyableLabel(info2);
 
-    htmlList += '<tr class="item-list">';
+    var clz = ((i % 2 == 0) ? 'row-odd' : 'row-even');
+
+    htmlList += '<tr class="item-list ' + clz + '">';
     htmlList += '<td class="item-list" style="text-align:center;">' + led + '</td>';
     htmlList += '<td class="item-list" style="padding-right:10px;">' + dispUid + '</td>';
-    htmlList += '<td class="item-list">' + fullname + '</td>';
-    htmlList += '<td class="item-list">' + localfullname + '</td>';
+    htmlList += '<td class="item-list">' + dispFullname + '</td>';
+    htmlList += '<td class="item-list">' + dispLocalFullname + '</td>';
+    htmlList += '<td class="item-list">' + dispEmail + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + (item.is_admin ? 'Y' : '') + '</td>';
     htmlList += '<td class="item-list">' + item.groups + '</td>';
     htmlList += '<td class="item-list">' + item.privileges + '</td>';
+    htmlList += '<td class="item-list">' + dispInfo1 + '</td>';
+    htmlList += '<td class="item-list">' + dispInfo2 + '</td>';
     htmlList += '<td class="item-list" style="max-width:20em">' + dispDesc + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + item.flags + '</td>';
 
@@ -231,13 +247,17 @@ app.appmgr.drawList = function(items, sortIdx, sortOrder) {
   }
 
   var htmlHead = app.appmgr.buildListHeader(app.appmgr.USER_LIST_COLUMNS, sortIdx, sortOrder);
-  var html = '<div style="width:100%;max-height:400px;overflow:auto;">';
-  html += '<table>';
-  html += htmlHead + htmlList; 
-  html += '</table>';
-  html += '</div>';
+  var html = '<table>' + htmlHead + htmlList + '</table>';
 
-  app.appmgr.drawListContent(html);
+  app.appmgr.drawUserListContent(html);
+};
+
+app.appmgr.buildCopyableLabel = function(s) {
+  if (!s) s = '';
+  var v = s.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '&quot;');
+  var label = s.replace(/ /g, '&nbsp;');
+  var r = '<span class="pseudo-link" onclick="app.appmgr.copy(\'' + v + '\');" data-tooltip2="Click to copy">' + label + '</span>';
+  return r;
 };
 
 app.appmgr.buildLedHtml = function(now, ts, inSec, active) {
@@ -490,7 +510,7 @@ app.appmgr.getTimeSlot = function(h, hh, mm) {
   return -1;
 };
 
-app.appmgr.drawListContent = function(html) {
+app.appmgr.drawUserListContent = function(html) {
   $el('#user-list').innerHTML = html;
 };
 
@@ -500,7 +520,7 @@ app.appmgr.sortItemList = function(sortIdx, sortOrder) {
   }
   app.appmgr.listStatus.sortIdx = sortIdx;
   app.appmgr.listStatus.sortOrder = sortOrder;
-  app.appmgr.drawList(app.appmgr.userList, sortIdx, sortOrder);
+  app.appmgr.drawUserList(app.appmgr.userList, sortIdx, sortOrder);
 };
 
 app.appmgr.confirmLogoutSession = function(username, sid) {
@@ -561,7 +581,7 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
   if (username && (username != currentUsername)) {
     html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="app.appmgr.deleteUser(\'' + username + '\');">DEL</button></div>';
   }
-  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:350px;text-align:left;">';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:400px;height:360px;text-align:left;">';
 
   html += '<table class="edit-table">';
   html += '  <tr>';
@@ -577,6 +597,10 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
   html += '    <td><input type="text" id="localfullname" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
+  html += '    <td>Email</td>';
+  html += '    <td><input type="text" id="email" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '  <tr>';
   html += '    <td>isAdmin</td>';
   html += '    <td><input type="checkbox" id="isadmin">';
   html += '    </td>';
@@ -588,6 +612,14 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
   html += '  <tr>';
   html += '    <td>Privileges</td>';
   html += '    <td><input type="text" id="privileges" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '  <tr>';
+  html += '    <td>Info1</td>';
+  html += '    <td><input type="text" id="info1" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '  <tr>';
+  html += '    <td>Info2</td>';
+  html += '    <td><input type="text" id="info2" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Description</td>';
@@ -626,10 +658,10 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
     resizable: true,
     pos: 'c',
     closeButton: true,
-    width: 480,
-    height: 450,
-    minWidth: 480,
-    minHeight: 360,
+    width: 500,
+    height: 460,
+    minWidth: 500,
+    minHeight: 460,
     scale: 1,
     hidden: false,
     modal: false,
@@ -699,9 +731,12 @@ app.appmgr.setUserInfoToEditor = function(info) {
   }
   $el('#fullname').value = info.fullname;
   $el('#localfullname').value = info.localfullname;
+  $el('#email').value = info.email;
   $el('#isadmin').checked = info.is_admin;
   $el('#groups').value = info.groups;
   $el('#privileges').value = info.privileges;
+  $el('#info1').value = info.info1;
+  $el('#info2').value = info.info2;
   $el('#description').value = info.description;
   $el('#flags').value = info.flags;
 };
@@ -711,9 +746,12 @@ app.appmgr.clearUserInfoEditor = function() {
     username: '',
     fullname: '',
     localfullname: '',
+    email: '',
     is_admin: false,
     groups: '',
     privileges: '',
+    info1: '',
+    info2: '',
     description: '',
     flags: ''
   };
@@ -733,9 +771,12 @@ app.appmgr.addUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
   var localfullname = $el('#localfullname').value;
+  var email = $el('#email').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var groups = $el('#groups').value;
   var privileges = $el('#privileges').value;
+  var info1 = $el('#info1').value;
+  var info2 = $el('#info2').value;
   var description = $el('#description').value;
   var flags = $el('#flags').value.trim();
   var pw1 = $el('#pw1').value;
@@ -787,9 +828,12 @@ app.appmgr.addUser = function() {
     username: username,
     fullname: fullname,
     localfullname: localfullname,
+    email: email,
     is_admin: isAdmin,
     groups: groups,
     privileges: privileges,
+    info1: info1,
+    info2: info2,
     description: description,
     flags: flags,
   };
@@ -815,9 +859,12 @@ app.appmgr.updateUser = function() {
   var username = $el('#username').value;
   var fullname = $el('#fullname').value;
   var localfullname = $el('#localfullname').value;
+  var email = $el('#email').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var groups = $el('#groups').value;
   var privileges = $el('#privileges').value;
+  var info1 = $el('#info1').value;
+  var info2 = $el('#info2').value;
   var description = $el('#description').value;
   var flags = $el('#flags').value;
   var pw1 = $el('#pw1').value;
@@ -834,9 +881,12 @@ app.appmgr.updateUser = function() {
     username: username,
     fullname: fullname,
     localfullname: localfullname,
+    email: email,
     is_admin: isAdmin,
     groups: groups,
     privileges: privileges,
+    info1: info1,
+    info2: info2,
     description : description,
     flags: flags,
   };
@@ -1054,7 +1104,9 @@ app.appmgr.drawGroupList = function(list) {
     var createdDate = app.appmgr.getDateTimeString(group.created_date, app.appmgr.INSEC);
     var updatedDate = app.appmgr.getDateTimeString(group.updated_date, app.appmgr.INSEC);
 
-    html += '<tr class="item-list">';
+    var clz = ((i % 2 == 0) ? 'row-odd' : 'row-even');
+
+    html += '<tr class="item-list ' + clz + '">';
     html += '<td class="item-list"><span class="pseudo-link link-button" onclick="app.appmgr.editGroup(\'' + gid + '\');" data-tooltip2="Edit">' + gid + '</span></td>';
     html += '<td class="item-list">' + name + '</td>';
     html += '<td class="item-list">' + privs + '</td>';
@@ -1326,6 +1378,20 @@ app.appmgr.resetCb = function(xhr, res) {
 
 app.appmgr.crearMessage = function() {
   $el('#message').fadeOut();
+};
+
+app.appmgr.copy = function(s) {
+  util.copy(s);
+  var o = {pos: 'pointer'};
+  app.appmgr.showInfotip('Copied', 1000, o);
+};
+
+app.appmgr.showInfotip = function(m, d, o) {
+  if (!o) o = {};
+  o.style = {
+    'font-size': '14px'
+  };
+  util.infotip.show(m, d, o);
 };
 
 //-----------------------------------------------------------------------------

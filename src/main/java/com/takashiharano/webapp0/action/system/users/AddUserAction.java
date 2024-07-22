@@ -18,9 +18,12 @@ public class AddUserAction extends Action {
     String pwHash = context.getRequestParameter("pw");
     String fullname = context.getRequestParameter("fullname");
     String localFullName = context.getRequestParameter("localfullname");
+    String email = context.getRequestParameter("email");
     String adminFlag = context.getRequestParameter("is_admin");
     String groups = context.getRequestParameter("groups");
     String privileges = context.getRequestParameter("privileges");
+    String info1 = context.getRequestParameter("info1");
+    String info2 = context.getRequestParameter("info2");
     String description = context.getRequestParameter("description");
     String userFlags = context.getRequestParameter("flags");
 
@@ -39,7 +42,7 @@ public class AddUserAction extends Action {
 
     String status = "OK";
     try {
-      userManager.regieterNewUser(username, pwHash, fullname, localFullName, adminFlag, groups, privileges, description, userFlags);
+      userManager.regieterNewUser(username, pwHash, fullname, localFullName, email, adminFlag, groups, privileges, info1, info2, description, userFlags);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User regieter error: " + status);
