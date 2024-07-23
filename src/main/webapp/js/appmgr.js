@@ -45,15 +45,16 @@ app.appmgr.listStatus = {
   sortOrder: 1
 };
 
+app.appmgr.currentSid = null;
 app.appmgr.userList = [];
 app.appmgr.sessions = null;
-app.appmgr.currentSid = null;
 app.appmgr.userEditWindow = null;
 app.appmgr.userEditMode = null;
 app.appmgr.groupEditWindow = null;
 app.appmgr.groupEditMode = null;
 app.appmgr.tmrId = 0;
 app.appmgr.interval = 0;
+app.appmgr.userListScrollTop = 0;
 
 $onReady = function() {
   app.appmgr.reload();
@@ -61,6 +62,7 @@ $onReady = function() {
 };
 
 app.appmgr.reload = function() {
+  app.appmgr.userListScrollTop = 0;
   app.appmgr.reloadUserInfo();
   app.appmgr.getGroupList();
 };
@@ -75,6 +77,7 @@ app.appmgr.queueNextUpdateSessionInfo = function() {
 };
 
 app.appmgr.updateSessionInfo = function() {
+  app.appmgr.userListScrollTop = $el('#user-list').scrollTop;
   app.appmgr.interval = 1;
   app.appmgr.reloadUserInfo();
 };
@@ -102,6 +105,7 @@ app.appmgr.getUserInfoListCb = function(xhr, res) {
   app.appmgr.userList = userList;
   var listStatus = app.appmgr.listStatus;
   app.appmgr.drawUserList(userList, listStatus.sortIdx, listStatus.sortOrder);
+  $el('#user-list').scrollTop = app.appmgr.userListScrollTop;
 };
 
 app.appmgr.elapsedSinceLastAccess = function(now, t) {
@@ -193,7 +197,7 @@ app.appmgr.drawUserList = function(items, sortIdx, sortOrder) {
     var desc = (item.description ? item.description : '');
     var escDesc = util.escHtml(desc);
     var dispDesc = '<span style="display:inline-block;width:100%;overflow:hidden;text-overflow:ellipsis;"';
-    if (util.lenW(desc) > 35) {
+    if (util.lenW(desc) > 15) {
       dispDesc += ' data-tooltip="' + escDesc + '"';
     }
     dispDesc += '>' + escDesc + '</span>';
@@ -221,7 +225,7 @@ app.appmgr.drawUserList = function(items, sortIdx, sortOrder) {
     htmlList += '<td class="item-list">' + item.privileges + '</td>';
     htmlList += '<td class="item-list">' + dispInfo1 + '</td>';
     htmlList += '<td class="item-list">' + dispInfo2 + '</td>';
-    htmlList += '<td class="item-list" style="max-width:20em">' + dispDesc + '</td>';
+    htmlList += '<td class="item-list" style="max-width:15em;">' + dispDesc + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + item.flags + '</td>';
 
     htmlList += '<td class="item-list" style="text-align:center;width:1.5em;">';
@@ -434,7 +438,8 @@ app.appmgr.buildSessionInfoOne = function(session, now, mn) {
   return html;
 };
 app.appmgr.startElapsedCounter = function(param) {
-  util.timecounter.start(param.timeId, param.laTime);
+  var o = {zero: true};
+  util.timecounter.start(param.timeId, param.laTime, o);
 };
 app.appmgr.buildTimeLine = function(now, lastAccessedTime) {
   var mn = util.getMidnightTimestamp(now);
@@ -581,7 +586,7 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
   if (username && (username != currentUsername)) {
     html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="app.appmgr.deleteUser(\'' + username + '\');">DEL</button></div>';
   }
-  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:400px;height:360px;text-align:left;">';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:400px;height:400px;text-align:left;">';
 
   html += '<table class="edit-table">';
   html += '  <tr>';
@@ -645,7 +650,7 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
   html += '  </tr>';
   html += '</table>';
 
-  html += '<div style="margin-top:24px;text-align:center;">';
+  html += '<div style="margin-top:40px;text-align:center;">';
   html += '<button onclick="app.appmgr.saveUserInfo();">OK</button>'
   html += '<button style="margin-left:8px;" onclick="app.appmgr.userEditWindow.close();">Cancel</button>'
   html += '</div>';
@@ -659,9 +664,9 @@ app.appmgr.openUserInfoEditorWindow = function(mode, username) {
     pos: 'c',
     closeButton: true,
     width: 500,
-    height: 460,
+    height: 540,
     minWidth: 500,
-    minHeight: 460,
+    minHeight: 540,
     scale: 1,
     hidden: false,
     modal: false,
@@ -823,6 +828,7 @@ app.appmgr.addUser = function() {
     return;
   }
   var pw = clnsRes.val;
+  pw = app.appmgr.getUserPwHash(username, pw);
 
   var params = {
     username: username,
@@ -836,11 +842,8 @@ app.appmgr.addUser = function() {
     info2: info2,
     description: description,
     flags: flags,
+    pw: pw
   };
-  if (pw) {
-    var salt = username;
-    params.pw = app.common.getHash('SHA-256', pw, salt);
-  }
 
   app.callServerApi('AddUser', params, app.appmgr.addUserCb);
 };
@@ -892,8 +895,7 @@ app.appmgr.updateUser = function() {
   };
 
   if (pw) {
-    var salt = username;
-    params.pw = app.common.getHash('SHA-256', pw, salt);
+    params.pw = app.appmgr.getUserPwHash(username, pw);
   }
 
   app.callServerApi('EditUser', params, app.appmgr.updateUserCb);
@@ -1392,6 +1394,10 @@ app.appmgr.showInfotip = function(m, d, o) {
     'font-size': '14px'
   };
   util.infotip.show(m, d, o);
+};
+
+app.appmgr.getUserPwHash = function(uid, pw) {
+  return app.common.getHash('SHA-256', pw, uid);
 };
 
 //-----------------------------------------------------------------------------
