@@ -42,7 +42,7 @@ public class GetSessionInfoListAction extends Action {
       String addr = info.getRemoteAddr();
       String ua = info.getUserAgent();
       long createdTime = info.getCreatedTime();
-      long lastAccessedTime = info.getLastAccessedTime();
+      long lastAccessTime = info.getLastAccessTime();
 
       User user = userManager.getUserInfo(username);
       String fullName = user.getFullName();
@@ -52,7 +52,7 @@ public class GetSessionInfoListAction extends Action {
       jb1.append("username", username);
       jb1.append("fullName", fullName);
       jb1.append("createdTime", createdTime);
-      jb1.append("lastAccessedTime", lastAccessedTime);
+      jb1.append("lastAccessTime", lastAccessTime);
       jb1.append("addr", addr);
       jb1.append("ua", ua);
 

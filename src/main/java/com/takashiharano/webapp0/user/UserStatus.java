@@ -12,7 +12,7 @@ import com.takashiharano.webapp0.session.SessionManager;
 public class UserStatus {
 
   private String username;
-  private long lastAccessed;
+  private long lastAccess;
   private long lastLogin;
   private long lastLogout;
   private long pwChangedTime;
@@ -23,9 +23,9 @@ public class UserStatus {
     this(username, 0L, 0L, 0, 0L);
   }
 
-  public UserStatus(String username, long lastAccessed, long pwChangedTime, int loginFailedCount, long loginFailedTime) {
+  public UserStatus(String username, long lastAccess, long pwChangedTime, int loginFailedCount, long loginFailedTime) {
     this.username = username;
-    this.lastAccessed = lastAccessed;
+    this.lastAccess = lastAccess;
     this.lastLogin = 0L;
     this.lastLogout = 0L;
     this.pwChangedTime = pwChangedTime;
@@ -33,12 +33,12 @@ public class UserStatus {
     this.loginFailedTime = loginFailedTime;
   }
 
-  public long getLastAccessed() {
-    return lastAccessed;
+  public long getLastAccess() {
+    return lastAccess;
   }
 
-  public void setLastAccessed(long lastAccessed) {
-    this.lastAccessed = lastAccessed;
+  public void setLastAccess(long lastAccess) {
+    this.lastAccess = lastAccess;
   }
 
   public long getLastLogin() {
@@ -99,7 +99,7 @@ public class UserStatus {
   public String toJSON() {
     int sessionCount = getSessionCount();
     JsonBuilder jb = new JsonBuilder();
-    jb.append("last_accessed", lastAccessed);
+    jb.append("last_access", lastAccess);
     jb.append("last_login", lastLogin);
     jb.append("last_logout", lastLogout);
     jb.append("pw_changed_at", pwChangedTime);

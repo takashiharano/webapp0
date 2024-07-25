@@ -63,7 +63,7 @@ public class UserManager {
   }
 
   /**
-   * Updates last accessed time in user status info.
+   * Updates last access time in user status info.
    *
    * @param context
    *          Process Context
@@ -79,7 +79,7 @@ public class UserManager {
     if (userStatus == null) {
       return;
     }
-    userStatus.setLastAccessed(timestamp);
+    userStatus.setLastAccess(timestamp);
   }
 
   /**
@@ -468,11 +468,11 @@ public class UserManager {
     UserStatus userStatus;
     try {
       Props props = new Props(path);
-      long lastAccessed = props.getValueAsLong("last_accessed");
+      long lastAccess = props.getValueAsLong("last_access");
       long pwChangedTime = props.getValueAsLong("pw_changed_at");
       int loginFailedCount = props.getValueAsInteger("login_failed_count");
       long loginFailedTime = props.getValueAsLong("login_failed_time");
-      userStatus = new UserStatus(username, lastAccessed, pwChangedTime, loginFailedCount, loginFailedTime);
+      userStatus = new UserStatus(username, lastAccess, pwChangedTime, loginFailedCount, loginFailedTime);
 
       long lastLogin = props.getValueAsLong("last_login");
       long lastLogout = props.getValueAsLong("last_logout");
@@ -506,7 +506,7 @@ public class UserManager {
   }
 
   public void saveUserStatus(String username, UserStatus userStatus) throws IOException {
-    long lastAccessed = userStatus.getLastAccessed();
+    long lastAccess = userStatus.getLastAccess();
     long lastLogin = userStatus.getLastLogin();
     long lastLogout = userStatus.getLastLogout();
     long pwChangedTime = userStatus.getPwChangedTime();
@@ -514,8 +514,8 @@ public class UserManager {
     long loginFailedTime = userStatus.getLoginFailedTime();
 
     StringBuilder sb = new StringBuilder();
-    sb.append("last_accessed=");
-    sb.append(lastAccessed);
+    sb.append("last_access=");
+    sb.append(lastAccess);
     sb.append("\n");
 
     sb.append("last_login=");

@@ -42,7 +42,7 @@ public class SessionManager {
   }
 
   /**
-   * Updates last accessed time.
+   * Updates last access time.
    *
    * @param context
    *          Process Context
@@ -62,7 +62,7 @@ public class SessionManager {
       return;
     }
 
-    sessionInfo.updateLastAccessedTime(timestamp);
+    sessionInfo.updateLastAccessTime(timestamp);
 
     String remoteAddr = context.getRemoteAddress(true);
     sessionInfo.setRemoteAddr(remoteAddr);
@@ -115,7 +115,7 @@ public class SessionManager {
       SessionInfo info = sessionMap.get(sessionId);
       String user = info.getUsername();
       if (user.equals(username)) {
-        long time = info.getLastAccessedTime();
+        long time = info.getLastAccessTime();
         timeList.add(time);
         count++;
       }
@@ -132,7 +132,7 @@ public class SessionManager {
       SessionInfo info = sessionMap.get(sessionId);
       String user = info.getUsername();
       if (user.equals(username)) {
-        long time = info.getLastAccessedTime();
+        long time = info.getLastAccessTime();
         if (!inListSizeRange(timeList, n, time)) {
           Log.i("Logout: EXCEED_MAX user=" + username + " sid=" + info.getShortSessionId());
           removeSessionInfo(sessionId);
@@ -286,14 +286,14 @@ public class SessionManager {
     String sessionId = fields[0];
     String username = fields[1];
     String sCreatedTime = fields[2];
-    String sLastAccessedTime = fields[3];
+    String sLastAccessTime = fields[3];
     String remoteAddr = fields[4];
     String remoteHost = fields[5];
     String userAgent = fields[6];
     long createdTime = Long.parseLong(sCreatedTime);
-    long lastAccessedTime = Long.parseLong(sLastAccessedTime);
+    long lastAccessTime = Long.parseLong(sLastAccessTime);
 
-    SessionInfo info = new SessionInfo(sessionId, username, createdTime, lastAccessedTime, remoteAddr, remoteHost, userAgent);
+    SessionInfo info = new SessionInfo(sessionId, username, createdTime, lastAccessTime, remoteAddr, remoteHost, userAgent);
     registerSessionInfo(info);
   }
 
@@ -312,12 +312,12 @@ public class SessionManager {
       SessionInfo info = sessionMap.get(sessionId);
       String username = info.getUsername();
       long createdTime = info.getCreatedTime();
-      long lastAccessedTime = info.getLastAccessedTime();
+      long lastAccessTime = info.getLastAccessTime();
       String remoteAddr = info.getRemoteAddr();
       String remoteHost = info.getRemoteHost();
       String userAgent = info.getUserAgent();
 
-      // sessionId,username,accessToken,createdTime,lastAccessedTime,lastAccessedRemoteAddr,host,ua
+      // sessionId,username,accessToken,createdTime,lastAccessTime,lastAccessRemoteAddr,host,ua
       StringBuilder record = new StringBuilder();
       record.append(sessionId);
       record.append("\t");
@@ -325,7 +325,7 @@ public class SessionManager {
       record.append("\t");
       record.append(createdTime);
       record.append("\t");
-      record.append(lastAccessedTime);
+      record.append(lastAccessTime);
       record.append("\t");
       record.append(remoteAddr);
       record.append("\t");
@@ -393,9 +393,9 @@ public class SessionManager {
 
     long now = System.currentTimeMillis();
     long createdTime = now;
-    long lastAccessedTime = now;
+    long lastAccessTime = now;
 
-    SessionInfo sessionInfo = new SessionInfo(sessionId, username, createdTime, lastAccessedTime, remoteAddr, remoteHost, userAgent);
+    SessionInfo sessionInfo = new SessionInfo(sessionId, username, createdTime, lastAccessTime, remoteAddr, remoteHost, userAgent);
 
     // Set session expiration
     int sessionTimeoutSec = getSessionTimeout();
@@ -429,8 +429,8 @@ public class SessionManager {
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
       String sessionId = entry.getKey();
       SessionInfo sessionInfo = sessionMap.get(sessionId);
-      long lastAccessedTime = sessionInfo.getLastAccessedTime();
-      long elapsed = now - lastAccessedTime;
+      long lastAccessTime = sessionInfo.getLastAccessTime();
+      long elapsed = now - lastAccessTime;
       if (elapsed > timeoutMillis) {
         String username = sessionInfo.getUsername();
         Log.i("Logout: EXPIRED user=" + username + " sid=" + sessionInfo.getShortSessionId());
