@@ -36,7 +36,24 @@ table.edit-table {
 }
 
 .timeline-span {
-  opacity: 0.6;
+  color: #555;
+  cursor: default;
+}
+
+.timeline-forward {
+  color: #ccc;
+}
+
+.timeline-acc-ind {
+  color: #32cd32;
+}
+
+.timeline-acc-ind-past {
+  color: #d66;
+}
+
+.timeline-acc-ind-time {
+  color: #777;
 }
 
 #contents {
