@@ -12,9 +12,9 @@ scnjs.dialogTitleFgColor = '#fff';
 scnjs.dialogTitleBgColor = 'linear-gradient(150deg, rgba(0,32,255,0.8),rgba(0,82,255,0.8))';
 
 scnjs.LED_COLORS = [
-  {t: 10 * util.MINUTE, color: '#4dd965'},
-  {t: 3 * util.HOUR, color: '#ffba00'},
-  {t: 0, color: '#f44d41'},
+  {t: 10 * util.MINUTE, color: 'led-color-green'},
+  {t: 3 * util.HOUR, color: 'led-color-yellow'},
+  {t: 0, color: 'led-color-red'},
 ];
 
 scnjs.INTERVAL = 60000;
@@ -270,7 +270,7 @@ scnjs.buildLedHtml = function(now, ts, inSec, active) {
   var tMs = ts;
   if (inSec) tMs = Math.floor(tMs * 1000);
   var elapsed = now - tMs;
-  var ledColor = '#888';
+  var ledColor = 'led-color-gray';
   if (active) {
     for (var i = 0; i < COLORS.length; i++) {
       var c = COLORS[i];
@@ -281,7 +281,7 @@ scnjs.buildLedHtml = function(now, ts, inSec, active) {
     }
   }
   var dt = scnjs.getDateTimeString(tMs);
-  var html = '<span class="led" style="color:' + ledColor + ';" data-tooltip="Last access: ' + dt + '"></span>';
+  var html = '<span class="led ' + ledColor + '" data-tooltip="Last access: ' + dt + '"></span>';
   return html;
 };
 
@@ -575,11 +575,11 @@ scnjs.confirmLogoutSession = function(username, sid) {
   var currentUsername = app.getUsername();
   var m = 'Logout?\n\n';
   if (sid == cSid) {
-    m += '<span style="color:#f66;font-weight:bold;">[CURRENT SESSION]</span>\n';
+    m += '<span class="warn-red" style="font-weight:bold;">[CURRENT SESSION]</span>\n';
   }
   m += '<div style="text-align:left;">';
   m += username;
-  if (username == currentUsername) m += ' <span style="color:#26c;">(You)</span>';
+  if (username == currentUsername) m += ' <span class="you">(You)</span>';
   m += '\n';
   m += 'sid: ' + sid;
   m += '</div>';

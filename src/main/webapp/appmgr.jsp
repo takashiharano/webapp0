@@ -35,6 +35,30 @@ table.edit-table {
   background: transparent;
 }
 
+.led-color-green {
+  color: #4dd965;
+}
+
+.led-color-yellow {
+  color: #ffba00;
+}
+
+.led-color-red {
+  color: #f44d41;
+}
+
+.led-color-gray {
+  color: #888;
+}
+
+.warn-red {
+  color: #f66;
+}
+
+.you {
+  color: #26c;
+}
+
 .timeline-span {
   color: #555;
   cursor: default;
