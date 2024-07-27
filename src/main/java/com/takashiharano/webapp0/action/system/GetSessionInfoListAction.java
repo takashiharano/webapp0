@@ -5,9 +5,12 @@
  */
 package com.takashiharano.webapp0.action.system;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.libutil.DateTime;
 import com.libutil.JsonBuilder;
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.action.Action;
@@ -34,6 +37,9 @@ public class GetSessionInfoListAction extends Action {
     JsonBuilder jb = new JsonBuilder();
     jb.append("currentSid", currentSid);
 
+    boolean includeLogs = context.getRequestParameterAsBoolean("logs", "1");
+    long now = System.currentTimeMillis();
+
     jb.openList("sessions");
     for (Entry<String, SessionInfo> entry : sessions.entrySet()) {
       SessionInfo info = entry.getValue();
@@ -56,12 +62,55 @@ public class GetSessionInfoListAction extends Action {
       jb1.append("addr", addr);
       jb1.append("ua", ua);
 
+      if (includeLogs) {
+        int targetOffset = 0;
+        List<Long> tmLogs = getTimelineLogs(context, username, sid, now, targetOffset);
+        jb1.openList("timeline_log");
+        for (int i = 0; i < tmLogs.size(); i++) {
+          long time = tmLogs.get(i);
+          jb1.appendListElement(time);
+        }
+        jb1.closeList();
+      }
+
       jb.appendListElementAsObject(jb1.toString());
     }
     jb.closeList();
 
     String json = jb.toString();
     context.sendJsonResponse(status, json);
+  }
+
+  private List<Long> getTimelineLogs(ProcessContext context, String username, String sid, long now, int targetOffset) {
+    long DAY_MILLIS = 86400000;
+    long tm = now - DAY_MILLIS * targetOffset;
+    long mnTimestamp = DateTime.getMidnightTimestamp(tm);
+    long targetFrom = mnTimestamp;
+    long targetTo = mnTimestamp + DAY_MILLIS;
+
+    SessionManager sessionManager = context.getSessionManager();
+
+    String[] logs = sessionManager.getUserTimelineLog(username);
+    List<Long> tmLogs = new ArrayList<>();
+    for (int i = 0; i < logs.length; i++) {
+      String line = logs[i];
+      String[] wk = line.split("\t");
+      long logTime;
+      String logSid;
+      try {
+        logTime = Long.parseLong(wk[0]);
+        logSid = wk[1];
+      } catch (Exception e) {
+        logTime = 0;
+        logSid = "";
+      }
+
+      if ((logSid.equals(sid)) && (targetFrom <= logTime) && (logTime < targetTo)) {
+        tmLogs.add(logTime);
+      }
+    }
+
+    return tmLogs;
   }
 
 }

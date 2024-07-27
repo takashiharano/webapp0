@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import com.libutil.FileUtil;
 import com.libutil.HashUtil;
 import com.libutil.RandomGenerator;
+import com.libutil.RingBuffer;
 import com.libutil.StrUtil;
 import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
@@ -32,6 +33,8 @@ public class SessionManager {
 
   public static final String SESSION_COOKIE_NAME = AppManager.MODULE_NAME + "_sid";
   private static final int DEFAULT_MAX_SESSIONS_PER_USER = 10;
+
+  private static final String TIMELINE_LOG_FILE_NAME = "timeline.log";
 
   private String sessionInfoFilePath;
   private ConcurrentHashMap<String, SessionInfo> sessionMap;
@@ -69,6 +72,13 @@ public class SessionManager {
 
     String ua = context.getUserAgent();
     sessionInfo.setUserAgent(ua);
+
+    String username = context.getUsername();
+    try {
+      saveTimelineLog(username, sessinId, timestamp);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -517,6 +527,93 @@ public class SessionManager {
 
   private String getShortSessionId(String sessionId) {
     return StrUtil.snip(sessionId, 7, 3);
+  }
+
+  /**
+   * Returns user timeline log.
+   *
+   * @param username
+   *          target username
+   * @return Log text array
+   */
+  public String[] getUserTimelineLog(String username) {
+    return loadTimelineLog(username);
+  }
+
+  private String getTimelineLogFilePath(String username) {
+    String userDataPath = UserManager.getUserDataPath(username);
+    String path = FileUtil.joinPath(userDataPath, TIMELINE_LOG_FILE_NAME);
+    return path;
+  }
+
+  /**
+   * Load user timeline log from a storage.
+   *
+   * @param username
+   *          target username
+   * @return Log text array
+   */
+  public String[] loadTimelineLog(String username) {
+    String path = getTimelineLogFilePath(username);
+    String[] logs = FileUtil.readTextAsArray(path);
+    if (logs == null) {
+      logs = new String[0];
+    }
+    return logs;
+  }
+
+  public void saveTimelineLog(String username, String sid, long timestamp) throws IOException {
+    int TIME_SLOT_MIN = 15;
+    int MAX_LOG_LINES = 1000;
+    String[] logLines = loadTimelineLog(username);
+
+    RingBuffer<String> logs = new RingBuffer<>(MAX_LOG_LINES);
+    for (int i = 0; i < logLines.length; i++) {
+      String line = logLines[i];
+      logs.add(line);
+    }
+
+    long timeSlotMillis = TIME_SLOT_MIN * 60000;
+    long currentTimeSlotSec = (timestamp / timeSlotMillis) * timeSlotMillis;
+
+    List<String> logList = logs.getAll();
+
+    for (int i = logList.size() - 1; i >= 0; i--) {
+      String line = logList.get(i);
+      String[] wk = line.split("\t");
+      long logTime;
+      String logSid;
+      try {
+        logTime = Long.parseLong(wk[0]);
+        logSid = wk[1];
+      } catch (Exception e) {
+        logTime = 0;
+        logSid = "";
+      }
+
+      if (logSid.equals(sid)) {
+        long elapsedFromLatest = timestamp - logTime;
+        if (elapsedFromLatest <= timeSlotMillis) {
+          return;
+        }
+      }
+    }
+
+    String newLog = currentTimeSlotSec + "\t" + sid;
+    logs.add(newLog);
+
+    String path = getTimelineLogFilePath(username);
+
+    logList = logs.getAll();
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < logList.size(); i++) {
+      String line = logList.get(i);
+      sb.append(line);
+      sb.append("\n");
+    }
+
+    String text = sb.toString();
+    FileUtil.write(path, text);
   }
 
 }

@@ -46,6 +46,12 @@ public class UserManager {
     return instance;
   }
 
+  public static String getUserDataPath(String username) {
+    String rootPath = getUserDataRootPath();
+    String path = FileUtil.joinPath(rootPath, username);
+    return path;
+  }
+
   public void init() {
     loadUsers();
   }
@@ -609,21 +615,15 @@ public class UserManager {
     setLoginFailedCount(username, true);
   }
 
-  private String getDataPath() {
+  private static String getDataPath() {
     AppManager appManager = AppManager.getInstance();
     String workspacePath = appManager.getAppWorkspacePath();
     return workspacePath;
   }
 
-  private String getUserDataRootPath() {
+  private static String getUserDataRootPath() {
     String dataPath = getDataPath();
     String path = FileUtil.joinPath(dataPath, USER_DATA_ROOT_DIR);
-    return path;
-  }
-
-  private String getUserDataPath(String username) {
-    String rootPath = getUserDataRootPath();
-    String path = FileUtil.joinPath(rootPath, username);
     return path;
   }
 

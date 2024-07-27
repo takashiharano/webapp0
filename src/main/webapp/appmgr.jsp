@@ -73,6 +73,10 @@ table.edit-table {
 }
 
 .timeline-acc-ind-past {
+  opacity: 0.6;
+}
+
+.timeline-acc-ind-out {
   color: #d66;
 }
 

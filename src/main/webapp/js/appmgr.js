@@ -297,7 +297,8 @@ scnjs.getSessionList = function() {
     scnjs.tmrId = 0;
     scnjs.interval = 1;
   }
-  app.callServerApi('GetSessionInfoList', null, scnjs.getSessionListCb);
+  var param = {logs: '1'};
+  app.callServerApi('GetSessionInfoList', param, scnjs.getSessionListCb);
 };
 scnjs.getSessionListCb = function(xhr, res, req) {
   if (res.status == 'FORBIDDEN') {
@@ -412,8 +413,10 @@ scnjs.buildSessionInfoOne = function(session, now, mn) {
   var ssidLink = '<span class="pseudo-link link-button" onclick="scnjs.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
   var dispSid = ((sid == cSid) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip2="Current Session">*</span>' : '<span style="cursor:default;margin-right:2px;">&nbsp;</span>') + ssidLink;
   var timeId = 'tm-' + sid7;
-  var tmspan = '<span id="' + timeId + '"></span>'
-  var timeline = scnjs.buildTimeLine(now, laTime);
+  var tmspan = '<span id="' + timeId + '"></span>';
+
+  var slotTimestampHistories = session['timeline_log'];
+  var timeline = scnjs.buildTimeLine(now, laTime, slotTimestampHistories);
 
   var html = '';
   html += '<tr class="item-list">';
@@ -437,7 +440,7 @@ scnjs.startElapsedCounter = function(param) {
   util.timecounter.start(param.timeId, param.laTime, o);
 };
 
-scnjs.buildTimeLine = function(now, lastAccessTime) {
+scnjs.buildTimeLine = function(now, lastAccessTime, slotTimestampHistories) {
   var accYearDateTime = util.getDateTimeString(lastAccessTime, '%YYYY-%MM-%DD %HH:%mm');
   var accDateTime = util.getDateTimeString(lastAccessTime, '%W %DD %MMM %HH:%mm');
   var accTime = util.getDateTimeString(lastAccessTime, '%HH:%mm');
@@ -449,8 +452,9 @@ scnjs.buildTimeLine = function(now, lastAccessTime) {
   var dispAccTime = ' ' + accTime + ' ';
   var remains = ttlPs - (accTp + dispAccTime.length);
 
-  var html = '<span class="timeline-span">';
+  var tsPosList = scnjs.getPosList4History(now, slotTimestampHistories);
 
+  var html = '<span class="timeline-span">';
   var s;
   var f = false;
   for (var i = 0; i <= ttlPs; i++) {
@@ -460,7 +464,7 @@ scnjs.buildTimeLine = function(now, lastAccessTime) {
     }
 
     if ((i == 0) && (accTp == -1)) {
-      s = '<span class="timeline-acc-ind-past" data-tooltip="' + accYearDateTime + '">&lt;</span>';
+      s = '<span class="timeline-acc-ind-out" data-tooltip="' + accYearDateTime + '">&lt;</span>';
       s += '<span class="timeline-acc-ind-time">' + dispAccDateTime + '</san>';
       html += s;
       i += dispAccDateTime.length;
@@ -476,7 +480,11 @@ scnjs.buildTimeLine = function(now, lastAccessTime) {
       s += '<span class="timeline-acc-ind-time">' + dispAccTime + '</span>';
       i += dispAccTime.length;
     } else {
-      s += '-';
+      if (tsPosList.includes(i)) {
+        s += '<span class="timeline-acc-ind timeline-acc-ind-past">*</span>';
+      } else {
+        s += '-';
+      }
     }
     html += s;
   }
@@ -484,6 +492,19 @@ scnjs.buildTimeLine = function(now, lastAccessTime) {
   if (f) html += '</span>';
   html += '</span>';
   return html;
+};
+
+scnjs.getPosList4History = function(now, slotTimestampHistories) {
+  var posList = [];
+  for (var i = 0; i < slotTimestampHistories.length; i++) {
+    var t = slotTimestampHistories[i];
+    if (scnjs.INSEC) t *= 1000;
+    var p = scnjs.getTimePosition(now, t);
+    if (p >= 0) {
+      posList.push(p);
+    }
+  }
+  return posList;
 };
 
 scnjs.getTimePosition = function(now, timestamp) {
