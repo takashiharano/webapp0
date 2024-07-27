@@ -109,7 +109,7 @@ var appconfig = {
 <div id="user-list" style="width:100%;max-height:400px;overflow:auto;"></div>
 
 <pre style="margin-top:20px;">Sessions
-<div id="session-list"></div></pre>
+<div id="session-list" style="width:100%;max-height:250px;overflow:auto;"></div></pre>
 
 <div style="display:inline-block;margin-top:20px;margin-bottom:40px;">
 <div style="margin-bottom:4px;">
@@ -118,7 +118,7 @@ var appconfig = {
 <button onclick="app.appmgr.getGroupList();">RELOAD</button>
 <span id="groups-status" style="margin-left:8px;"></span><br>
 </div>
-<div id="group-list"></div>
+<div id="group-list" style="width:100%;max-height:300px;overflow:auto;"></div>
 </div>
 
 <div style="margin-bottom:4px;">
