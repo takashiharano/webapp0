@@ -447,14 +447,7 @@ scnjs.buildTimeLine = function(now, lastAccessTime) {
   var ttlPs = hrBlk * 24;
   var dispAccDateTime = ' ' + accDateTime + ' ';
   var dispAccTime = ' ' + accTime + ' ';
-  var tmPos = 0;
   var remains = ttlPs - (accTp + dispAccTime.length);
-
-  if (remains == 0) {
-    dispAccTime = ' ' + accTime;
-  } else if (remains < 0) {
-    tmPos = accTp - dispAccTime.length;
-  }
 
   var html = '<span class="timeline-span">';
 
@@ -472,10 +465,6 @@ scnjs.buildTimeLine = function(now, lastAccessTime) {
       html += s;
       i += dispAccDateTime.length;
       continue;
-    } else if ((tmPos > 0) && (i == tmPos)) {
-      html += '<span class="timeline-acc-ind-time">' + dispAccTime + '</span>';
-      i += (dispAccTime.length - 1);
-      continue;
     } else if (i % hrBlk == 0) {
       html += '|';
       continue;
@@ -484,10 +473,8 @@ scnjs.buildTimeLine = function(now, lastAccessTime) {
     s = '';
     if (i == accTp) {
       s += '<span class="timeline-acc-ind" data-tooltip="' + accTime + '">*</span>';
-      if (tmPos == 0) {
-        s += '<span class="timeline-acc-ind-time">' + dispAccTime + '</span>';
-        i += dispAccTime.length;
-      }
+      s += '<span class="timeline-acc-ind-time">' + dispAccTime + '</span>';
+      i += dispAccTime.length;
     } else {
       s += '-';
     }
