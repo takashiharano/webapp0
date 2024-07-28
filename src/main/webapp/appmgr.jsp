@@ -84,6 +84,10 @@ table.edit-table {
   color: #777;
 }
 
+.search-highlight {
+  background: rgba(200,200,200,0.5) !important;
+}
+
 #contents {
   font-size: 12px;
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;
@@ -108,7 +112,8 @@ var appconfig = {
 <div style="margin-bottom:4px;">
 <b>Users</b><br>
 <button onclick="app.appmgr.newUser();">+</button>
-<button onclick="app.appmgr.reloadUserInfo();">RELOAD</button>
+<button onclick="app.appmgr.reloadUserInfo();">Reload</button>
+<span style="margin-left:16px;">Search: <input type="text" id="search-text" style="width:150px;" oninput="scnjs.onSearchInput(this);"></apan>
 </div>
 <div id="user-list" style="width:100%;max-height:400px;overflow:auto;"></div>
 
@@ -119,7 +124,7 @@ var appconfig = {
 <div style="margin-bottom:4px;">
 <b>Groups</b><br>
 <button onclick="app.appmgr.newGroup();">+</button>
-<button onclick="app.appmgr.getGroupList();">RELOAD</button>
+<button onclick="app.appmgr.getGroupList();">Reload</button>
 <span id="groups-status" style="margin-left:8px;"></span><br>
 </div>
 <div id="group-list" style="width:100%;max-height:300px;overflow:auto;"></div>
