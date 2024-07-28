@@ -88,6 +88,11 @@ table.edit-table {
   background: rgba(200,200,200,0.5) !important;
 }
 
+.login-locked {
+  color: #f00;
+  font-weight: bold;
+}
+
 #contents {
   font-size: 12px;
   font-family: Consolas, Monaco, Menlo, monospace, sans-serif;

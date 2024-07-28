@@ -279,6 +279,8 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, filter) {
     if (loginFailedCount > 0) {
       var clz = 'pseudo-link';
       if ((appconfig.login_failure_max > 0) && (loginFailedCount >= appconfig.login_failure_max)) {
+        clz += ' login-locked';
+      } else {
         clz += ' text-red';
       }
       htmlList += '<span class="' + clz + '" data-tooltip="Last failed: ' + loginFailedTime + '" onclick="scnjs.confirmClearLoginFailedCount(\'' + uid + '\');">' + loginFailedCount + '</span>';
@@ -323,7 +325,7 @@ scnjs.filterUserByKeyword = function(item, key, fltCase) {
   targets.push(item.name);
   targets.push(item.local_name);
   targets.push(item.email);
-  targets.push(item.group);
+  targets.push(item.groups);
   targets.push(item.privs);
   targets.push(item.info1);
   targets.push(item.info2);
