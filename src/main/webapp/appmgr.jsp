@@ -134,7 +134,7 @@ var appconfig = {
 <b>Users</b><br>
 <button onclick="app.appmgr.newUser();">+</button>
 <button onclick="app.appmgr.reloadUserInfo();">Reload</button>
-<span style="margin-left:16px;">Search: <input type="text" id="search-text" style="width:150px;" oninput="scnjs.onSearchInput(this);"></apan>
+<span style="margin-left:16px;">Search: <input type="text" id="search-text" style="width:150px;" oninput="scnjs.onSearchInput(this);"></span><input type="checkbox" id="search-filter" onchange="scnjs.onFilterChange();"><label for="search-filter">Filter</label></span>
 </div>
 <div id="user-list" style="width:100%;max-height:400px;overflow:auto;"></div>
 
