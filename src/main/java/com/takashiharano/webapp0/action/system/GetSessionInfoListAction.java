@@ -63,7 +63,7 @@ public class GetSessionInfoListAction extends Action {
       jb1.append("ua", ua);
 
       if (includeLogs) {
-        int targetOffset = 0;
+        int targetOffset = context.getRequestParameterAsInteger("offset");
         List<Long> tmLogs = getTimelineLogs(context, username, sid, now, targetOffset);
         jb1.openList("timeline_log");
         for (int i = 0; i < tmLogs.size(); i++) {

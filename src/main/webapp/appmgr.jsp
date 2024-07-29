@@ -59,6 +59,10 @@ table.edit-table {
   color: #26c;
 }
 
+.timeline-head {
+  vertical-align: bottom;
+}
+
 .timeline-span {
   color: #555;
   cursor: default;
@@ -82,6 +86,14 @@ table.edit-table {
 
 .timeline-acc-ind-time {
   color: #777;
+}
+
+.wday-sat {
+  color: #1caed7;
+}
+
+.wday-sun {
+  color: #e86;
 }
 
 .search-highlight {
