@@ -332,11 +332,13 @@ public class UserManager {
    *          user description
    * @param userFlags
    *          user flags
+   * @param onlyChangePass
+   *          Set true if only changing password
    * @return User
    * @throws Exception
    *           if an error occurres
    */
-  public User updateUser(String username, String pwHash, String fullname, String localFullName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String description, String userFlags) throws Exception {
+  public User updateUser(String username, String pwHash, String fullname, String localFullName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String description, String userFlags, boolean onlyChangePass) throws Exception {
     User user = users.get(username);
     if (user == null) {
       throw new Exception("USER_NOT_FOUND");
@@ -407,7 +409,9 @@ public class UserManager {
       if (ret < 0) {
         throw new Exception("PW_REGISTER_ERROR");
       }
-      user.unsetFlag(User.FLAG_NEED_PW_CHANGE);
+      if (onlyChangePass) {
+        user.unsetFlag(User.FLAG_NEED_PW_CHANGE);
+      }
       userStatus.setPwChangedTime(now);
     }
 

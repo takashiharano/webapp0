@@ -38,7 +38,7 @@ public class EditUserAction extends Action {
     String info = null;
     try {
       UserManager userManager = context.getUserManager();
-      userManager.updateUser(username, pwHash, fullname, localFullName, email, adminFlag, groups, privileges, info1, info2, description, userFlags);
+      userManager.updateUser(username, pwHash, fullname, localFullName, email, adminFlag, groups, privileges, info1, info2, description, userFlags, false);
       if (pwHash != null) {
         info = "PW_changed";
       }
