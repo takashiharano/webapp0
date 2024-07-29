@@ -88,6 +88,10 @@ table.edit-table {
   background: rgba(200,200,200,0.5) !important;
 }
 
+.list-info {
+  color: #666;
+}
+
 .login-locked {
   color: #f00;
   font-weight: bold;
