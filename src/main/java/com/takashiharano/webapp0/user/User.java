@@ -17,7 +17,7 @@ import com.takashiharano.webapp0.util.AppUtil;
 public class User {
   public static final int FLAG_NONE = 0;
   public static final int FLAG_NEED_PW_CHANGE = 1;
-  public static final int FLAG_DISABLED = 1 << 1;
+  public static final int FLAG_DISABLED = 1 << 2;
 
   private String username;
   private String fullname;
