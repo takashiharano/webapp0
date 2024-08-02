@@ -19,9 +19,10 @@ public class User {
   public static final int FLAG_NEED_PW_CHANGE = 1;
   public static final int FLAG_DISABLED = 1 << 2;
 
-  private String username;
+  private String userId;
   private String fullname;
   private String localFullName;
+  private String aliasName;
   private String email;
   private boolean admin;
   private Set<String> groups;
@@ -34,22 +35,23 @@ public class User {
   private long updatedDate;
   private UserStatus userStatus;
 
-  public User(String username, boolean isAdmin) {
-    this.username = username;
+  public User(String userId, boolean isAdmin) {
+    this.userId = userId;
     this.admin = isAdmin;
     this.groups = new LinkedHashSet<>();
     this.privileges = new LinkedHashSet<>();
     this.flags = FLAG_NONE;
   }
 
-  public User(String username, String fullname, String localFullName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags) {
-    this(username, fullname, localFullName, email, isAdmin, groups, privileges, info1, info2, description, flags, 0L, 0L);
+  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags) {
+    this(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, description, flags, 0L, 0L);
   }
 
-  public User(String username, String fullname, String localFullName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags, long createdDate, long updatedDate) {
-    this.username = username;
+  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags, long createdDate, long updatedDate) {
+    this.userId = userId;
     this.fullname = fullname;
     this.localFullName = localFullName;
+    this.aliasName = aliasName;
     this.email = email;
     this.admin = isAdmin;
     setGroups(groups);
@@ -60,16 +62,16 @@ public class User {
     this.flags = flags;
     this.createdDate = createdDate;
     this.updatedDate = updatedDate;
-    this.userStatus = new UserStatus(username);
+    this.userStatus = new UserStatus(userId);
   }
 
   /**
-   * Returns username.
+   * Returns user id.
    *
-   * @return username
+   * @return user id
    */
-  public String getUsername() {
-    return username;
+  public String getUserId() {
+    return userId;
   }
 
   /**
@@ -108,6 +110,25 @@ public class User {
    */
   public void setLocalFullName(String localFullName) {
     this.localFullName = localFullName;
+  }
+
+  /**
+   * Returns alias name.
+   *
+   * @return Alias name
+   */
+  public String getAliasName() {
+    return aliasName;
+  }
+
+  /**
+   * Sets alias name.
+   *
+   * @param aliasName
+   *          Alias name
+   */
+  public void setAliasName(String aliasName) {
+    this.aliasName = aliasName;
   }
 
   /**
@@ -512,9 +533,10 @@ public class User {
    */
   public String toJSON(boolean includeStatusInfo) {
     JsonBuilder jb = new JsonBuilder();
-    jb.append("username", getUsername());
+    jb.append("uid", getUserId());
     jb.append("fullname", getFullName());
     jb.append("localfullname", getLocalFullName());
+    jb.append("a_name", getAliasName());
     jb.append("email", getEmail());
     jb.append("is_admin", isAdmin());
     jb.append("groups", getGroupsInOneLine());
@@ -523,8 +545,8 @@ public class User {
     jb.append("info2", getInfo2());
     jb.append("description", getDescription());
     jb.append("flags", getFlags());
-    jb.append("created_date", getCreatedDate());
-    jb.append("updated_date", getUpdatedDate());
+    jb.append("created_at", getCreatedDate());
+    jb.append("updated_at", getUpdatedDate());
 
     if (includeStatusInfo) {
       String jb1 = userStatus.toJSON();

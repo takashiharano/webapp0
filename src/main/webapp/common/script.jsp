@@ -5,14 +5,14 @@
 ProcessContext context = (ProcessContext) request.getAttribute("context");
 String screenId = (String) context.getInfo("screenId");
 User user = context.getUserInfo();
-String username = context.getUsername();
+String uid = context.getUserId();
 AppManager appManager = AppManager.getInstance();
 int n = appManager.getConfigValueAsInteger("bab64_n_param", 1);
 %>
 <script>
 var BSB64N = <%= n %>;
 app.screenId = '<%= screenId %>';
-app.username = '<%= username %>';
+app.uid = '<%= uid %>';
 
 app.onScreenReady = function() {
 <%

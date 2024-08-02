@@ -14,17 +14,17 @@ public class GetUserInfoAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    String username = context.getRequestParameter("username");
+    String userId = context.getRequestParameter("uid");
 
-    String currentUsername = context.getUsername();
-    if (!context.hasPermission("sysadmin") && !currentUsername.equals(username)) {
+    String currentUserId = context.getUserId();
+    if (!context.hasPermission("sysadmin") && !currentUserId.equals(userId)) {
       context.sendJsonResponse("FORBIDDEN:GetUserInfo", null);
       return;
     }
 
     String status = "OK";
     UserManager userManager = context.getUserManager();
-    User user = userManager.getUserInfo(username);
+    User user = userManager.getUserInfo(userId);
     if (user == null) {
       context.sendJsonResponse("USER_NOT_FOUND", null);
       return;

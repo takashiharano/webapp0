@@ -21,9 +21,10 @@ scnjs.DAY = 86400000;
 scnjs.INTERVAL = 60000;
 scnjs.USER_LIST_COLUMNS = [
   {key: 'elapsed', label: ''},
-  {key: 'username', label: 'Username', style: 'min-width:min-width:10em;'},
+  {key: 'uid', label: 'UID', style: 'min-width:min-width:10em;'},
   {key: 'fullname', label: 'Full Name', style: 'min-width:10em;'},
   {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
+  {key: 'a_name', label: 'Alias name', style: 'min-width:5em;'},
   {key: 'email', label: 'Email', style: 'min-width:10em;'},
   {key: 'is_admin', label: 'Admin'},
   {key: 'groups', label: 'Groups', style: 'min-width:15em;'},
@@ -37,8 +38,8 @@ scnjs.USER_LIST_COLUMNS = [
   {key: 'status_info.last_access', label: 'Last Access'},
   {key: 'status_info.last_login', label: 'Last Login'},
   {key: 'status_info.last_logout', label: 'Last Logout'},
-  {key: 'created_date', label: 'Created'},
-  {key: 'updated_date', label: 'Updated'},
+  {key: 'created_at', label: 'Created'},
+  {key: 'updated_at', label: 'Updated'},
   {key: 'status_info.pw_changed_at', label: 'PwChanged'}
 ];
 
@@ -88,6 +89,10 @@ scnjs.getUserList = function() {
 };
 
 scnjs.getUserInfoListCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
@@ -199,7 +204,7 @@ scnjs.drawUserList = function(userList, sortIdx, sortOrder) {
 
 scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
   var now = util.now();
-  var currentUsername = app.getUsername();
+  var currentUid = app.getUserId();
 
   if (sortIdx >= 0) {
     if (sortOrder > 0) {
@@ -217,9 +222,10 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     var item = items[i];
     if (filter && !scnjs.searchUserByKeyword(item, searchKey, searchCaseSensitive)) continue;
     count++;
-    var uid = item.username;
+    var uid = item.uid;
     var fullname = item.fullname;
     var localfullname = item.localfullname;
+    var a_name = item.a_name;
     var email = item.email;
     var groups = item.groups;
     var privs = item.privileges;
@@ -230,8 +236,8 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     var lastAccessDate = scnjs.getDateTimeString(statusInfo.last_access, scnjs.INSEC);
     var lastLoginDate = scnjs.getDateTimeString(statusInfo.last_login, scnjs.INSEC);
     var lastLogoutDate = scnjs.getDateTimeString(statusInfo.last_logout, scnjs.INSEC);
-    var createdDate = scnjs.getDateTimeString(item.created_date, scnjs.INSEC);
-    var updatedDate = scnjs.getDateTimeString(item.updated_date, scnjs.INSEC);
+    var createdDate = scnjs.getDateTimeString(item.created_at, scnjs.INSEC);
+    var updatedDate = scnjs.getDateTimeString(item.updated_at, scnjs.INSEC);
     var pwChangedDate = scnjs.getDateTimeString(statusInfo.pw_changed_at, scnjs.INSEC);
     var info1 = item.info1;
     var info2 = item.info2;
@@ -245,11 +251,12 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
 
     var active = (sessions > 0);
     var led = scnjs.buildLedHtml(now, statusInfo.last_access, scnjs.INSEC, active);
-    var cInd = ((uid == currentUsername) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip2="You">*</span>' : '<span style="margin-right:2px;">&nbsp;</span>');
+    var cInd = ((uid == currentUid) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip2="You">*</span>' : '<span style="margin-right:2px;">&nbsp;</span>');
 
     var dispUid = uid;
     var dispFullname = fullname;
     var dispLocalFullname = localfullname;
+    var dispAname = a_name;
     var dispEmail = email;
     var dispGroups = groups;
     var dispPrivs = privs;
@@ -260,6 +267,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
       dispUid = scnjs.highlightKeyword(uid, searchKey, searchCaseSensitive);
       dispFullname = scnjs.highlightKeyword(fullname, searchKey, searchCaseSensitive);
       dispLocalFullname = scnjs.highlightKeyword(localfullname, searchKey, searchCaseSensitive);
+      dispAname = scnjs.highlightKeyword(a_name, searchKey, searchCaseSensitive);
       dispEmail = scnjs.highlightKeyword(email, searchKey, searchCaseSensitive);
       dispGroups = scnjs.highlightKeyword(groups, searchKey, searchCaseSensitive);
       dispPrivs = scnjs.highlightKeyword(privs, searchKey, searchCaseSensitive);
@@ -270,6 +278,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     dispUid = cInd + '<span class="pseudo-link link-button" onclick="scnjs.editUser(\'' + uid + '\');" data-tooltip2="Edit">' + dispUid + '</span>';
     dispFullname = scnjs.buildCopyableLabel(fullname, dispFullname);
     dispLocalFullname = scnjs.buildCopyableLabel(localfullname, dispLocalFullname);
+    dispAname = scnjs.buildCopyableLabel(a_name, dispAname);
     dispEmail = scnjs.buildCopyableLabel(email, dispEmail);
     dispInfo1 = scnjs.buildCopyableLabel(info1, dispInfo1);
     dispInfo2 = scnjs.buildCopyableLabel(info2, dispInfo2);
@@ -295,6 +304,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     htmlList += '<td class="item-list" style="padding-right:10px;">' + dispUid + '</td>';
     htmlList += '<td class="item-list">' + dispFullname + '</td>';
     htmlList += '<td class="item-list">' + dispLocalFullname + '</td>';
+    htmlList += '<td class="item-list">' + dispAname + '</td>';
     htmlList += '<td class="item-list">' + dispEmail + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;">' + (item.is_admin ? 'Y' : '') + '</td>';
     htmlList += '<td class="item-list">' + dispGroups + '</td>';
@@ -342,9 +352,10 @@ scnjs.highlightKeyword = function(v, searchKey, caseSensitive) {
 scnjs.searchUserByKeyword = function(item, key, caseSensitive) {
   if (!key) return true;
   var targets = [];
-  targets.push(item.username);
+  targets.push(item.uid);
   targets.push(item.fullname);
   targets.push(item.localfullname);
+  targets.push(item.a_name);
   targets.push(item.email);
   targets.push(item.groups);
   targets.push(item.privileges);
@@ -430,6 +441,10 @@ scnjs.getSessionList = function() {
   app.callServerApi('GetSessionInfoList', param, scnjs.getSessionListCb);
 };
 scnjs.getSessionListCb = function(xhr, res, req) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   if (res.status == 'FORBIDDEN') {
     location.href = location.href;
     return;
@@ -550,22 +565,22 @@ scnjs.buildSessionInfoHtml = function(sessions, now) {
 };
 scnjs.buildSessionInfoOne = function(session, now, mn) {
   var cSid = app.currentSid;
-  var username = session.username;
-  var name = session.fullName;
-  var ua = session.ua;
-  var loginT = session.createdTime;
-  var laTime = session.lastAccessTime;
+  var uid = session['uid'];
+  var fullname = session['user_fullname'];
+  var loginT = session['c_time'];
+  var ua = session['ua'];
+  var laTime = session['time'];
+  var sid = session['sid'];
+  var addr = session['addr'];
   if (scnjs.INSEC) laTime = Math.floor(laTime * 1000);
   var loginTime = util.getDateTimeString(loginT, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
   var laTimeStr = util.getDateTimeString(laTime, '%YYYY-%MM-%DD %HH:%mm:%SS.%sss');
-  var sid = session['sid'];
   var ssid = util.snip(sid, 7, 3, '..');
   var sid7 = util.snip(sid, 7, 0, '');
-  var addr = session.addr;
   var brws = util.getBrowserInfo(ua);
   var ua = brws.name + ' ' + brws.version;
   var led = scnjs.buildLedHtml(now, laTime, false, true);
-  var ssidLink = '<span class="pseudo-link link-button" onclick="scnjs.confirmLogoutSession(\'' + username + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
+  var ssidLink = '<span class="pseudo-link link-button" onclick="scnjs.confirmLogoutSession(\'' + uid + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
   var dispSid = ((sid == cSid) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip2="Current Session">*</span>' : '<span style="cursor:default;margin-right:2px;">&nbsp;</span>') + ssidLink;
   var timeId = 'tm-' + sid7;
   var tmspan = '<span id="' + timeId + '"></span>';
@@ -576,8 +591,8 @@ scnjs.buildSessionInfoOne = function(session, now, mn) {
   var html = '';
   html += '<tr class="item-list">';
   html += '<td style="padding-right:4px;">' + led + '</td>';
-  html += '<td style="padding-right:10px;">' + username + '</td>';
-  html += '<td style="padding-right:6px;">' + name + '</td>';
+  html += '<td style="padding-right:10px;">' + uid + '</td>';
+  html += '<td style="padding-right:6px;">' + fullname + '</td>';
   html += '<td style="padding-right:10px;">' + dispSid + '</td>';
   html += '<td style="padding-right:10px;">' + laTimeStr + '</td>';
   html += '<td style="padding-right:10px;text-align:right;">' + tmspan + '</td>';
@@ -738,17 +753,17 @@ scnjs.sortItemList = function(sortIdx, sortOrder) {
   scnjs.drawUserList(scnjs.userList, sortIdx, sortOrder);
 };
 
-scnjs.confirmLogoutSession = function(username, sid) {
+scnjs.confirmLogoutSession = function(uid, sid) {
   var cSid = app.currentSid;
   var ssid = util.snip(sid, 7, 7, '..');
-  var currentUsername = app.getUsername();
+  var currentUid = app.getUserId();
   var m = 'Logout?\n\n';
   if (sid == cSid) {
     m += '<span class="warn-red" style="font-weight:bold;">[CURRENT SESSION]</span>\n';
   }
   m += '<div style="text-align:left;">';
-  m += username;
-  if (username == currentUsername) m += ' <span class="you">(You)</span>';
+  m += 'uid: ' + uid;
+  if (uid == currentUid) m += ' <span class="you">(You)</span>';
   m += '\n';
   m += 'sid: ' + sid;
   m += '</div>';
@@ -761,6 +776,10 @@ scnjs.logoutSession = function(sid) {
   app.callServerApi('logout', params, scnjs.logoutSessionCb);
 };
 scnjs.logoutSessionCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   app.showInfotip(res.status);
   scnjs.reloadUserInfo();
 };
@@ -770,38 +789,38 @@ scnjs.newUser = function() {
   scnjs.editUser(null);
 };
 
-scnjs.editUser = function(username) {
-  var mode = (username ? 'edit' : 'new');
+scnjs.editUser = function(uid) {
+  var mode = (uid ? 'edit' : 'new');
   scnjs.userEditMode = mode;
   if (!scnjs.userEditWindow) {
-    scnjs.userEditWindow = scnjs.openUserInfoEditorWindow(mode, username);
+    scnjs.userEditWindow = scnjs.openUserInfoEditorWindow(mode, uid);
   }
   scnjs.clearUserInfoEditor();
   if (mode == 'edit') {
     var params = {
-      username: username
+      uid: uid
     };
     app.callServerApi('GetUserInfo', params, scnjs.GetUserInfoCb);
   } else {
     $el('#flags').value = '1';
-    $el('#username').focus();
+    $el('#uid').focus();
   }
 };
 
-scnjs.openUserInfoEditorWindow = function(mode, username) {
-  var currentUsername = app.getUsername();
+scnjs.openUserInfoEditorWindow = function(mode, uid) {
+  var currentUid = app.getUserId();
 
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
-  if (username && (username != currentUsername)) {
-    html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="scnjs.deleteUser(\'' + username + '\');">DEL</button></div>';
+  if (uid && (uid != currentUid)) {
+    html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="scnjs.deleteUser(\'' + uid + '\');">DEL</button></div>';
   }
   html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:400px;height:400px;text-align:left;">';
 
   html += '<table class="edit-table">';
   html += '  <tr>';
-  html += '    <td>Username</td>';
-  html += '    <td style="width:256px;"><input type="text" id="username" style="width:100%;" onblur="scnjs.onUsernameBlur();"></td>';
+  html += '    <td>UID</td>';
+  html += '    <td><input type="text" id="uid" style="width:100%;" onblur="scnjs.onUidBlur();"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Full name</td>';
@@ -810,6 +829,10 @@ scnjs.openUserInfoEditorWindow = function(mode, username) {
   html += '  <tr>';
   html += '    <td>Local Full name</td>';
   html += '    <td><input type="text" id="localfullname" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '  <tr>';
+  html += '    <td>Alias name</td>';
+  html += '    <td><input type="text" id="a_name" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Email</td>';
@@ -901,12 +924,12 @@ scnjs.openUserInfoEditorWindow = function(mode, username) {
   return win;
 };
 
-scnjs.onUsernameBlur = function() {
+scnjs.onUidBlur = function() {
   var fullname = $el('#fullname').value;
   if (fullname) return;
-  var username = $el('#username').value;
-  if (username.match()) {
-    fullname = scnjs.mail2name(username);
+  var uid = $el('#uid').value;
+  if (uid.match()) {
+    fullname = scnjs.mail2name(uid);
   }
   $el('#fullname').value = fullname;
 };
@@ -926,6 +949,10 @@ scnjs.mail2name = function(m) {
 };
 
 scnjs.GetUserInfoCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
@@ -935,17 +962,18 @@ scnjs.GetUserInfoCb = function(xhr, res) {
 };
 
 scnjs.setUserInfoToEditor = function(info) {
-  var username = info.username;
-  $el('#username').value = username;
-  if (username) {
-    $el('#username').disabled = true;
-    $el('#username').addClass('edit-disabled');
+  var uid = info.uid;
+  $el('#uid').value = uid;
+  if (uid) {
+    $el('#uid').disabled = true;
+    $el('#uid').addClass('edit-disabled');
   } else {
-    $el('#username').disabled = false;
-    $el('#username').removeClass('edit-disabled');
+    $el('#uid').disabled = false;
+    $el('#uid').removeClass('edit-disabled');
   }
   $el('#fullname').value = info.fullname;
   $el('#localfullname').value = info.localfullname;
+  $el('#a_name').value = info.a_name;
   $el('#email').value = info.email;
   $el('#isadmin').checked = info.is_admin;
   $el('#groups').value = info.groups;
@@ -958,7 +986,7 @@ scnjs.setUserInfoToEditor = function(info) {
 
 scnjs.clearUserInfoEditor = function() {
   var info = {
-    username: '',
+    uid: '',
     fullname: '',
     localfullname: '',
     email: '',
@@ -983,9 +1011,10 @@ scnjs.saveUserInfo = function() {
 
 //-----------------------------------------------------------------------------
 scnjs.addUser = function() {
-  var username = $el('#username').value;
+  var uid = $el('#uid').value;
   var fullname = $el('#fullname').value;
   var localfullname = $el('#localfullname').value;
+  var a_name = $el('#a_name').value;
   var email = $el('#email').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var groups = $el('#groups').value;
@@ -997,12 +1026,12 @@ scnjs.addUser = function() {
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
-  var clnsRes = scnjs.cleanseUsername(username);
+  var clnsRes = scnjs.cleanseUid(uid);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
-  username = clnsRes.val;
+  uid = clnsRes.val;
 
   clnsRes = scnjs.cleanseFullName(fullname);
   if (clnsRes.msg) {
@@ -1017,6 +1046,13 @@ scnjs.addUser = function() {
     return;
   }
   localfullname = clnsRes.val;
+
+  clnsRes = scnjs.cleanseFullName(a_name);
+  if (clnsRes.msg) {
+    scnjs.showInfotip(clnsRes.msg, 2000);
+    return;
+  }
+  a_name = clnsRes.val;
 
   clnsRes = scnjs.cleanseGroups(groups);
   if (clnsRes.msg) {
@@ -1038,10 +1074,10 @@ scnjs.addUser = function() {
     return;
   }
   var pw = clnsRes.val;
-  pw = scnjs.getUserPwHash(username, pw);
+  pw = scnjs.getUserPwHash(uid, pw);
 
   var params = {
-    username: username,
+    uid: uid,
     fullname: fullname,
     localfullname: localfullname,
     email: email,
@@ -1059,6 +1095,10 @@ scnjs.addUser = function() {
 };
 
 scnjs.addUserCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
@@ -1069,9 +1109,10 @@ scnjs.addUserCb = function(xhr, res) {
 
 //-----------------------------------------------------------------------------
 scnjs.updateUser = function() {
-  var username = $el('#username').value;
+  var uid = $el('#uid').value;
   var fullname = $el('#fullname').value;
   var localfullname = $el('#localfullname').value;
+  var a_name = $el('#a_name').value;
   var email = $el('#email').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var groups = $el('#groups').value;
@@ -1091,9 +1132,10 @@ scnjs.updateUser = function() {
   var pw = clnsRes.val;
 
   var params = {
-    username: username,
+    uid: uid,
     fullname: fullname,
     localfullname: localfullname,
+    a_name: a_name,
     email: email,
     is_admin: isAdmin,
     groups: groups,
@@ -1101,17 +1143,21 @@ scnjs.updateUser = function() {
     info1: info1,
     info2: info2,
     description : description,
-    flags: flags,
+    flags: flags
   };
 
   if (pw) {
-    params.pw = scnjs.getUserPwHash(username, pw);
+    params.pw = scnjs.getUserPwHash(uid, pw);
   }
 
   app.callServerApi('EditUser', params, scnjs.updateUserCb);
 };
 
 scnjs.updateUserCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
@@ -1121,26 +1167,30 @@ scnjs.updateUserCb = function(xhr, res) {
 };
 
 //-----------------------------------------------------------------------------
-scnjs.deleteUser = function(username) {
+scnjs.deleteUser = function(uid) {
   var opt = {
-    data: username
+    data: uid
   };
-  util.confirm('Delete ' + username + ' ?', scnjs._deleteUser, opt);
+  util.confirm('Delete ' + uid + ' ?', scnjs._deleteUser, opt);
 };
-scnjs._deleteUser = function(username) {
-  if (!username) {
+scnjs._deleteUser = function(uid) {
+  if (!uid) {
     return;
   }
   if (scnjs.userEditWindow) {
     scnjs.userEditWindow.close();
   }
   var params = {
-    username: username,
+    uid: uid,
   };
   app.callServerApi('DeleteUser', params, scnjs.deleteUserCb);
 };
 
 scnjs.deleteUserCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
@@ -1150,23 +1200,27 @@ scnjs.deleteUserCb = function(xhr, res) {
 };
 
 //-----------------------------------------------------------------------------
-scnjs.confirmClearLoginFailedCount = function(username) {
+scnjs.confirmClearLoginFailedCount = function(uid) {
   var opt = {
-    data: username
+    data: uid
   };
-  util.confirm('Clear failure count for ' + username + ' ?', scnjs.clearLoginFailedCount, opt);
+  util.confirm('Clear failure count for ' + uid + ' ?', scnjs.clearLoginFailedCount, opt);
 };
-scnjs.clearLoginFailedCount = function(username) {
-  if (!username) {
+scnjs.clearLoginFailedCount = function(uid) {
+  if (!uid) {
     return;
   }
   var params = {
-    username: username
+    uid: uid
   };
   app.callServerApi('UnlockUser', params, scnjs.clearLoginFailedCountCb);
 };
 
 scnjs.clearLoginFailedCountCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
@@ -1195,7 +1249,7 @@ scnjs.cleanseCommon = function(s) {
   return res;
 };
 
-scnjs.cleanseUsername = function(s) {
+scnjs.cleanseUid = function(s) {
   var res = scnjs.cleanseCommon(s);
   if (res.msg) {
     return res;
@@ -1203,7 +1257,7 @@ scnjs.cleanseUsername = function(s) {
   var msg = null;
   s = res.val;
   if (!s) {
-    msg = 'Username is required';
+    msg = 'User ID is required';
   }
   res.val = s;
   res.msg = msg;
@@ -1288,6 +1342,10 @@ scnjs.getGroupList = function() {
   app.callServerApi('GetGroupInfoList', null, scnjs.getGroupListCb);
 };
 scnjs.getGroupListCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   if (res.status == 'OK') {
     scnjs.drawGroupStatus('');
     var list = res.body.grouplist;
@@ -1312,8 +1370,8 @@ scnjs.drawGroupList = function(list) {
     var name = group.name;
     var privs = (group.privileges ? group.privileges : '');
     var desc = (group.description ? group.description : '');
-    var createdDate = scnjs.getDateTimeString(group.created_date, scnjs.INSEC);
-    var updatedDate = scnjs.getDateTimeString(group.updated_date, scnjs.INSEC);
+    var createdDate = scnjs.getDateTimeString(group.created_at, scnjs.INSEC);
+    var updatedDate = scnjs.getDateTimeString(group.updated_at, scnjs.INSEC);
 
     var clz = ((i % 2 == 0) ? 'row-odd' : 'row-even');
 
@@ -1449,6 +1507,10 @@ scnjs.addGroup = function() {
 };
 
 scnjs.addGroupCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
@@ -1475,6 +1537,10 @@ scnjs.updateGroup = function() {
 };
 
 scnjs.updateGroupCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   app.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
@@ -1504,6 +1570,10 @@ scnjs._deleteGroup = function(gid) {
 };
 
 scnjs.deleteGroupCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;
@@ -1514,6 +1584,10 @@ scnjs.deleteGroupCb = function(xhr, res) {
 
 //-----------------------------------------------------------------------------
 scnjs.getGroupInfoCb = function(xhr, res) {
+  if (xhr.status != 200) {
+    scnjs.showInfotip('HTTP ' + xhr.status);
+    return;
+  }
   if (res.status != 'OK') {
     app.showInfotip(res.status);
     return;

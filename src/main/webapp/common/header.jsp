@@ -2,10 +2,10 @@
 <%@ page import="com.takashiharano.webapp0.ProcessContext"%>
 <%
 ProcessContext context = (ProcessContext) request.getAttribute("context");
-String username = context.getUsername();
+String uid = context.getUserId();
 String fullname = context.getUserFullName();
 if ((fullname == null) || "".equals(fullname)) {
-  fullname = username;
+  fullname = uid;
 }
 %>
 <div id="header">

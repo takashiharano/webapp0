@@ -27,14 +27,14 @@ $onReady = function() {
 };
 
 app.login.login = function() {
-  var username = $el('#id').value;
+  var uid = $el('#id').value;
   var pw = $el('#pw').value;
-  var salt = username;
+  var salt = uid;
   var pwHash = app.common.getHash('SHA-256', pw, salt);
   pwHash = util.encodeBSB64(pwHash, BSB64N);
 
   var params = {
-    id: username,
+    id: uid,
     pw: pwHash
   };
   app.callServerApi('login', params, app.login.loginCb);

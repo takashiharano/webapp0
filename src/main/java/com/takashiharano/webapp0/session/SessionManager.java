@@ -27,6 +27,7 @@ import com.takashiharano.webapp0.AppManager;
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.user.UserManager;
 import com.takashiharano.webapp0.user.UserStatus;
+import com.takashiharano.webapp0.util.CsvFieldGetter;
 import com.takashiharano.webapp0.util.Log;
 
 public class SessionManager {
@@ -73,9 +74,9 @@ public class SessionManager {
     String ua = context.getUserAgent();
     sessionInfo.setUserAgent(ua);
 
-    String username = context.getUsername();
+    String userId = context.getUserId();
     try {
-      saveTimelineLog(username, sessinId, timestamp);
+      saveTimelineLog(userId, sessinId, timestamp);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -107,24 +108,24 @@ public class SessionManager {
    *          the session info
    */
   public void registerSessionInfo(SessionInfo info) {
-    String username = info.getUsername();
+    String userId = info.getUserId();
     AppManager appManager = AppManager.getInstance();
     int max = appManager.getConfigValueAsInteger("max_sessions_per_user", DEFAULT_MAX_SESSIONS_PER_USER);
     int n = max - 1;
-    trimSessionInfo(username, n);
+    trimSessionInfo(userId, n);
 
     String sessionId = info.getSessionId();
     sessionMap.put(sessionId, info);
   }
 
-  private void trimSessionInfo(String username, int n) {
+  private void trimSessionInfo(String userId, int n) {
     List<Long> timeList = new ArrayList<>();
     int count = 0;
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
       String sessionId = entry.getKey();
       SessionInfo info = sessionMap.get(sessionId);
-      String user = info.getUsername();
-      if (user.equals(username)) {
+      String uid = info.getUserId();
+      if (uid.equals(userId)) {
         long time = info.getLastAccessTime();
         timeList.add(time);
         count++;
@@ -140,11 +141,11 @@ public class SessionManager {
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
       String sessionId = entry.getKey();
       SessionInfo info = sessionMap.get(sessionId);
-      String user = info.getUsername();
-      if (user.equals(username)) {
+      String uid = info.getUserId();
+      if (uid.equals(userId)) {
         long time = info.getLastAccessTime();
         if (!inListSizeRange(timeList, n, time)) {
-          Log.i("Logout: EXCEED_MAX user=" + username + " sid=" + info.getShortSessionId());
+          Log.i("Logout: EXCEED_MAX user=" + userId + " sid=" + info.getShortSessionId());
           removeSessionInfo(sessionId);
         }
       }
@@ -193,17 +194,17 @@ public class SessionManager {
   /**
    * Returns user session count.
    *
-   * @param username
-   *          target username
+   * @param userId
+   *          target user id
    * @return the session count for the user
    */
-  public int countUserSessions(String username) {
+  public int countUserSessions(String userId) {
     int count = 0;
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
       String sessionId = entry.getKey();
       SessionInfo info = sessionMap.get(sessionId);
-      String user = info.getUsername();
-      if (user.equals(username)) {
+      String uid = info.getUserId();
+      if (uid.equals(userId)) {
         count++;
       }
     }
@@ -245,15 +246,15 @@ public class SessionManager {
   /**
    * Removes the session info associated with the user name from the session map.
    *
-   * @param username
-   *          target user name
+   * @param userId
+   *          target user id
    */
-  public void removeSessionInfoByUsername(String username) {
+  public void removeSessionInfoByUsername(String userId) {
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
       String sessionId = entry.getKey();
       SessionInfo sessionInfo = sessionMap.get(sessionId);
-      String sUsername = sessionInfo.getUsername();
-      if (sUsername.equals(username)) {
+      String uid = sessionInfo.getUserId();
+      if (uid.equals(userId)) {
         sessionMap.remove(sessionId);
       }
     }
@@ -274,6 +275,9 @@ public class SessionManager {
     int count = 0;
     for (int i = 0; i < records.length; i++) {
       String record = records[i];
+      if (record.startsWith("#")) {
+        continue;
+      }
       try {
         restoreSessionInfo(record);
         count++;
@@ -292,18 +296,16 @@ public class SessionManager {
    *          session record
    */
   private void restoreSessionInfo(String record) {
-    String[] fields = record.split("\t");
-    String sessionId = fields[0];
-    String username = fields[1];
-    String sCreatedTime = fields[2];
-    String sLastAccessTime = fields[3];
-    String remoteAddr = fields[4];
-    String remoteHost = fields[5];
-    String userAgent = fields[6];
-    long createdTime = Long.parseLong(sCreatedTime);
-    long lastAccessTime = Long.parseLong(sLastAccessTime);
+    CsvFieldGetter csvFieldGetter = new CsvFieldGetter(record, "\t");
+    String sessionId = csvFieldGetter.getFieldValue();
+    String userId = csvFieldGetter.getFieldValue();
+    long lastAccessTime = csvFieldGetter.getFieldValueAsLong();
+    String remoteAddr = csvFieldGetter.getFieldValue();
+    String remoteHost = csvFieldGetter.getFieldValue();
+    String userAgent = csvFieldGetter.getFieldValue();
+    long createdTime = csvFieldGetter.getFieldValueAsLong();
 
-    SessionInfo info = new SessionInfo(sessionId, username, createdTime, lastAccessTime, remoteAddr, remoteHost, userAgent);
+    SessionInfo info = new SessionInfo(sessionId, userId, lastAccessTime, remoteAddr, remoteHost, userAgent, createdTime);
     registerSessionInfo(info);
   }
 
@@ -320,20 +322,17 @@ public class SessionManager {
       count++;
       String sessionId = entry.getKey();
       SessionInfo info = sessionMap.get(sessionId);
-      String username = info.getUsername();
-      long createdTime = info.getCreatedTime();
+      String userId = info.getUserId();
       long lastAccessTime = info.getLastAccessTime();
       String remoteAddr = info.getRemoteAddr();
       String remoteHost = info.getRemoteHost();
       String userAgent = info.getUserAgent();
+      long createdTime = info.getCreatedTime();
 
-      // sessionId,username,accessToken,createdTime,lastAccessTime,lastAccessRemoteAddr,host,ua
       StringBuilder record = new StringBuilder();
       record.append(sessionId);
       record.append("\t");
-      record.append(username);
-      record.append("\t");
-      record.append(createdTime);
+      record.append(userId);
       record.append("\t");
       record.append(lastAccessTime);
       record.append("\t");
@@ -342,6 +341,8 @@ public class SessionManager {
       record.append(remoteHost);
       record.append("\t");
       record.append(userAgent);
+      record.append("\t");
+      record.append(createdTime);
 
       sb.append(record.toString());
       sb.append("\n");
@@ -362,20 +363,20 @@ public class SessionManager {
    *
    * @param context
    *          Process Context
-   * @param username
-   *          the user name
+   * @param userId
+   *          the user id
    * @return new session object
    */
-  public SessionInfo onLoggedIn(ProcessContext context, String username) {
+  public SessionInfo onLoggedIn(ProcessContext context, String userId) {
     SessionInfo currentSession = getSessionInfo(context);
 
     if (currentSession != null) {
       String sessionId = currentSession.getSessionId();
-      Log.i("Logout: RENEW user=" + username + " sid=" + currentSession.getShortSessionId());
+      Log.i("Logout: RENEW user=" + userId + " sid=" + currentSession.getShortSessionId());
       removeSessionInfo(sessionId);
     }
 
-    SessionInfo sessionInfo = createNewSession(context, username);
+    SessionInfo sessionInfo = createNewSession(context, userId);
     registerSessionInfo(sessionInfo);
 
     return sessionInfo;
@@ -386,26 +387,26 @@ public class SessionManager {
    *
    * @param context
    *          Process Context
-   * @param username
-   *          the user name
+   * @param userId
+   *          the user id
    * @return new session object
    */
-  private SessionInfo createNewSession(ProcessContext context, String username) {
+  private SessionInfo createNewSession(ProcessContext context, String userId) {
     // Recreate session
     HttpServletRequest request = context.getRequest();
     HttpSession session = request.getSession();
     session.invalidate();
     session = request.getSession(true);
-    String sessionId = generateSessionId(username);
+    String sessionId = generateSessionId(userId);
     String remoteAddr = context.getRemoteAddr();
     String remoteHost = context.getRemoteHost();
     String userAgent = context.getUserAgent();
 
     long now = System.currentTimeMillis();
-    long createdTime = now;
     long lastAccessTime = now;
+    long createdTime = now;
 
-    SessionInfo sessionInfo = new SessionInfo(sessionId, username, createdTime, lastAccessTime, remoteAddr, remoteHost, userAgent);
+    SessionInfo sessionInfo = new SessionInfo(sessionId, userId, lastAccessTime, remoteAddr, remoteHost, userAgent, createdTime);
 
     // Set session expiration
     int sessionTimeoutSec = getSessionTimeout();
@@ -418,12 +419,14 @@ public class SessionManager {
   /**
    * Generate a session ID.
    *
+   * @param userId
+   *          the user id
    * @return Session ID
    */
-  private String generateSessionId(String username) {
+  private String generateSessionId(String userId) {
     long t = System.currentTimeMillis();
     long r = RandomGenerator.getLong();
-    String s = t + username + r;
+    String s = t + userId + r;
     String sessionId = HashUtil.getHashString(s, "SHA-256");
     return sessionId;
   }
@@ -442,8 +445,8 @@ public class SessionManager {
       long lastAccessTime = sessionInfo.getLastAccessTime();
       long elapsed = now - lastAccessTime;
       if (elapsed > timeoutMillis) {
-        String username = sessionInfo.getUsername();
-        Log.i("Logout: EXPIRED user=" + username + " sid=" + sessionInfo.getShortSessionId());
+        String userId = sessionInfo.getUserId();
+        Log.i("Logout: EXPIRED user=" + userId + " sid=" + sessionInfo.getShortSessionId());
         sessionMap.remove(sessionId);
       }
     }
@@ -479,21 +482,21 @@ public class SessionManager {
       return false;
     }
 
-    String username = sessionInfo.getUsername();
+    String userId = sessionInfo.getUserId();
     cleanInvalidatedSessionInfo();
-    Log.i("Logout: OK user=" + username + " sid=" + shortSid);
+    Log.i("Logout: OK user=" + userId + " sid=" + shortSid);
 
-    int count = countUserSessions(username);
+    int count = countUserSessions(userId);
     if (count == 0) {
       UserManager userManager = UserManager.getInstance();
-      UserStatus userStatus = userManager.getUserStatusInfo(username);
+      UserStatus userStatus = userManager.getUserStatusInfo(userId);
       if (userStatus != null) {
         long timestamp = System.currentTimeMillis();
         userStatus.setLastLogout(timestamp);
         try {
-          userManager.saveUserStatus(username);
+          userManager.saveUserStatus(userId);
         } catch (IOException ioe) {
-          Log.e("Write user status error: user=" + username + ": " + ioe);
+          Log.e("Write user status error: user=" + userId + ": " + ioe);
         }
       }
     }
@@ -504,15 +507,15 @@ public class SessionManager {
   /**
    * Clear all user sessions.
    *
-   * @param username
-   *          target username
+   * @param userId
+   *          target user id
    */
-  public void clearUserSessions(String username) {
+  public void clearUserSessions(String userId) {
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
       String sessionId = entry.getKey();
       SessionInfo sessionInfo = sessionMap.get(sessionId);
-      String uName = sessionInfo.getUsername();
-      if (uName.equals(username)) {
+      String uid = sessionInfo.getUserId();
+      if (uid.equals(userId)) {
         sessionMap.remove(sessionId);
       }
     }
@@ -532,16 +535,16 @@ public class SessionManager {
   /**
    * Returns user timeline log.
    *
-   * @param username
-   *          target username
+   * @param userId
+   *          target user id
    * @return Log text array
    */
-  public String[] getUserTimelineLog(String username) {
-    return loadTimelineLog(username);
+  public String[] getUserTimelineLog(String userId) {
+    return loadTimelineLog(userId);
   }
 
-  private String getTimelineLogFilePath(String username) {
-    String userDataPath = UserManager.getUserDataPath(username);
+  private String getTimelineLogFilePath(String userId) {
+    String userDataPath = UserManager.getUserDataPath(userId);
     String path = FileUtil.joinPath(userDataPath, TIMELINE_LOG_FILE_NAME);
     return path;
   }
@@ -549,12 +552,12 @@ public class SessionManager {
   /**
    * Load user timeline log from a storage.
    *
-   * @param username
-   *          target username
+   * @param userId
+   *          id target user id
    * @return Log text array
    */
-  public String[] loadTimelineLog(String username) {
-    String path = getTimelineLogFilePath(username);
+  public String[] loadTimelineLog(String userId) {
+    String path = getTimelineLogFilePath(userId);
     String[] logs = FileUtil.readTextAsArray(path);
     if (logs == null) {
       logs = new String[0];
@@ -562,10 +565,10 @@ public class SessionManager {
     return logs;
   }
 
-  public void saveTimelineLog(String username, String sid, long timestamp) throws IOException {
+  public void saveTimelineLog(String userId, String sid, long timestamp) throws IOException {
     int TIME_SLOT_MIN = 15;
     int MAX_LOG_LINES = 1000;
-    String[] logLines = loadTimelineLog(username);
+    String[] logLines = loadTimelineLog(userId);
 
     RingBuffer<String> logs = new RingBuffer<>(MAX_LOG_LINES);
     for (int i = 0; i < logLines.length; i++) {
@@ -602,7 +605,7 @@ public class SessionManager {
     String newLog = currentTimeSlotSec + "\t" + sid;
     logs.add(newLog);
 
-    String path = getTimelineLogFilePath(username);
+    String path = getTimelineLogFilePath(userId);
 
     logList = logs.getAll();
     StringBuffer sb = new StringBuffer();

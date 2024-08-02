@@ -29,27 +29,27 @@ public class LoginAction extends Action {
   private String login(ProcessContext context) throws Exception {
     SessionManager sessionManager = context.getSessionManager();
 
-    String username = context.getRequestParameter("id");
+    String userId = context.getRequestParameter("id");
     UserManager userManager = context.getUserManager();
-    if (isLocked(context, userManager, username)) {
-      Log.w("Login: " + "LOCKED user=" + username);
+    if (isLocked(context, userManager, userId)) {
+      Log.w("Login: " + "LOCKED user=" + userId);
       return "LOCKED";
     }
 
     String pwHash = context.getBSB64DecodedRequestParameter("pw");
-    String result = userManager.authenticate(username, pwHash);
+    String result = userManager.authenticate(userId, pwHash);
     String status;
 
     if ("OK".equals(result)) {
       status = "OK";
-      SessionInfo sessionInfo = onLogin(context, sessionManager, userManager, username);
-      Log.i("Login: OK user=" + username + " sid=" + sessionInfo.getShortSessionId());
+      SessionInfo sessionInfo = onLogin(context, sessionManager, userManager, userId);
+      Log.i("Login: OK user=" + userId + " sid=" + sessionInfo.getShortSessionId());
     } else {
       String msg;
       status = "NG";
       if (("PASSWORD_MISMATCH".equals(result)) || ("EMPTY_VALUE".equals(result))) {
-        msg = "NG user=" + username;
-        userManager.incrementLoginFailedCount(username);
+        msg = "NG user=" + userId;
+        userManager.incrementLoginFailedCount(userId);
       } else if ("USER_NOT_FOUND".equals(result)) {
         status = "NG";
         msg = result;
@@ -63,18 +63,18 @@ public class LoginAction extends Action {
     return status;
   }
 
-  private SessionInfo onLogin(ProcessContext context, SessionManager sessionManager, UserManager userManager, String username) throws Exception {
+  private SessionInfo onLogin(ProcessContext context, SessionManager sessionManager, UserManager userManager, String userId) throws Exception {
     long now = System.currentTimeMillis();
-    SessionInfo sessionInfo = sessionManager.onLoggedIn(context, username);
-    UserStatus userStatus = userManager.getUserStatusInfo(username);
+    SessionInfo sessionInfo = sessionManager.onLoggedIn(context, userId);
+    UserStatus userStatus = userManager.getUserStatusInfo(userId);
     userStatus.setLastLogin(now);
-    userManager.resetLoginFailedCount(username);
+    userManager.resetLoginFailedCount(userId);
     return sessionInfo;
   }
 
-  private boolean isLocked(ProcessContext context, UserManager userManager, String username) throws Exception {
-    int loginFailedCount = userManager.getLoginFailedCount(username);
-    long loginLockedTime = userManager.getLoginFailedTime(username);
+  private boolean isLocked(ProcessContext context, UserManager userManager, String userId) throws Exception {
+    int loginFailedCount = userManager.getLoginFailedCount(userId);
+    long loginLockedTime = userManager.getLoginFailedTime(userId);
     int loginFailureMaxCount = context.getConfigValueAsInteger("login_failure_max");
     long loginLockPeriodMillis = context.getConfigValueAsInteger("login_lock_period_sec") * 1000;
 
@@ -84,7 +84,7 @@ public class LoginAction extends Action {
       if ((loginLockPeriodMillis == 0) || (elapsed <= loginLockPeriodMillis)) {
         return true;
       } else {
-        userManager.resetLoginFailedCount(username);
+        userManager.resetLoginFailedCount(userId);
       }
     }
 

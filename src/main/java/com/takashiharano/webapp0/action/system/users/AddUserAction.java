@@ -14,10 +14,11 @@ public class AddUserAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    String username = context.getRequestParameter("username");
+    String userId = context.getRequestParameter("uid");
     String pwHash = context.getRequestParameter("pw");
     String fullname = context.getRequestParameter("fullname");
     String localFullName = context.getRequestParameter("localfullname");
+    String aliasName = context.getRequestParameter("a_name");
     String email = context.getRequestParameter("email");
     String adminFlag = context.getRequestParameter("is_admin");
     String groups = context.getRequestParameter("groups");
@@ -28,27 +29,27 @@ public class AddUserAction extends Action {
     String userFlags = context.getRequestParameter("flags");
 
     if (!context.hasPermission("sysadmin")) {
-      Log.i("AddUser: FORBIDDEN user=" + username);
+      Log.i("AddUser: FORBIDDEN user=" + userId);
       context.sendJsonResponse("FORBIDDEN:AddUser", null);
       return;
     }
 
     UserManager userManager = context.getUserManager();
-    if (userManager.existsUser(username)) {
-      Log.i("AddUser: USER_ALREADY_EXISTS username=" + username);
+    if (userManager.existsUser(userId)) {
+      Log.i("AddUser: USER_ALREADY_EXISTS user=" + userId);
       context.sendJsonResponse("USER_ALREADY_EXISTS", null);
       return;
     }
 
     String status = "OK";
     try {
-      userManager.regieterNewUser(username, pwHash, fullname, localFullName, email, adminFlag, groups, privileges, info1, info2, description, userFlags);
+      userManager.regieterNewUser(userId, pwHash, fullname, localFullName, aliasName, email, adminFlag, groups, privileges, info1, info2, description, userFlags);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User regieter error: " + status);
     }
 
-    Log.i("AddUser: " + status + " user=" + username);
+    Log.i("AddUser: " + status + " user=" + userId);
 
     context.sendJsonResponse(status, null);
   }

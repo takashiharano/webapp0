@@ -209,8 +209,8 @@ public class Group {
     jb.append("name", getName());
     jb.append("privileges", getPrivilegesInOneLine());
     jb.append("description", getDescription());
-    jb.append("created_date", getCreatedDate());
-    jb.append("updated_date", getUpdatedDate());
+    jb.append("created_at", getCreatedDate());
+    jb.append("updated_at", getUpdatedDate());
     String json = jb.toString();
     return json;
   }

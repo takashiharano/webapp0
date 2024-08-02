@@ -15,11 +15,11 @@ public class DeleteUserAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    String username = context.getRequestParameter("username");
+    String userId = context.getRequestParameter("uid");
 
-    String currentUsername = context.getUsername();
-    if (!context.hasPermission("sysadmin") || currentUsername.equals(username)) {
-      Log.w("DeleteUser: FORBIDDEN user=" + username);
+    String currentUserId = context.getUserId();
+    if (!context.hasPermission("sysadmin") || currentUserId.equals(userId)) {
+      Log.w("DeleteUser: FORBIDDEN user=" + userId);
       context.sendJsonResponse("FORBIDDEN:DeleteUser", null);
       return;
     }
@@ -27,16 +27,16 @@ public class DeleteUserAction extends Action {
     String status = "OK";
     try {
       SessionManager sessionManager = context.getSessionManager();
-      sessionManager.clearUserSessions(username);
+      sessionManager.clearUserSessions(userId);
 
       UserManager userManager = context.getUserManager();
-      userManager.deleteUser(username);
+      userManager.deleteUser(userId);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User delete error: " + status);
     }
 
-    Log.i("DeleteUser: " + status + " user=" + username);
+    Log.i("DeleteUser: " + status + " user=" + userId);
 
     context.sendJsonResponse(status, null);
   }

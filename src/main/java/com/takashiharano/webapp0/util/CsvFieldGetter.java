@@ -11,7 +11,7 @@ public class CsvFieldGetter {
   private int index;
 
   public CsvFieldGetter(String line) {
-    this(line, "\t");
+    this(line, ",");
   }
 
   public CsvFieldGetter(String line, String delimiter) {

@@ -11,7 +11,7 @@ import com.takashiharano.webapp0.session.SessionManager;
 
 public class UserStatus {
 
-  private String username;
+  private String userId;
   private long lastAccess;
   private long lastLogin;
   private long lastLogout;
@@ -19,12 +19,12 @@ public class UserStatus {
   private int loginFailedCount;
   private long loginFailedTime;
 
-  public UserStatus(String username) {
-    this(username, 0L, 0L, 0, 0L);
+  public UserStatus(String userId) {
+    this(userId, 0L, 0L, 0, 0L);
   }
 
-  public UserStatus(String username, long lastAccess, long pwChangedTime, int loginFailedCount, long loginFailedTime) {
-    this.username = username;
+  public UserStatus(String userId, long lastAccess, long pwChangedTime, int loginFailedCount, long loginFailedTime) {
+    this.userId = userId;
     this.lastAccess = lastAccess;
     this.lastLogin = 0L;
     this.lastLogout = 0L;
@@ -92,7 +92,7 @@ public class UserStatus {
   public int getSessionCount() {
     AppManager appManager = AppManager.getInstance();
     SessionManager sessionManager = appManager.getSessionManager();
-    int count = sessionManager.countUserSessions(username);
+    int count = sessionManager.countUserSessions(userId);
     return count;
   }
 

@@ -14,10 +14,11 @@ public class EditUserAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    String username = context.getRequestParameter("username");
+    String userId = context.getRequestParameter("uid");
     String pwHash = context.getRequestParameter("pw");
     String fullname = context.getRequestParameter("fullname");
     String localFullName = context.getRequestParameter("localfullname");
+    String aliasName = context.getRequestParameter("a_name");
     String email = context.getRequestParameter("email");
     String adminFlag = context.getRequestParameter("is_admin");
     String groups = context.getRequestParameter("groups");
@@ -27,9 +28,9 @@ public class EditUserAction extends Action {
     String description = context.getRequestParameter("description");
     String userFlags = context.getRequestParameter("flags");
 
-    String currentUsername = context.getUsername();
-    if (!context.hasPermission("sysadmin") && !currentUsername.equals(username)) {
-      Log.w("EditUser: FORBIDDEN user=" + username);
+    String currentUserId = context.getUserId();
+    if (!context.hasPermission("sysadmin") && !currentUserId.equals(userId)) {
+      Log.w("EditUser: FORBIDDEN user=" + userId);
       context.sendJsonResponse("FORBIDDEN:EditUser", null);
       return;
     }
@@ -38,7 +39,7 @@ public class EditUserAction extends Action {
     String info = null;
     try {
       UserManager userManager = context.getUserManager();
-      userManager.updateUser(username, pwHash, fullname, localFullName, email, adminFlag, groups, privileges, info1, info2, description, userFlags, false);
+      userManager.updateUser(userId, pwHash, fullname, localFullName, aliasName, email, adminFlag, groups, privileges, info1, info2, description, userFlags, false);
       if (pwHash != null) {
         info = "PW_changed";
       }
@@ -47,7 +48,7 @@ public class EditUserAction extends Action {
       Log.e("User edit error: " + status);
     }
 
-    Log.i("EditUser: " + status + " user=" + username + ((info == null) ? "" : " " + info));
+    Log.i("EditUser: " + status + " user=" + userId + ((info == null) ? "" : " " + info));
 
     context.sendJsonResponse(status, null);
   }

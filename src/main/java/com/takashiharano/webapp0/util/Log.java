@@ -94,14 +94,14 @@ public class Log extends _Log {
     }
 
     String addr = "-";
-    String username = "-";
+    String userId = "-";
 
     if (context != null) {
       addr = context.getRemoteAddr();
-      username = context.getUsername();
+      userId = context.getUserId();
     }
-    if (username == null) {
-      username = "-";
+    if (userId == null) {
+      userId = "-";
     }
 
     inf.append("[");
@@ -109,7 +109,7 @@ public class Log extends _Log {
     inf.append("]");
 
     inf.append("[");
-    inf.append(username);
+    inf.append(userId);
     inf.append("]");
 
     if (((flag & FLAG_LINE) != 0) && printLine) {

@@ -218,7 +218,7 @@ public class GroupManager {
         continue;
       }
 
-      CsvFieldGetter csvFieldGetter = new CsvFieldGetter(line);
+      CsvFieldGetter csvFieldGetter = new CsvFieldGetter(line, "\t");
       String gid = csvFieldGetter.getFieldValue();
       String name = csvFieldGetter.getFieldValue();
       String privileges = csvFieldGetter.getFieldValue();

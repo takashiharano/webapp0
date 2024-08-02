@@ -44,27 +44,27 @@ public class GetSessionInfoListAction extends Action {
     for (Entry<String, SessionInfo> entry : sessions.entrySet()) {
       SessionInfo info = entry.getValue();
       String sid = info.getSessionId();
-      String username = info.getUsername();
+      String userId = info.getUserId();
       String addr = info.getRemoteAddr();
       String ua = info.getUserAgent();
       long createdTime = info.getCreatedTime();
       long lastAccessTime = info.getLastAccessTime();
 
-      User user = userManager.getUserInfo(username);
+      User user = userManager.getUserInfo(userId);
       String fullName = user.getFullName();
 
       JsonBuilder jb1 = new JsonBuilder();
       jb1.append("sid", sid);
-      jb1.append("username", username);
-      jb1.append("fullName", fullName);
-      jb1.append("createdTime", createdTime);
-      jb1.append("lastAccessTime", lastAccessTime);
+      jb1.append("uid", userId);
+      jb1.append("time", lastAccessTime);
+      jb1.append("user_fullname", fullName);
       jb1.append("addr", addr);
       jb1.append("ua", ua);
+      jb1.append("c_time", createdTime);
 
       if (includeLogs) {
         int targetOffset = context.getRequestParameterAsInteger("offset");
-        List<Long> tmLogs = getTimelineLogs(context, username, sid, now, targetOffset);
+        List<Long> tmLogs = getTimelineLogs(context, userId, sid, now, targetOffset);
         jb1.openList("timeline_log");
         for (int i = 0; i < tmLogs.size(); i++) {
           long time = tmLogs.get(i);
@@ -81,7 +81,7 @@ public class GetSessionInfoListAction extends Action {
     context.sendJsonResponse(status, json);
   }
 
-  private List<Long> getTimelineLogs(ProcessContext context, String username, String sid, long now, int targetOffset) {
+  private List<Long> getTimelineLogs(ProcessContext context, String userId, String sid, long now, int targetOffset) {
     long DAY_MILLIS = 86400000;
     long tm = now - DAY_MILLIS * targetOffset;
     long mnTimestamp = DateTime.getMidnightTimestamp(tm);
@@ -90,7 +90,7 @@ public class GetSessionInfoListAction extends Action {
 
     SessionManager sessionManager = context.getSessionManager();
 
-    String[] logs = sessionManager.getUserTimelineLog(username);
+    String[] logs = sessionManager.getUserTimelineLog(userId);
     List<Long> tmLogs = new ArrayList<>();
     for (int i = 0; i < logs.length; i++) {
       String line = logs[i];

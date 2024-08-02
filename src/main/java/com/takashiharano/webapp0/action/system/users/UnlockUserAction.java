@@ -14,11 +14,11 @@ public class UnlockUserAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    String username = context.getRequestParameter("username");
+    String userId = context.getRequestParameter("uid");
 
-    String currentUsername = context.getUsername();
-    if (!context.hasPermission("sysadmin") || currentUsername.equals(username)) {
-      Log.w("UnlockUser: FORBIDDEN user=" + username);
+    String currentUsername = context.getUserId();
+    if (!context.hasPermission("sysadmin") || currentUsername.equals(userId)) {
+      Log.w("UnlockUser: FORBIDDEN user=" + userId);
       context.sendJsonResponse("FORBIDDEN:UnlockUser", null);
       return;
     }
@@ -26,13 +26,13 @@ public class UnlockUserAction extends Action {
     String status = "OK";
     try {
       UserManager userManager = context.getUserManager();
-      userManager.unlockUser(username);
+      userManager.unlockUser(userId);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User unlock error: " + status);
     }
 
-    Log.i("UnlockUser: " + status + " user=" + username);
+    Log.i("UnlockUser: " + status + " user=" + userId);
 
     context.sendJsonResponse(status, null);
   }

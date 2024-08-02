@@ -753,10 +753,10 @@ public class ProcessContext {
       return null;
     }
 
-    String username = sessionInfo.getUsername();
+    String userId = sessionInfo.getUserId();
 
     UserManager userManager = getUserManager();
-    User userInfo = userManager.getUserInfo(username);
+    User userInfo = userManager.getUserInfo(userId);
     return userInfo;
   }
 
@@ -776,28 +776,28 @@ public class ProcessContext {
   }
 
   /**
-   * Returns current username.
+   * Returns current user id.
    *
-   * @return username
+   * @return user id
    */
-  public String getUsername() {
-    return getUsername("");
+  public String getUserId() {
+    return getUserId("");
   }
 
   /**
-   * Returns current username.
+   * Returns current user id.
    *
-   * @param defaultName
-   *          Default name if no information is available
-   * @return username
+   * @param defaultValue
+   *          Default value if no information is available
+   * @return user id
    */
-  public String getUsername(String defaultName) {
-    String username = defaultName;
+  public String getUserId(String defaultValue) {
+    String uid = defaultValue;
     User userInfo = getUserInfo();
     if (userInfo != null) {
-      username = userInfo.getUsername();
+      uid = userInfo.getUserId();
     }
-    return username;
+    return uid;
   }
 
   /**

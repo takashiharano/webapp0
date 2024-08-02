@@ -14,12 +14,12 @@ public class ChangePasswordAction extends Action {
 
   @Override
   public void process(ProcessContext context) throws Exception {
-    String username = context.getRequestParameter("username");
+    String userId = context.getRequestParameter("uid");
     String pwHash = context.getRequestParameter("pw");
 
-    String currentUsername = context.getUsername();
-    if (!context.hasPermission("sysadmin") && !currentUsername.equals(username)) {
-      Log.w("ChangePassword: FORBIDDEN user=" + username);
+    String currentUid = context.getUserId();
+    if (!context.hasPermission("sysadmin") && !currentUid.equals(userId)) {
+      Log.w("ChangePassword: FORBIDDEN user=" + userId);
       context.sendJsonResponse("FORBIDDEN:ChangePassword", null);
       return;
     }
@@ -27,13 +27,13 @@ public class ChangePasswordAction extends Action {
     String status = "OK";
     try {
       UserManager userManager = context.getUserManager();
-      userManager.updateUser(username, pwHash, null, null, null, null, null, null, null, null, null, null, true);
+      userManager.changePassword(userId, pwHash);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("Change password error: " + status);
     }
 
-    Log.i("ChangePassword: " + status + " user=" + username);
+    Log.i("ChangePassword: " + status + " user=" + userId);
 
     context.sendJsonResponse(status, null);
   }

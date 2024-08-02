@@ -75,7 +75,7 @@ app.common.usermenu.openChangePw = function() {
 };
 
 app.common.usermenu.chengaPw = function() {
-  var username = app.getUsername();
+  var uid = app.getUserId();
 
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
@@ -90,11 +90,11 @@ app.common.usermenu.chengaPw = function() {
     }
   }
 
-  var salt = username;
+  var salt = uid;
   pwHash = app.common.getHash('SHA-256', pw1, salt);
 
   var params = {
-    username: username,
+    uid: uid,
     pw: pwHash
   };
 

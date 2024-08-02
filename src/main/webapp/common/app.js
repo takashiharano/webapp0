@@ -116,10 +116,10 @@ app.showInfotip = function(s, d) {
 };
 
 /**
- * Returns the current username;
+ * Returns the current user id;
  */
-app.getUsername = function() {
-  return app.username;
+app.getUserId = function() {
+  return app.uid;
 };
 
 /**
