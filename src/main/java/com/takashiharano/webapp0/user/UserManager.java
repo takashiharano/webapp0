@@ -204,6 +204,7 @@ public class UserManager {
       String userId = user.getUserId();
       String fullname = user.getFullName();
       String localFullName = user.getLocalFullName();
+      String aliasName = user.getAliasName();
       String email = user.getEmail();
       boolean isAdmin = user.isAdmin();
       String adminFlag = (isAdmin ? "1" : "0");
@@ -219,6 +220,7 @@ public class UserManager {
       csvBuilder.append(userId);
       csvBuilder.append(fullname);
       csvBuilder.append(localFullName);
+      csvBuilder.append(aliasName);
       csvBuilder.append(email);
       csvBuilder.append(adminFlag);
       csvBuilder.append(groups);

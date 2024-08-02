@@ -21,17 +21,17 @@ scnjs.DAY = 86400000;
 scnjs.INTERVAL = 60000;
 scnjs.USER_LIST_COLUMNS = [
   {key: 'elapsed', label: ''},
-  {key: 'uid', label: 'UID', style: 'min-width:min-width:10em;'},
-  {key: 'fullname', label: 'Full Name', style: 'min-width:10em;'},
-  {key: 'localfullname', label: 'Local Full Name', style: 'min-width:10em;'},
+  {key: 'uid', label: 'UID', style: 'min-width:10em;'},
+  {key: 'fullname', label: 'Full name', style: 'min-width:8em;'},
+  {key: 'localfullname', label: 'Local full name', style: 'min-width:8em;'},
   {key: 'a_name', label: 'Alias name', style: 'min-width:5em;'},
   {key: 'email', label: 'Email', style: 'min-width:10em;'},
   {key: 'is_admin', label: 'Admin'},
-  {key: 'groups', label: 'Groups', style: 'min-width:15em;'},
-  {key: 'privileges', label: 'Privileges', style: 'min-width:15em;'},
+  {key: 'groups', label: 'Groups', style: 'min-width:5em;'},
+  {key: 'privileges', label: 'Privileges', style: 'min-width:5em;'},
   {key: 'info1', label: 'Info1', style: 'min-width:5em;'},
   {key: 'info2', label: 'Info2', style: 'min-width:5em;'},
-  {key: 'description', label: 'Description', style: 'min-width:15em;'},
+  {key: 'description', label: 'Description', style: 'min-width:5em;'},
   {key: 'flags', label: 'Flags'},
   {key: 'status_info.sessions', label: 'S'},
   {key: 'status_info.login_failed_count', label: 'E'},
@@ -242,6 +242,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     var info1 = item.info1;
     var info2 = item.info2;
     var desc = (item.description ? item.description : '');
+
     var escDesc = util.escHtml(desc);
     var dispDesc = '<span style="display:inline-block;width:100%;overflow:hidden;text-overflow:ellipsis;"';
     if (util.lenW(desc) > 15) {
@@ -466,6 +467,7 @@ scnjs.getSessionListCb = function(xhr, res, req) {
 
 scnjs.drawSessionList = function(sessions) {
   var now = util.now();
+  sessions = util.sortObjectList(sessions, 'lastAccessTime', true, true);
   var html = '<table>';
   html += '<tr style="font-weight:bold;">';
   html += '<td></td>';
@@ -479,8 +481,6 @@ scnjs.drawSessionList = function(sessions) {
   html += '<td class="timeline-head">User-Agent</td>';
   html += '<td class="timeline-head">Logged in</td>';
   html += '</tr>';
-
-  sessions = util.sortObjectList(sessions, 'lastAccessTime', true, true);
   html += scnjs.buildSessionInfoHtml(sessions, now);
   html += '</table>';
   $el('#session-list').innerHTML = html;
@@ -989,6 +989,7 @@ scnjs.clearUserInfoEditor = function() {
     uid: '',
     fullname: '',
     localfullname: '',
+    a_name: '',
     email: '',
     is_admin: false,
     groups: '',
@@ -1080,6 +1081,7 @@ scnjs.addUser = function() {
     uid: uid,
     fullname: fullname,
     localfullname: localfullname,
+    a_name: a_name,
     email: email,
     is_admin: isAdmin,
     groups: groups,
@@ -1181,7 +1183,7 @@ scnjs._deleteUser = function(uid) {
     scnjs.userEditWindow.close();
   }
   var params = {
-    uid: uid,
+    uid: uid
   };
   app.callServerApi('DeleteUser', params, scnjs.deleteUserCb);
 };
