@@ -144,7 +144,7 @@ public class UserManager {
    *          it must be lower case.
    * @return The result status string. "OK" or any error status.
    */
-  public String authenticate(String userId, String pwHash) {
+  public String authenticate(ProcessContext context, String userId, String pwHash) throws Exception {
     if (StrUtil.isBlank(userId) || StrUtil.isBlank(pwHash)) {
       return "EMPTY_VALUE";
     }
@@ -154,9 +154,16 @@ public class UserManager {
       return "USER_NOT_FOUND";
     }
 
-    AppManager appManager = AppManager.getInstance();
+    if (user.hasFlag(User.FLAG_DISABLED)) {
+      return "DISABLED";
+    }
+
+    if (isLocked(context, userId)) {
+      return "LOCKED";
+    }
 
     String status;
+    AppManager appManager = AppManager.getInstance();
     String authControl = appManager.getConfigValue("auth_control");
     if ("pseudo".equals(authControl)) {
       status = "OK";
@@ -165,6 +172,25 @@ public class UserManager {
     }
 
     return status;
+  }
+
+  private boolean isLocked(ProcessContext context, String userId) throws Exception {
+    int loginFailedCount = getLoginFailedCount(userId);
+    long loginLockedTime = getLoginFailedTime(userId);
+    int loginFailureMaxCount = context.getConfigValueAsInteger("login_failure_max");
+    long loginLockPeriodMillis = context.getConfigValueAsInteger("login_lock_period_sec") * 1000;
+
+    if ((loginFailureMaxCount > 0) && (loginFailedCount >= loginFailureMaxCount)) {
+      long now = System.currentTimeMillis();
+      long elapsed = now - loginLockedTime;
+      if ((loginLockPeriodMillis == 0) || (elapsed <= loginLockPeriodMillis)) {
+        return true;
+      } else {
+        resetLoginFailedCount(userId);
+      }
+    }
+
+    return false;
   }
 
   /**

@@ -31,13 +31,10 @@ public class LoginAction extends Action {
 
     String userId = context.getRequestParameter("id");
     UserManager userManager = context.getUserManager();
-    if (isLocked(context, userManager, userId)) {
-      Log.w("Login: " + "LOCKED user=" + userId);
-      return "LOCKED";
-    }
 
     String pwHash = context.getBSB64DecodedRequestParameter("pw");
-    String result = userManager.authenticate(userId, pwHash);
+    String result = userManager.authenticate(context, userId, pwHash);
+
     String status;
 
     if ("OK".equals(result)) {
@@ -53,6 +50,12 @@ public class LoginAction extends Action {
       } else if ("USER_NOT_FOUND".equals(result)) {
         status = "NG";
         msg = result;
+      } else if ("DISABLED".equals(result)) {
+        Log.w("Login: " + "DISABLED user=" + userId);
+        return "DISABLED";
+      } else if ("LOCKED".equals(result)) {
+        Log.w("Login: " + "LOCKED user=" + userId);
+        return "LOCKED";
       } else {
         status = "ERROR";
         msg = result;
@@ -70,25 +73,6 @@ public class LoginAction extends Action {
     userStatus.setLastLogin(now);
     userManager.resetLoginFailedCount(userId);
     return sessionInfo;
-  }
-
-  private boolean isLocked(ProcessContext context, UserManager userManager, String userId) throws Exception {
-    int loginFailedCount = userManager.getLoginFailedCount(userId);
-    long loginLockedTime = userManager.getLoginFailedTime(userId);
-    int loginFailureMaxCount = context.getConfigValueAsInteger("login_failure_max");
-    long loginLockPeriodMillis = context.getConfigValueAsInteger("login_lock_period_sec") * 1000;
-
-    if ((loginFailureMaxCount > 0) && (loginFailedCount >= loginFailureMaxCount)) {
-      long now = System.currentTimeMillis();
-      long elapsed = now - loginLockedTime;
-      if ((loginLockPeriodMillis == 0) || (elapsed <= loginLockPeriodMillis)) {
-        return true;
-      } else {
-        userManager.resetLoginFailedCount(userId);
-      }
-    }
-
-    return false;
   }
 
 }

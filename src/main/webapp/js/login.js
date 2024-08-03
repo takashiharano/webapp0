@@ -8,6 +8,7 @@ app.login = {};
 app.login.MESSAGES = {
   login_ok: 'Welcome!',
   login_ng: 'Failed. Please try again.',
+  login_disabled: 'Disabled.',
   login_locked: 'Locked.'
 };
 
@@ -50,7 +51,15 @@ app.login.loginCb = function(xhr, res) {
     var m = app.getMessage('login_ok');
     $el('#message').textseq(m, textseqOpt);
   } else {
-    var msgId = ((res.status == 'LOCKED') ? 'login_locked' : 'login_ng');
+    var msgId = 'login_ng';
+    switch (res.status) {
+      case 'DISABLED':
+        msgId = 'login_disabled';
+        break;
+      case 'LOCKED':
+        msgId = 'login_locked';
+        break;
+    }
     m = app.getMessage(msgId);
     if (res.status == 'ERROR') {
       m = 'Server Error';
