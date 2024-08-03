@@ -8,8 +8,11 @@ package com.takashiharano.webapp0.session;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -18,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.libutil.CsvBuilder;
 import com.libutil.FileUtil;
 import com.libutil.HashUtil;
 import com.libutil.RandomGenerator;
@@ -34,15 +38,12 @@ public class SessionManager {
 
   public static final String SESSION_COOKIE_NAME = AppManager.MODULE_NAME + "_sid";
   private static final int DEFAULT_MAX_SESSIONS_PER_USER = 10;
-
   private static final String TIMELINE_LOG_FILE_NAME = "timeline.log";
 
-  private String sessionInfoFilePath;
   private ConcurrentHashMap<String, SessionInfo> sessionMap;
 
-  public SessionManager(String sessionFilePath) {
+  public SessionManager() {
     sessionMap = new ConcurrentHashMap<>();
-    this.sessionInfoFilePath = sessionFilePath;
   }
 
   /**
@@ -53,8 +54,8 @@ public class SessionManager {
    * @param timestamp
    *          timestamp of access time
    */
-  public void onAccess(ProcessContext context, long timestamp) {
-    cleanInvalidatedSessionInfo();
+  public synchronized void onAccess(ProcessContext context, long timestamp) {
+    cleanInvalidatedSessionInfo(true);
 
     String sessinId = context.getSessionId();
     if (sessinId == null) {
@@ -75,6 +76,8 @@ public class SessionManager {
     sessionInfo.setUserAgent(ua);
 
     String userId = context.getUserId();
+    saveSessionInfo(userId);
+
     try {
       saveTimelineLog(userId, sessinId, timestamp);
     } catch (IOException e) {
@@ -88,8 +91,8 @@ public class SessionManager {
    */
   public void onStop() {
     // Remove invalid info prior to save.
-    cleanInvalidatedSessionInfo();
-    saveSessionInfo(sessionInfoFilePath);
+    cleanInvalidatedSessionInfo(false);
+    saveAllSessionsInfo();
   }
 
   /**
@@ -260,16 +263,30 @@ public class SessionManager {
     }
   }
 
+  public void loadAllSessionsInfo() {
+    AppManager appManager = AppManager.getInstance();
+    UserManager userManager = appManager.getUserManager();
+    String[] userIds = userManager.getAllUserIds();
+    int sessionCount = 0;
+    for (int i = 0; i < userIds.length; i++) {
+      String userId = userIds[i];
+      int count = loadSessionInfo(userId);
+      sessionCount += count;
+    }
+    Log.i("Total " + sessionCount + " session info loaded");
+  }
+
   /**
    * Loads session info from a file.
    *
    * @param path
    *          Session info file path
    */
-  public void loadSessionInfo(String path) {
+  public int loadSessionInfo(String userId) {
+    String path = getUserSessionPath(userId);
     String[] records = FileUtil.readTextAsArray(path);
     if (records == null) {
-      return;
+      return 0;
     }
 
     int count = 0;
@@ -282,11 +299,15 @@ public class SessionManager {
         restoreSessionInfo(record);
         count++;
       } catch (Exception e) {
-        Log.e("Session restore error: " + e.toString());
+        Log.e("Session restore error: userId=" + userId + ": " + e.toString());
       }
     }
 
-    Log.i(count + " session info loaded");
+    if (count > 0) {
+      Log.i(count + " session info loaded: userId=" + userId);
+    }
+
+    return count;
   }
 
   /**
@@ -303,59 +324,120 @@ public class SessionManager {
     String remoteAddr = csvFieldGetter.getFieldValue();
     String remoteHost = csvFieldGetter.getFieldValue();
     String userAgent = csvFieldGetter.getFieldValue();
-    long createdTime = csvFieldGetter.getFieldValueAsLong();
+    long loginTime = csvFieldGetter.getFieldValueAsLong();
+    String loginRemoteAddr = csvFieldGetter.getFieldValue();
+    String loginRemoteHost = csvFieldGetter.getFieldValue();
+    String loginUserAgent = csvFieldGetter.getFieldValue();
 
-    SessionInfo info = new SessionInfo(sessionId, userId, lastAccessTime, remoteAddr, remoteHost, userAgent, createdTime);
+    SessionInfo info = new SessionInfo(sessionId, userId, lastAccessTime, remoteAddr, remoteHost, userAgent, loginTime, loginRemoteAddr, loginRemoteHost, loginUserAgent);
     registerSessionInfo(info);
   }
 
   /**
-   * Saves session info into the file.
-   *
-   * @param path
-   *          the file path to save session info
+   * Saves all user sessions info into the file.
    */
-  public void saveSessionInfo(String path) {
-    StringBuilder sb = new StringBuilder();
+  private void saveAllSessionsInfo() {
+    AppManager appManager = AppManager.getInstance();
+    UserManager userManager = appManager.getUserManager();
+    String[] userIds = userManager.getAllUserIds();
+    saveSessionInfo(userIds);
+  }
+
+  /**
+   * Saves user sessions info into the file.
+   */
+  private void saveSessionInfo(String[] userIds) {
     int count = 0;
+    for (int i = 0; i < userIds.length; i++) {
+      String userId = userIds[i];
+      int savedCount = saveSessionInfo(userId);
+      count += savedCount;
+      if (savedCount > 0) {
+        Log.i(savedCount + " session info saved: userId=" + userId);
+        Log.i("Total " + count + " session info saved");
+      }
+    }
+  }
+
+  /**
+   ** Saves user sessions info into the file.
+   *
+   * @param userId
+   *          target user id
+   * @return saved session count
+   */
+  public int saveSessionInfo(String userId) {
+    int count = 0;
+    CsvBuilder csvBuilder = new CsvBuilder("\t");
+    csvBuilder = buildTsvHeader(csvBuilder);
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
-      count++;
       String sessionId = entry.getKey();
-      SessionInfo info = sessionMap.get(sessionId);
-      String userId = info.getUserId();
-      long lastAccessTime = info.getLastAccessTime();
-      String remoteAddr = info.getRemoteAddr();
-      String remoteHost = info.getRemoteHost();
-      String userAgent = info.getUserAgent();
-      long createdTime = info.getCreatedTime();
+      SessionInfo session = sessionMap.get(sessionId);
+      String uid = session.getUserId();
+      if (!uid.equals(userId)) {
+        continue;
+      }
 
-      StringBuilder record = new StringBuilder();
-      record.append(sessionId);
-      record.append("\t");
-      record.append(userId);
-      record.append("\t");
-      record.append(lastAccessTime);
-      record.append("\t");
-      record.append(remoteAddr);
-      record.append("\t");
-      record.append(remoteHost);
-      record.append("\t");
-      record.append(userAgent);
-      record.append("\t");
-      record.append(createdTime);
+      long lastAccessTime = session.getLastAccessTime();
+      String remoteAddr = session.getRemoteAddr();
+      String remoteHost = session.getRemoteHost();
+      String userAgent = session.getUserAgent();
+      long createdTime = session.getCreatedTime();
+      String createdRemoteAddr = session.getCreatedRemoteAddr();
+      String createdRemoteHost = session.getCreatedRemoteHost();
+      String createdUserAgent = session.getCreatedUserAgent();
 
-      sb.append(record.toString());
-      sb.append("\n");
+      csvBuilder.append(sessionId);
+      csvBuilder.append(userId);
+      csvBuilder.append(lastAccessTime);
+      csvBuilder.append(remoteAddr);
+      csvBuilder.append(remoteHost);
+      csvBuilder.append(userAgent);
+      csvBuilder.append(createdTime);
+      csvBuilder.append(createdRemoteAddr);
+      csvBuilder.append(createdRemoteHost);
+      csvBuilder.append(createdUserAgent);
+      csvBuilder.nextRecord();
+
+      count++;
     }
 
-    String sessions = sb.toString();
+    String path = getUserSessionPath(userId);
+
+    if (count == 0) {
+      FileUtil.delete(path);
+      return 0;
+    }
+
+    String text = csvBuilder.toString();
     try {
-      Log.i("Writing session info: " + path);
-      FileUtil.write(path, sessions);
-      Log.i(count + " session info saved");
+      FileUtil.write(path, text);
     } catch (IOException e) {
-      Log.e("Session info save error", e);
+      Log.e("Session info save error: userId=" + userId, e);
     }
+
+    return count;
+  }
+
+  private CsvBuilder buildTsvHeader(CsvBuilder csvBuilder) {
+    csvBuilder.append("#sid");
+    csvBuilder.append("uid");
+    csvBuilder.append("time");
+    csvBuilder.append("addr");
+    csvBuilder.append("host");
+    csvBuilder.append("ua");
+    csvBuilder.append("login_time");
+    csvBuilder.append("login_addr");
+    csvBuilder.append("login_host");
+    csvBuilder.append("login_ua");
+    csvBuilder.nextRecord();
+    return csvBuilder;
+  }
+
+  private String getUserSessionPath(String userId) {
+    String userDataPath = UserManager.getUserDataPath(userId);
+    String path = FileUtil.joinPath(userDataPath, "sessions.txt");
+    return path;
   }
 
   /**
@@ -397,16 +479,13 @@ public class SessionManager {
     HttpSession session = request.getSession();
     session.invalidate();
     session = request.getSession(true);
-    String sessionId = generateSessionId(userId);
+    long now = System.currentTimeMillis();
+    String sessionId = generateSessionId(now, userId);
     String remoteAddr = context.getRemoteAddr();
     String remoteHost = context.getRemoteHost();
     String userAgent = context.getUserAgent();
 
-    long now = System.currentTimeMillis();
-    long lastAccessTime = now;
-    long createdTime = now;
-
-    SessionInfo sessionInfo = new SessionInfo(sessionId, userId, lastAccessTime, remoteAddr, remoteHost, userAgent, createdTime);
+    SessionInfo sessionInfo = new SessionInfo(sessionId, userId, now, remoteAddr, remoteHost, userAgent, now, remoteAddr, remoteHost, userAgent);
 
     // Set session expiration
     int sessionTimeoutSec = getSessionTimeout();
@@ -419,12 +498,13 @@ public class SessionManager {
   /**
    * Generate a session ID.
    *
+   * @param t
+   *          timestamp
    * @param userId
    *          the user id
    * @return Session ID
    */
-  private String generateSessionId(String userId) {
-    long t = System.currentTimeMillis();
+  private String generateSessionId(long t, String userId) {
     long r = RandomGenerator.getLong();
     String s = t + userId + r;
     String sessionId = HashUtil.getHashString(s, "SHA-256");
@@ -434,11 +514,13 @@ public class SessionManager {
   /**
    * Removes expired session info from the management map.
    */
-  public void cleanInvalidatedSessionInfo() {
+  public void cleanInvalidatedSessionInfo(boolean flush) {
     long now = System.currentTimeMillis();
     AppManager appManager = AppManager.getInstance();
     int sessionTimeoutSec = appManager.getConfigValueAsInteger("session_timeout_sec");
     long timeoutMillis = sessionTimeoutSec * 1000;
+    Set<String> clearedUserIds = new LinkedHashSet<>();
+
     for (Entry<String, SessionInfo> entry : sessionMap.entrySet()) {
       String sessionId = entry.getKey();
       SessionInfo sessionInfo = sessionMap.get(sessionId);
@@ -448,8 +530,26 @@ public class SessionManager {
         String userId = sessionInfo.getUserId();
         Log.i("Logout: EXPIRED user=" + userId + " sid=" + sessionInfo.getShortSessionId());
         sessionMap.remove(sessionId);
+        clearedUserIds.add(userId);
       }
     }
+
+    if (flush) {
+      flushSessionInfo(clearedUserIds);
+    }
+  }
+
+  private void flushSessionInfo(Set<String> clearedUserIds) {
+    int size = clearedUserIds.size();
+    Iterator<String> it = clearedUserIds.iterator();
+    String[] userIds = new String[size];
+    int i = 0;
+    while (it.hasNext()) {
+      String userId = it.next();
+      userIds[i] = userId;
+      i++;
+    }
+    saveSessionInfo(userIds);
   }
 
   /**
@@ -483,7 +583,8 @@ public class SessionManager {
     }
 
     String userId = sessionInfo.getUserId();
-    cleanInvalidatedSessionInfo();
+    saveSessionInfo(userId);
+    cleanInvalidatedSessionInfo(true);
     Log.i("Logout: OK user=" + userId + " sid=" + shortSid);
 
     int count = countUserSessions(userId);

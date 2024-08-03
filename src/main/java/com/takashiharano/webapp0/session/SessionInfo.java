@@ -16,12 +16,15 @@ public class SessionInfo {
   private String remoteHost;
   private String userAgent;
   private long createdTime;
+  private String createdRemoteAddr;
+  private String createdRemoteHost;
+  private String createdUserAgent;
 
-  public SessionInfo(String sessionId, String userId, String remoteAddr, String remoteHost, String userAgent) {
-    this(sessionId, userId, 0, remoteAddr, remoteHost, userAgent, System.currentTimeMillis());
+  public SessionInfo(String sessionId, String userId, long timestamp, String remoteAddr, String remoteHost, String userAgent) {
+    this(sessionId, userId, 0L, null, null, null, timestamp, remoteAddr, remoteHost, userAgent);
   }
 
-  public SessionInfo(String sessionId, String userId, long lastAccessTime, String remoteAddr, String remoteHost, String userAgent, long createdTime) {
+  public SessionInfo(String sessionId, String userId, long lastAccessTime, String remoteAddr, String remoteHost, String userAgent, long createdTime, String createdRemoteAddr, String createdRemoteHost, String createdUserAgent) {
     this.sessionId = sessionId;
     this.userId = userId;
     this.lastAccessTime = lastAccessTime;
@@ -29,6 +32,9 @@ public class SessionInfo {
     this.remoteHost = remoteHost;
     this.userAgent = userAgent;
     this.createdTime = createdTime;
+    this.createdRemoteAddr = createdRemoteAddr;
+    this.createdRemoteHost = createdRemoteHost;
+    this.createdUserAgent = createdUserAgent;
   }
 
   public String getSessionId() {
@@ -41,10 +47,6 @@ public class SessionInfo {
 
   public String getUserId() {
     return userId;
-  }
-
-  public long getCreatedTime() {
-    return createdTime;
   }
 
   public long getLastAccessTime() {
@@ -77,6 +79,22 @@ public class SessionInfo {
 
   public void setUserAgent(String userAgent) {
     this.userAgent = userAgent;
+  }
+
+  public long getCreatedTime() {
+    return createdTime;
+  }
+
+  public String getCreatedRemoteAddr() {
+    return createdRemoteAddr;
+  }
+
+  public String getCreatedRemoteHost() {
+    return createdRemoteHost;
+  }
+
+  public String getCreatedUserAgent() {
+    return createdUserAgent;
   }
 
 }

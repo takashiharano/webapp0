@@ -57,6 +57,34 @@ public class UserManager {
   }
 
   /**
+   * Updates last access time in user status info.
+   *
+   * @param context
+   *          Process Context
+   * @param timestamp
+   *          the timestamp of the current date-time
+   */
+  public synchronized void onAccess(ProcessContext context, long timestamp) {
+    String userId = context.getUserId();
+    if (userId == null) {
+      return;
+    }
+
+    UserStatus userStatus = getUserStatusInfo(userId);
+    if (userStatus == null) {
+      return;
+    }
+
+    userStatus.setLastAccess(timestamp);
+
+    try {
+      saveUserStatus(userId, userStatus);
+    } catch (IOException ioe) {
+      Log.e("onAccess(): Write user status error: user=" + userId + ": " + ioe);
+    }
+  }
+
+  /**
    * Callback for the web application shut down.<br>
    * This is called by AppManager#onStop().
    */
@@ -69,32 +97,29 @@ public class UserManager {
   }
 
   /**
-   * Updates last access time in user status info.
-   *
-   * @param context
-   *          Process Context
-   * @param timestamp
-   *          the timestamp of the current date-time
-   */
-  public void onAccess(ProcessContext context, long timestamp) {
-    String userId = context.getUserId();
-    if (userId == null) {
-      return;
-    }
-    UserStatus userStatus = getUserStatusInfo(userId);
-    if (userStatus == null) {
-      return;
-    }
-    userStatus.setLastAccess(timestamp);
-  }
-
-  /**
    * Returns all user info map.
    *
    * @return the map of user info
    */
   public Map<String, User> getAllUserInfo() {
     return users;
+  }
+
+  /**
+   * Returns all user IDs.
+   *
+   * @return all user IDs
+   */
+  public String[] getAllUserIds() {
+    int size = users.size();
+    String[] ids = new String[size];
+    int i = 0;
+    for (Entry<String, User> entry : users.entrySet()) {
+      String userId = entry.getKey();
+      ids[i] = userId;
+      i++;
+    }
+    return ids;
   }
 
   /**
@@ -172,12 +197,12 @@ public class UserManager {
       String info2 = csvFieldGetter.getFieldValue();
       String description = csvFieldGetter.getFieldValue();
       int status = csvFieldGetter.getFieldValueAsInteger(User.FLAG_NEED_PW_CHANGE);
-      long createdDate = csvFieldGetter.getFieldValueAsLong();
-      long updatedDate = csvFieldGetter.getFieldValueAsLong();
+      long createdAt = csvFieldGetter.getFieldValueAsLong();
+      long updatedAt = csvFieldGetter.getFieldValueAsLong();
 
       User user = new User(userId, fullname, localFullName, aliaslName, email, isAdmin, groups, privileges, info1, info2, description, status);
-      user.setCreatedDate(createdDate);
-      user.setUpdatedDate(updatedDate);
+      user.setCreatedAt(createdAt);
+      user.setUpdatedAt(updatedAt);
 
       UserStatus userStatus = loadUserStatus(userId);
       user.setUserStatus(userStatus);
@@ -192,12 +217,10 @@ public class UserManager {
    * @throws IOException
    *           if an IO error occurres
    */
-  public void saveUsers() throws IOException {
-    String header = "#Username\tName\tLocalFullName\tisAdmin\tGroups\tPrivileges\tDescription\tFlags\tCreated\tUpdated\n";
-
+  public synchronized void saveUsers() throws IOException {
     CsvBuilder csvBuilder = new CsvBuilder("\t", false);
     csvBuilder.setLineBreak("\n");
-    csvBuilder.appendAsIs(header);
+    csvBuilder = buildTsvHeader(csvBuilder);
 
     for (Entry<String, User> entry : users.entrySet()) {
       User user = entry.getValue();
@@ -214,8 +237,8 @@ public class UserManager {
       String info2 = user.getInfo2();
       String description = user.getDescription();
       int flags = user.getFlags();
-      long createdDate = user.getCreatedDate();
-      long updatedDate = user.getUpdatedDate();
+      long createdAt = user.getCreatedAt();
+      long updatedAt = user.getUpdatedAt();
 
       csvBuilder.append(userId);
       csvBuilder.append(fullname);
@@ -229,8 +252,8 @@ public class UserManager {
       csvBuilder.append(info2);
       csvBuilder.append(description);
       csvBuilder.append(flags);
-      csvBuilder.append(createdDate);
-      csvBuilder.append(updatedDate);
+      csvBuilder.append(createdAt);
+      csvBuilder.append(updatedAt);
       csvBuilder.nextRecord();
     }
 
@@ -243,6 +266,25 @@ public class UserManager {
       ioe.printStackTrace();
       throw ioe;
     }
+  }
+
+  private CsvBuilder buildTsvHeader(CsvBuilder csvBuilder) {
+    csvBuilder.append("#uid");
+    csvBuilder.append("fullname");
+    csvBuilder.append("localFullName");
+    csvBuilder.append("aliasName");
+    csvBuilder.append("email");
+    csvBuilder.append("isAdmin");
+    csvBuilder.append("groups");
+    csvBuilder.append("privileges");
+    csvBuilder.append("info1");
+    csvBuilder.append("info2");
+    csvBuilder.append("description");
+    csvBuilder.append("flags");
+    csvBuilder.append("created_at");
+    csvBuilder.append("updated_at");
+    csvBuilder.nextRecord();
+    return csvBuilder;
   }
 
   /**
@@ -412,7 +454,7 @@ public class UserManager {
 
     long now = System.currentTimeMillis();
     if (updated) {
-      user.setUpdatedDate(now);
+      user.setUpdatedAt(now);
     }
 
     UserStatus userStatus = getUserStatusInfo(userId);

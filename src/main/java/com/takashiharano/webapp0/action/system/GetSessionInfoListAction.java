@@ -42,13 +42,17 @@ public class GetSessionInfoListAction extends Action {
 
     jb.openList("sessions");
     for (Entry<String, SessionInfo> entry : sessions.entrySet()) {
-      SessionInfo info = entry.getValue();
-      String sid = info.getSessionId();
-      String userId = info.getUserId();
-      String addr = info.getRemoteAddr();
-      String ua = info.getUserAgent();
-      long createdTime = info.getCreatedTime();
-      long lastAccessTime = info.getLastAccessTime();
+      SessionInfo session = entry.getValue();
+      String sid = session.getSessionId();
+      String userId = session.getUserId();
+      long lastAccessTime = session.getLastAccessTime();
+      String addr = session.getRemoteAddr();
+      String host = session.getRemoteHost();
+      String ua = session.getUserAgent();
+      long createdTime = session.getCreatedTime();
+      String createdAddr = session.getCreatedRemoteAddr();
+      String createdHost = session.getCreatedRemoteHost();
+      String createdUserAgent = session.getCreatedUserAgent();
 
       User user = userManager.getUserInfo(userId);
       String fullName = user.getFullName();
@@ -59,8 +63,12 @@ public class GetSessionInfoListAction extends Action {
       jb1.append("time", lastAccessTime);
       jb1.append("user_fullname", fullName);
       jb1.append("addr", addr);
+      jb1.append("host", host);
       jb1.append("ua", ua);
       jb1.append("c_time", createdTime);
+      jb1.append("c_addr", createdAddr);
+      jb1.append("c_host", createdHost);
+      jb1.append("c_ua", createdUserAgent);
 
       if (includeLogs) {
         int targetOffset = context.getRequestParameterAsInteger("offset");

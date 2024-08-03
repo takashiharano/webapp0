@@ -467,7 +467,7 @@ scnjs.getSessionListCb = function(xhr, res, req) {
 
 scnjs.drawSessionList = function(sessions) {
   var now = util.now();
-  sessions = util.sortObjectList(sessions, 'lastAccessTime', true, true);
+  sessions = util.sortObjectList(sessions, 'time', true, true);
   var html = '<table>';
   html += '<tr style="font-weight:bold;">';
   html += '<td></td>';

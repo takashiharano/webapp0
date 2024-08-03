@@ -169,11 +169,8 @@ public class AppManager {
     groupManager.init();
 
     if (sessionManager == null) {
-      String sessionPath = FileUtil.joinPath(getAppWorkspacePath(), "sessions.txt");
-      sessionManager = new SessionManager(sessionPath);
-      if (FileUtil.exists(sessionPath)) {
-        sessionManager.loadSessionInfo(sessionPath);
-      }
+      sessionManager = new SessionManager();
+      sessionManager.loadAllSessionsInfo();
     }
 
     if (intervalTaskManager == null) {

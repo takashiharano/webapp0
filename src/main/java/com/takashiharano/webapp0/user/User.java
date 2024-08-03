@@ -31,8 +31,8 @@ public class User {
   private String info2;
   private String description;
   private int flags;
-  private long createdDate;
-  private long updatedDate;
+  private long createdAt;
+  private long updatedAt;
   private UserStatus userStatus;
 
   public User(String userId, boolean isAdmin) {
@@ -47,7 +47,7 @@ public class User {
     this(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, description, flags, 0L, 0L);
   }
 
-  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags, long createdDate, long updatedDate) {
+  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags, long createdAt, long updatedAt) {
     this.userId = userId;
     this.fullname = fullname;
     this.localFullName = localFullName;
@@ -60,8 +60,8 @@ public class User {
     this.info2 = info2;
     setDescription(description);
     this.flags = flags;
-    this.createdDate = createdDate;
-    this.updatedDate = updatedDate;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
     this.userStatus = new UserStatus(userId);
   }
 
@@ -479,37 +479,37 @@ public class User {
    *
    * @return the created date in unix millis.
    */
-  public long getCreatedDate() {
-    return createdDate;
+  public long getCreatedAt() {
+    return createdAt;
   }
 
   /**
-   * Sets the created date of the user.
+   * Sets the created date-time of the user.
    *
-   * @param createdDate
+   * @param createdAt
    *          the created date in unix millis.
    */
-  public void setCreatedDate(long createdDate) {
-    this.createdDate = createdDate;
+  public void setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
   }
 
   /**
-   * Returns the updated date of the user.
+   * Returns the updated date-time of the user.
    *
    * @return the updated date in unix millis.
    */
-  public long getUpdatedDate() {
-    return updatedDate;
+  public long getUpdatedAt() {
+    return updatedAt;
   }
 
   /**
-   * Sets the updated date of the user.
+   * Sets the updated date-time of the user.
    *
-   * @param updatedDate
+   * @param updatedAt
    *          the updated date in unix millis.
    */
-  public void setUpdatedDate(long updatedDate) {
-    this.updatedDate = updatedDate;
+  public void setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
   }
 
   public UserStatus getUserStatus() {
@@ -545,8 +545,8 @@ public class User {
     jb.append("info2", getInfo2());
     jb.append("description", getDescription());
     jb.append("flags", getFlags());
-    jb.append("created_at", getCreatedDate());
-    jb.append("updated_at", getUpdatedDate());
+    jb.append("created_at", getCreatedAt());
+    jb.append("updated_at", getUpdatedAt());
 
     if (includeStatusInfo) {
       String jb1 = userStatus.toJSON();
