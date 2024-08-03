@@ -16,8 +16,8 @@ public class AddGroupAction extends Action {
   public void process(ProcessContext context) throws Exception {
     String gid = context.getRequestParameter("gid");
     String name = context.getRequestParameter("name");
-    String privileges = context.getRequestParameter("privileges");
-    String description = context.getRequestParameter("description");
+    String privileges = context.getRequestParameter("privs");
+    String description = context.getRequestParameter("desc");
 
     if (!context.hasPermission("sysadmin")) {
       Log.i("AddGroup: FORBIDDEN gid=" + gid);

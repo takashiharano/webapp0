@@ -22,10 +22,10 @@ public class EditUserAction extends Action {
     String email = context.getRequestParameter("email");
     String adminFlag = context.getRequestParameter("is_admin");
     String groups = context.getRequestParameter("groups");
-    String privileges = context.getRequestParameter("privileges");
+    String privileges = context.getRequestParameter("privs");
     String info1 = context.getRequestParameter("info1");
     String info2 = context.getRequestParameter("info2");
-    String description = context.getRequestParameter("description");
+    String description = context.getRequestParameter("desc");
     String userFlags = context.getRequestParameter("flags");
 
     String currentUserId = context.getUserId();

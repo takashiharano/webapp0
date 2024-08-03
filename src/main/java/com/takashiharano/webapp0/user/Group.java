@@ -207,8 +207,8 @@ public class Group {
     JsonBuilder jb = new JsonBuilder();
     jb.append("gid", getGid());
     jb.append("name", getName());
-    jb.append("privileges", getPrivilegesInOneLine());
-    jb.append("description", getDescription());
+    jb.append("privs", getPrivilegesInOneLine());
+    jb.append("desc", getDescription());
     jb.append("created_at", getCreatedDate());
     jb.append("updated_at", getUpdatedDate());
     String json = jb.toString();

@@ -10,6 +10,9 @@ scnjs.dialogFgColor = '#000';
 scnjs.dialogBgColor = '#fff';
 scnjs.dialogTitleFgColor = '#fff';
 scnjs.dialogTitleBgColor = 'linear-gradient(150deg, rgba(0,32,255,0.8),rgba(0,82,255,0.8))';
+scnjs.userEditWindowW = 500;
+scnjs.userEditWindowH = 540;
+scnjs.userEditWindowH1 = 400;
 
 scnjs.LED_COLORS = [
   {t: 10 * util.MINUTE, color: 'led-color-green'},
@@ -28,10 +31,10 @@ scnjs.USER_LIST_COLUMNS = [
   {key: 'email', label: 'Email', style: 'min-width:10em;'},
   {key: 'is_admin', label: 'Admin'},
   {key: 'groups', label: 'Groups', style: 'min-width:5em;'},
-  {key: 'privileges', label: 'Privileges', style: 'min-width:5em;'},
+  {key: 'privs', label: 'Privileges', style: 'min-width:5em;'},
   {key: 'info1', label: 'Info1', style: 'min-width:5em;'},
   {key: 'info2', label: 'Info2', style: 'min-width:5em;'},
-  {key: 'description', label: 'Description', style: 'min-width:5em;'},
+  {key: 'desc', label: 'Description', style: 'min-width:5em;'},
   {key: 'flags', label: 'Flags'},
   {key: 'status_info.sessions', label: 'S'},
   {key: 'status_info.login_failed_count', label: 'E'},
@@ -88,7 +91,7 @@ scnjs.getUserList = function() {
   app.callServerApi('GetUserInfoList', null, scnjs.getUserInfoListCb);
 };
 
-scnjs.getUserInfoListCb = function(xhr, res) {
+scnjs.getUserInfoListCb = function(xhr, res, req) {
   if (xhr.status != 200) {
     scnjs.showInfotip('HTTP ' + xhr.status);
     return;
@@ -228,7 +231,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     var a_name = item.a_name;
     var email = item.email;
     var groups = item.groups;
-    var privs = item.privileges;
+    var privs = item.privs;
     var statusInfo = item.status_info;
     var loginFailedCount = statusInfo.login_failed_count;
     var loginFailedTime = util.getDateTimeString(statusInfo.login_failed_time);
@@ -241,7 +244,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     var pwChangedDate = scnjs.getDateTimeString(statusInfo.pw_changed_at, scnjs.INSEC);
     var info1 = item.info1;
     var info2 = item.info2;
-    var desc = (item.description ? item.description : '');
+    var desc = (item.desc ? item.desc : '');
 
     var escDesc = util.escHtml(desc);
     var dispDesc = '<span style="display:inline-block;width:100%;overflow:hidden;text-overflow:ellipsis;"';
@@ -359,7 +362,7 @@ scnjs.searchUserByKeyword = function(item, key, caseSensitive) {
   targets.push(item.a_name);
   targets.push(item.email);
   targets.push(item.groups);
-  targets.push(item.privileges);
+  targets.push(item.privs);
   targets.push(item.info1);
   targets.push(item.info2);
   return scnjs.searchByKeyword(targets, key, caseSensitive);
@@ -815,7 +818,7 @@ scnjs.openUserInfoEditorWindow = function(mode, uid) {
   if (uid && (uid != currentUid)) {
     html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="scnjs.deleteUser(\'' + uid + '\');">DEL</button></div>';
   }
-  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:400px;height:400px;text-align:left;">';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:400px;height:' + scnjs.userEditWindowH1 + 'px;text-align:left;">';
 
   html += '<table class="edit-table">';
   html += '  <tr>';
@@ -849,7 +852,7 @@ scnjs.openUserInfoEditorWindow = function(mode, uid) {
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Privileges</td>';
-  html += '    <td><input type="text" id="privileges" style="width:100%;"></td>';
+  html += '    <td><input type="text" id="privs" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Info1</td>';
@@ -861,7 +864,7 @@ scnjs.openUserInfoEditorWindow = function(mode, uid) {
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Description</td>';
-  html += '    <td><input type="text" id="description" style="width:100%;"></td>';
+  html += '    <td><input type="text" id="desc" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
   html += '    <td>Flags</td>';
@@ -896,10 +899,10 @@ scnjs.openUserInfoEditorWindow = function(mode, uid) {
     resizable: true,
     pos: 'c',
     closeButton: true,
-    width: 500,
-    height: 540,
-    minWidth: 500,
-    minHeight: 540,
+    width: scnjs.userEditWindowW,
+    height: scnjs.userEditWindowH,
+    minWidth: scnjs.userEditWindowW,
+    minHeight: scnjs.userEditWindowH,
     scale: 1,
     hidden: false,
     modal: false,
@@ -977,10 +980,10 @@ scnjs.setUserInfoToEditor = function(info) {
   $el('#email').value = info.email;
   $el('#isadmin').checked = info.is_admin;
   $el('#groups').value = info.groups;
-  $el('#privileges').value = info.privileges;
+  $el('#privs').value = info.privs;
   $el('#info1').value = info.info1;
   $el('#info2').value = info.info2;
-  $el('#description').value = info.description;
+  $el('#desc').value = (info.desc ? info.desc : '');
   $el('#flags').value = info.flags;
 };
 
@@ -993,10 +996,10 @@ scnjs.clearUserInfoEditor = function() {
     email: '',
     is_admin: false,
     groups: '',
-    privileges: '',
+    privs: '',
     info1: '',
     info2: '',
-    description: '',
+    desc: '',
     flags: ''
   };
   scnjs.setUserInfoToEditor(info);
@@ -1019,10 +1022,10 @@ scnjs.addUser = function() {
   var email = $el('#email').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var groups = $el('#groups').value;
-  var privileges = $el('#privileges').value;
+  var privs = $el('#privs').value;
   var info1 = $el('#info1').value;
   var info2 = $el('#info2').value;
-  var description = $el('#description').value;
+  var desc = $el('#desc').value;
   var flags = $el('#flags').value.trim();
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
@@ -1062,12 +1065,12 @@ scnjs.addUser = function() {
   }
   groups = clnsRes.val;
 
-  clnsRes = scnjs.cleansePrivileges(privileges);
+  clnsRes = scnjs.cleansePrivileges(privs);
   if (clnsRes.msg) {
     app.showInfotip(clnsRes.msg, 2000);
     return;
   }
-  privileges = clnsRes.val;
+  privs = clnsRes.val;
 
   clnsRes = scnjs.cleansePW(pw1, pw2, 'new');
   if (clnsRes.msg) {
@@ -1085,10 +1088,10 @@ scnjs.addUser = function() {
     email: email,
     is_admin: isAdmin,
     groups: groups,
-    privileges: privileges,
+    privs: privs,
     info1: info1,
     info2: info2,
-    description: description,
+    desc: desc,
     flags: flags,
     pw: pw
   };
@@ -1118,10 +1121,10 @@ scnjs.updateUser = function() {
   var email = $el('#email').value;
   var isAdmin = ($el('#isadmin').checked ? '1' : '0');
   var groups = $el('#groups').value;
-  var privileges = $el('#privileges').value;
+  var privs = $el('#privs').value;
   var info1 = $el('#info1').value;
   var info2 = $el('#info2').value;
-  var description = $el('#description').value;
+  var desc = $el('#desc').value;
   var flags = $el('#flags').value;
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
@@ -1141,10 +1144,10 @@ scnjs.updateUser = function() {
     email: email,
     is_admin: isAdmin,
     groups: groups,
-    privileges: privileges,
+    privs: privs,
     info1: info1,
     info2: info2,
-    description : description,
+    desc: desc,
     flags: flags
   };
 
@@ -1370,8 +1373,8 @@ scnjs.drawGroupList = function(list) {
     var group = list[i];
     var gid = group.gid;
     var name = group.name;
-    var privs = (group.privileges ? group.privileges : '');
-    var desc = (group.description ? group.description : '');
+    var privs = (group.privs ? group.privs : '');
+    var desc = (group.desc ? group.desc : '');
     var createdDate = scnjs.getDateTimeString(group.created_at, scnjs.INSEC);
     var updatedDate = scnjs.getDateTimeString(group.updated_at, scnjs.INSEC);
 
@@ -1414,7 +1417,9 @@ scnjs.editGroup = function(gid) {
 scnjs.openGroupInfoEditorWindow = function(mode, gid) {
   var html = '';
   html += '<div style="position:relative;width:100%;height:100%;text-align:center;vertical-align:middle">';
-  html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="scnjs.deleteGroup(\'' + gid + '\');">DEL</button></div>';
+  if (mode == 'edit') {
+    html += '<div style="position:absolute;top:8px;right:8px;"><button class="button-red" onclick="scnjs.deleteGroup(\'' + gid + '\');">DEL</button></div>';
+  }
   html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:360px;height:120px;text-align:left;">';
 
   html += '<table>';
@@ -1501,8 +1506,8 @@ scnjs.addGroup = function() {
   var params = {
     gid: gid,
     name: name,
-    privileges: privs,
-    description: desc
+    privs: privs,
+    desc: desc
   };
 
   app.callServerApi('AddGroup', params, scnjs.addGroupCb);
@@ -1531,8 +1536,8 @@ scnjs.updateGroup = function() {
   var params = {
     gid: gid,
     name: name,
-    privileges: privs,
-    description: desc
+    privs: privs,
+    desc: desc
   };
 
   app.callServerApi('EditGroup', params, scnjs.updateGroupCb);
@@ -1609,16 +1614,16 @@ scnjs.setGroupInfoToEditor = function(info) {
     $el('#gid').removeClass('edit-disabled');
   }
   $el('#group-name').value = info.name;
-  $el('#group-privs').value = info.privileges;
-  $el('#group-desc').value = (info.description ? info.description : '');
+  $el('#group-privs').value = info.privs;
+  $el('#group-desc').value = (info.desc ? info.desc : '');
 };
 
 scnjs.clearGroupInfoEditor = function() {
   var info = {
     gid: '',
     name: '',
-    privileges: '',
-    description: ''
+    privs: '',
+    desc: ''
   };
   scnjs.setGroupInfoToEditor(info);
 };

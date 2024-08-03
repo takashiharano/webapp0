@@ -540,10 +540,10 @@ public class User {
     jb.append("email", getEmail());
     jb.append("is_admin", isAdmin());
     jb.append("groups", getGroupsInOneLine());
-    jb.append("privileges", getPrivilegesInOneLine());
+    jb.append("privs", getPrivilegesInOneLine());
     jb.append("info1", getInfo1());
     jb.append("info2", getInfo2());
-    jb.append("description", getDescription());
+    jb.append("desc", getDescription());
     jb.append("flags", getFlags());
     jb.append("created_at", getCreatedAt());
     jb.append("updated_at", getUpdatedAt());
