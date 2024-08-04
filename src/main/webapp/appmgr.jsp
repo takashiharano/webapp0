@@ -72,6 +72,10 @@ table.edit-table {
   color: #ccc;
 }
 
+.timeline-current {
+  cursor: default;
+}
+
 .timeline-acc-ind {
   color: #32cd32;
 }

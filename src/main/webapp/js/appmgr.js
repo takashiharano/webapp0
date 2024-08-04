@@ -87,6 +87,15 @@ scnjs.updateSessionInfo = function() {
   scnjs.reloadUserInfo();
 };
 
+scnjs.showInfotip = function(m, d) {
+  var opt = {
+    style: {
+      'font-size': '14px'
+    }
+  };
+  util.infotip.show(m, d, opt);
+};
+
 scnjs.getUserList = function() {
   app.callServerApi('GetUserInfoList', null, scnjs.getUserInfoListCb);
 };
@@ -97,7 +106,7 @@ scnjs.getUserInfoListCb = function(xhr, res, req) {
     return;
   }
   if (res.status != 'OK') {
-    app.showInfotip(res.status);
+    scnjs.showInfotip(res.status);
     return;
   }
   var now = util.now();
@@ -232,6 +241,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     var email = item.email;
     var groups = item.groups;
     var privs = item.privs;
+    var flags = item.flags;
     var statusInfo = item.status_info;
     var loginFailedCount = statusInfo.login_failed_count;
     var loginFailedTime = util.getDateTimeString(statusInfo.login_failed_time);
@@ -301,7 +311,8 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     }
     failedCount += '</td>';
 
-    var clz = ((i % 2 == 0) ? 'row-odd' : 'row-even');
+    clz = ((i % 2 == 0) ? 'row-odd' : 'row-even');
+    var ttFlg = scnjs.buildFlagsTooltip(flags);
 
     htmlList += '<tr class="item-list ' + clz + '">';
     htmlList += '<td class="item-list" style="text-align:center;">' + led + '</td>';
@@ -316,7 +327,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     htmlList += '<td class="item-list">' + dispInfo1 + '</td>';
     htmlList += '<td class="item-list">' + dispInfo2 + '</td>';
     htmlList += '<td class="item-list" style="max-width:15em;">' + dispDesc + '</td>';
-    htmlList += '<td class="item-list" style="text-align:center;">' + item.flags + '</td>';
+    htmlList += '<td class="item-list" style="text-align:center;" data-tooltip="' + ttFlg + '">' + flags + '</td>';
     htmlList += '<td class="item-list" style="text-align:right;">' + sessions + '</td>';
     htmlList += failedCount;
     htmlList += '<td class="item-list" style="text-align:center;">' + lastAccessDate + '</td>';
@@ -338,6 +349,41 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
   html += '<div style="margin-bottom:4px;" class="list-info">' + listInfo + '</div>';
 
   $el('#user-list').innerHTML = html;
+};
+
+scnjs.buildFlagsTooltip = function(flags) {
+  var d = 8;
+  var s = '';
+  for (var i = d - 1; i >= 0; i--) {
+    s += ((flags & Math.pow(2, i)) ? '1' : '0');
+  }
+  s += ' (' + flags + ')';
+  s += '\n';
+  for (i = 0; i <= d; i++) {
+    for (var j = d; j >= 0; j--) {
+      if (!((i == 0) && (j == 0))) {
+        if (j == i) {
+          s += '+';
+        } else if (j > i - 1) {
+          s += '|';
+        } else {
+          s += '-';
+        }
+      }
+      if (j == 0) {
+        if (i > 0) {
+          var flgName = app.USER_FLAGS[i - 1];
+          if (!flgName) flgName = '';
+          s += ' ';
+          s += ((flags & Math.pow(2, (i - 1))) ? 'Y' : 'N');
+          s += ' ';
+          s += flgName;
+        }
+      }
+    }
+    s += '\n';
+  }
+  return s;
 };
 
 scnjs.highlightKeyword = function(v, searchKey, caseSensitive) {
@@ -382,7 +428,7 @@ scnjs.searchByKeyword = function(targets, key, caseSensitive) {
 
 scnjs.buildCopyableLabel = function(v, s) {
   if (!s) s = v;
-  var v = v.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '&quot;');
+  v = v.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/"/g, '&quot;');
   var label = s;
   var r = '<pre class="pseudo-link" onclick="scnjs.copy(\'' + v + '\');" data-tooltip2="Click to copy">' + label + '</pre>';
   return r;
@@ -453,7 +499,7 @@ scnjs.getSessionListCb = function(xhr, res, req) {
     location.href = location.href;
     return;
   } else if (res.status != 'OK') {
-    app.showInfotip(res.status);
+    scnjs.showInfotip(res.status);
     return;
   }
   var data = res.body;
@@ -487,6 +533,7 @@ scnjs.drawSessionList = function(sessions) {
   html += scnjs.buildSessionInfoHtml(sessions, now);
   html += '</table>';
   $el('#session-list').innerHTML = html;
+  scnjs.updateTimeline();
 };
 
 scnjs.buildTimeLineHeader1 = function(now) {
@@ -518,16 +565,15 @@ scnjs.buildTimeLineHeader2 = function(now) {
     now = now - (scnjs.DAY * os);
   }
 
-  var currentInd = '<span class="blink1 text-skyblue">v</span>';
   var nowHHMM = util.getDateTimeString(now, '%HH:%mm');
   var tmp = nowHHMM.split(':');
   var nowHH = tmp[0];
   var nowMM = tmp[1];
+  var currentInd = '<span id="timeline-now" class="timeline-current blink1 text-skyblue" data-tooltip="' + nowHHMM + '">v</span>';
 
   var html = '';
   for (var i = 0; i <= 23; i++) {
     var ts = scnjs.getTimeSlot(i, nowHH, nowMM);
-    var v = false;
     if (i < 10) {
       if ((os == 0) && (ts == 0)) {
         html += currentInd;
@@ -556,17 +602,32 @@ scnjs.buildTimeLineHeader2 = function(now) {
   return html;
 };
 
+scnjs.timelineTmrId = 0;
+scnjs.updateTimeline = function() {
+  if (scnjs.timelineTmrId > 0) {
+    clearTimeout(scnjs.timelineTmrId);
+  }
+  scnjs.updateTimelineCurrentTime();
+  if (scnjs.timelineTmrId != -1) {
+    scnjs.timelineTmrId = setTimeout(scnjs.updateTimeline, 1000);
+  }
+};
+scnjs.updateTimelineCurrentTime = function() {
+  var now = util.now();
+  var nowHHMM = util.getDateTimeString(now, '%HH:%mm');
+  $el('#timeline-now').dataset.tooltip = nowHHMM;
+};
+
 scnjs.buildSessionInfoHtml = function(sessions, now) {
   var html = '';
   if (!sessions) return html;
-  var mn = util.getMidnightTimestamp(now);
   for (var i = 0; i < sessions.length; i++) {
     var session = sessions[i];
-    html += scnjs.buildSessionInfoOne(session, now, mn);
+    html += scnjs.buildSessionInfoOne(session, now);
   }
   return html;
 };
-scnjs.buildSessionInfoOne = function(session, now, mn) {
+scnjs.buildSessionInfoOne = function(session, now) {
   var cSid = app.currentSid;
   var uid = session['uid'];
   var fullname = session['user_fullname'];
@@ -581,7 +642,7 @@ scnjs.buildSessionInfoOne = function(session, now, mn) {
   var ssid = util.snip(sid, 7, 3, '..');
   var sid7 = util.snip(sid, 7, 0, '');
   var brws = util.getBrowserInfo(ua);
-  var ua = brws.name + ' ' + brws.version;
+  var dispUa = brws.name + ' ' + brws.version;
   var led = scnjs.buildLedHtml(now, laTime, false, true);
   var ssidLink = '<span class="pseudo-link link-button" onclick="scnjs.confirmLogoutSession(\'' + uid + '\', \'' + sid + '\');" data-tooltip="' + sid + '">' + ssid + '</span>';
   var dispSid = ((sid == cSid) ? '<span class="text-skyblue" style="cursor:default;margin-right:2px;" data-tooltip2="Current Session">*</span>' : '<span style="cursor:default;margin-right:2px;">&nbsp;</span>') + ssidLink;
@@ -601,7 +662,7 @@ scnjs.buildSessionInfoOne = function(session, now, mn) {
   html += '<td style="padding-right:10px;text-align:right;">' + tmspan + '</td>';
   html += '<td>' + timeline + '</td>';
   html += '<td style="padding-right:10px;">' + addr + '</td>';
-  html += '<td style="padding-right:10px;">' + ua + '</td>';
+  html += '<td style="padding-right:10px;">' + dispUa + '</td>';
   html += '<td style="padding-right:10px;">' + loginTime + '</td>';
   html += '</tr>';
 
@@ -628,7 +689,6 @@ scnjs.buildTimeLine = function(now, lastAccessTime, slotTimestampHistories) {
   var ttlPs = hrBlk * 24;
   var dispAccDateTime = ' ' + accDateTime + ' ';
   var dispAccTime = ' ' + accTime + ' ';
-  var remains = ttlPs - (accTp + dispAccTime.length);
 
   var tsPosList = scnjs.getPosList4History(now, slotTimestampHistories);
 
@@ -758,7 +818,6 @@ scnjs.sortItemList = function(sortIdx, sortOrder) {
 
 scnjs.confirmLogoutSession = function(uid, sid) {
   var cSid = app.currentSid;
-  var ssid = util.snip(sid, 7, 7, '..');
   var currentUid = app.getUserId();
   var m = 'Logout?\n\n';
   if (sid == cSid) {
@@ -783,7 +842,7 @@ scnjs.logoutSessionCb = function(xhr, res) {
     scnjs.showInfotip('HTTP ' + xhr.status);
     return;
   }
-  app.showInfotip(res.status);
+  scnjs.showInfotip(res.status);
   scnjs.reloadUserInfo();
 };
 
@@ -808,6 +867,7 @@ scnjs.editUser = function(uid) {
     $el('#flags').value = '1';
     $el('#uid').focus();
   }
+  $el('#flags').addEventListener('input', scnjs.onInputFlags);
 };
 
 scnjs.openUserInfoEditorWindow = function(mode, uid) {
@@ -957,7 +1017,7 @@ scnjs.GetUserInfoCb = function(xhr, res) {
     return;
   }
   if (res.status != 'OK') {
-    app.showInfotip(res.status);
+    scnjs.showInfotip(res.status);
     return;
   }
   var info = res.body;
@@ -985,6 +1045,12 @@ scnjs.setUserInfoToEditor = function(info) {
   $el('#info2').value = info.info2;
   $el('#desc').value = (info.desc ? info.desc : '');
   $el('#flags').value = info.flags;
+  $el('#flags').dataset.tooltip = scnjs.buildFlagsTooltip(info.flags);
+};
+
+scnjs.onInputFlags = function() {
+  var flags = $el('#flags').value;
+  $el('#flags').dataset.tooltip = scnjs.buildFlagsTooltip(flags);
 };
 
 scnjs.clearUserInfoEditor = function() {
@@ -1032,21 +1098,21 @@ scnjs.addUser = function() {
 
   var clnsRes = scnjs.cleanseUid(uid);
   if (clnsRes.msg) {
-    app.showInfotip(clnsRes.msg, 2000);
+    scnjs.showInfotip(clnsRes.msg, 2000);
     return;
   }
   uid = clnsRes.val;
 
   clnsRes = scnjs.cleanseFullName(fullname);
   if (clnsRes.msg) {
-    app.showInfotip(clnsRes.msg, 2000);
+    scnjs.showInfotip(clnsRes.msg, 2000);
     return;
   }
   fullname = clnsRes.val;
 
   clnsRes = scnjs.cleanseFullName(localfullname);
   if (clnsRes.msg) {
-    app.showInfotip(clnsRes.msg, 2000);
+    scnjs.showInfotip(clnsRes.msg, 2000);
     return;
   }
   localfullname = clnsRes.val;
@@ -1060,21 +1126,21 @@ scnjs.addUser = function() {
 
   clnsRes = scnjs.cleanseGroups(groups);
   if (clnsRes.msg) {
-    app.showInfotip(clnsRes.msg, 2000);
+    scnjs.showInfotip(clnsRes.msg, 2000);
     return;
   }
   groups = clnsRes.val;
 
   clnsRes = scnjs.cleansePrivileges(privs);
   if (clnsRes.msg) {
-    app.showInfotip(clnsRes.msg, 2000);
+    scnjs.showInfotip(clnsRes.msg, 2000);
     return;
   }
   privs = clnsRes.val;
 
   clnsRes = scnjs.cleansePW(pw1, pw2, 'new');
   if (clnsRes.msg) {
-    app.showInfotip(clnsRes.msg, 2000);
+    scnjs.showInfotip(clnsRes.msg, 2000);
     return;
   }
   var pw = clnsRes.val;
@@ -1104,7 +1170,7 @@ scnjs.addUserCb = function(xhr, res) {
     scnjs.showInfotip('HTTP ' + xhr.status);
     return;
   }
-  app.showInfotip(res.status);
+  scnjs.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
@@ -1131,7 +1197,7 @@ scnjs.updateUser = function() {
 
   var clnsRes = scnjs.cleansePW(pw1, pw2, 'edit');
   if (clnsRes.msg) {
-    app.showInfotip(clnsRes.msg, 2000);
+    scnjs.showInfotip(clnsRes.msg, 2000);
     return;
   }
   var pw = clnsRes.val;
@@ -1163,7 +1229,7 @@ scnjs.updateUserCb = function(xhr, res) {
     scnjs.showInfotip('HTTP ' + xhr.status);
     return;
   }
-  app.showInfotip(res.status);
+  scnjs.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
@@ -1197,10 +1263,10 @@ scnjs.deleteUserCb = function(xhr, res) {
     return;
   }
   if (res.status != 'OK') {
-    app.showInfotip(res.status);
+    scnjs.showInfotip(res.status);
     return;
   }
-  app.showInfotip('OK');
+  scnjs.showInfotip('OK');
   scnjs.getUserList();
 };
 
@@ -1227,10 +1293,10 @@ scnjs.clearLoginFailedCountCb = function(xhr, res) {
     return;
   }
   if (res.status != 'OK') {
-    app.showInfotip(res.status);
+    scnjs.showInfotip(res.status);
     return;
   }
-  app.showInfotip('OK');
+  scnjs.showInfotip('OK');
   scnjs.getUserList();
 };
 
@@ -1492,13 +1558,13 @@ scnjs.addGroup = function() {
   var desc = $el('#group-desc').value;
 
   if (!gid) {
-    app.showInfotip('Group ID is required.', 2000);
+    scnjs.showInfotip('Group ID is required.', 2000);
     return;
   }
 
-  clnsRes = scnjs.cleansePrivileges(privs);
+  var clnsRes = scnjs.cleansePrivileges(privs);
   if (clnsRes.msg) {
-    app.showInfotip(clnsRes.msg, 2000);
+    scnjs.showInfotip(clnsRes.msg, 2000);
     return;
   }
   privs = clnsRes.val;
@@ -1518,7 +1584,7 @@ scnjs.addGroupCb = function(xhr, res) {
     scnjs.showInfotip('HTTP ' + xhr.status);
     return;
   }
-  app.showInfotip(res.status);
+  scnjs.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
@@ -1548,7 +1614,7 @@ scnjs.updateGroupCb = function(xhr, res) {
     scnjs.showInfotip('HTTP ' + xhr.status);
     return;
   }
-  app.showInfotip(res.status);
+  scnjs.showInfotip(res.status);
   if (res.status != 'OK') {
     return;
   }
@@ -1582,10 +1648,10 @@ scnjs.deleteGroupCb = function(xhr, res) {
     return;
   }
   if (res.status != 'OK') {
-    app.showInfotip(res.status);
+    scnjs.showInfotip(res.status);
     return;
   }
-  app.showInfotip('OK');
+  scnjs.showInfotip('OK');
   scnjs.getGroupList();
 };
 
@@ -1596,7 +1662,7 @@ scnjs.getGroupInfoCb = function(xhr, res) {
     return;
   }
   if (res.status != 'OK') {
-    app.showInfotip(res.status);
+    scnjs.showInfotip(res.status);
     return;
   }
   var info = res.body;

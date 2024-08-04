@@ -9,6 +9,17 @@ app.language = 'en';
 app.messages = {};
 app.initFns = [];
 
+app.USER_FLAGS = [
+  'U_FLG_NEED_PW_CHANGE',
+  '',
+  'U_FLG_DISABLED',
+  '',
+  '',
+  '',
+  '',
+  'U_FLG_INVALID_DATA'
+];
+
 /**
  * App initialize function.
  *
