@@ -16,6 +16,7 @@ import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.action.Action;
 import com.takashiharano.webapp0.session.SessionInfo;
 import com.takashiharano.webapp0.session.SessionManager;
+import com.takashiharano.webapp0.session.SessionTimelineLog;
 import com.takashiharano.webapp0.user.User;
 import com.takashiharano.webapp0.user.UserManager;
 
@@ -72,11 +73,16 @@ public class GetSessionInfoListAction extends Action {
 
       if (includeLogs) {
         int targetOffset = context.getRequestParameterAsInteger("offset");
-        List<Long> tmLogs = getTimelineLogs(context, userId, sid, now, targetOffset);
+        List<SessionTimelineLog> tmLogs = getTimelineLogs(context, userId, sid, now, targetOffset);
         jb1.openList("timeline_log");
         for (int i = 0; i < tmLogs.size(); i++) {
-          long time = tmLogs.get(i);
-          jb1.appendListElement(time);
+          SessionTimelineLog tlLog = tmLogs.get(i);
+          long time = tlLog.getTime();
+          String info = tlLog.getInfo();
+          JsonBuilder jb3 = new JsonBuilder();
+          jb3.append("time", time);
+          jb3.append("info", info);
+          jb1.appendListElementAsObject(jb3.toString());
         }
         jb1.closeList();
       }
@@ -89,7 +95,7 @@ public class GetSessionInfoListAction extends Action {
     context.sendJsonResponse(status, json);
   }
 
-  private List<Long> getTimelineLogs(ProcessContext context, String userId, String sid, long now, int targetOffset) {
+  private List<SessionTimelineLog> getTimelineLogs(ProcessContext context, String userId, String sid, long now, int targetOffset) {
     long DAY_MILLIS = 86400000;
     long tm = now - DAY_MILLIS * targetOffset;
     long mnTimestamp = DateTime.getMidnightTimestamp(tm);
@@ -99,22 +105,27 @@ public class GetSessionInfoListAction extends Action {
     SessionManager sessionManager = context.getSessionManager();
 
     String[] logs = sessionManager.getUserTimelineLog(userId);
-    List<Long> tmLogs = new ArrayList<>();
+    List<SessionTimelineLog> tmLogs = new ArrayList<>();
     for (int i = 0; i < logs.length; i++) {
       String line = logs[i];
       String[] wk = line.split("\t");
       long logTime;
       String logSid;
+      String info = null;
       try {
         logTime = Long.parseLong(wk[0]);
         logSid = wk[1];
+        if (wk.length >= 3) {
+          info = wk[2];
+        }
       } catch (Exception e) {
         logTime = 0;
         logSid = "";
       }
 
       if ((logSid.equals(sid)) && (targetFrom <= logTime) && (logTime < targetTo)) {
-        tmLogs.add(logTime);
+        SessionTimelineLog tlLog = new SessionTimelineLog(logTime, logSid, info);
+        tmLogs.add(tlLog);
       }
     }
 

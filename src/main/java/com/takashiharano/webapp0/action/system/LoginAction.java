@@ -5,6 +5,8 @@
  */
 package com.takashiharano.webapp0.action.system;
 
+import java.io.IOException;
+
 import com.takashiharano.webapp0.ProcessContext;
 import com.takashiharano.webapp0.action.Action;
 import com.takashiharano.webapp0.session.SessionInfo;
@@ -72,6 +74,14 @@ public class LoginAction extends Action {
     UserStatus userStatus = userManager.getUserStatusInfo(userId);
     userStatus.setLastLogin(now);
     userManager.resetLoginFailedCount(userId);
+
+    String sessionId = sessionInfo.getSessionId();
+    try {
+      sessionManager.saveTimelineLog(userId, sessionId, now, "LOGIN");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
     return sessionInfo;
   }
 

@@ -57,12 +57,12 @@ public class SessionManager {
   public synchronized void onAccess(ProcessContext context, long timestamp) {
     cleanInvalidatedSessionInfo(true);
 
-    String sessinId = context.getSessionId();
-    if (sessinId == null) {
+    String sessionId = context.getSessionId();
+    if (sessionId == null) {
       return;
     }
 
-    SessionInfo sessionInfo = sessionMap.get(sessinId);
+    SessionInfo sessionInfo = sessionMap.get(sessionId);
     if (sessionInfo == null) {
       return;
     }
@@ -79,7 +79,7 @@ public class SessionManager {
     saveSessionInfo(userId);
 
     try {
-      saveTimelineLog(userId, sessinId, timestamp);
+      saveTimelineLog(userId, sessionId, timestamp);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -667,6 +667,10 @@ public class SessionManager {
   }
 
   public void saveTimelineLog(String userId, String sid, long timestamp) throws IOException {
+    saveTimelineLog(userId, sid, timestamp, null);
+  }
+
+  public void saveTimelineLog(String userId, String sid, long timestamp, String info) throws IOException {
     int TIME_SLOT_MIN = 15;
     int MAX_LOG_LINES = 1000;
     String[] logLines = loadTimelineLog(userId);
@@ -678,7 +682,6 @@ public class SessionManager {
     }
 
     long timeSlotMillis = TIME_SLOT_MIN * 60000;
-    long currentTimeSlotSec = (timestamp / timeSlotMillis) * timeSlotMillis;
 
     List<String> logList = logs.getAll();
 
@@ -696,14 +699,18 @@ public class SessionManager {
       }
 
       if (logSid.equals(sid)) {
-        long elapsedFromLatest = timestamp - logTime;
+        long logTimeSlotSec = (long) (logTime / timeSlotMillis) * timeSlotMillis;
+        long elapsedFromLatest = timestamp - logTimeSlotSec;
         if (elapsedFromLatest <= timeSlotMillis) {
           return;
         }
       }
     }
 
-    String newLog = currentTimeSlotSec + "\t" + sid;
+    String newLog = timestamp + "\t" + sid;
+    if (info != null) {
+      newLog += "\t" + info;
+    }
     logs.add(newLog);
 
     String path = getTimelineLogFilePath(userId);
