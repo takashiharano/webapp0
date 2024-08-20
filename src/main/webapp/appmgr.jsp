@@ -59,7 +59,7 @@ table.edit-table {
   color: #26c;
 }
 
-.timeline-head {
+.session-info-head {
   vertical-align: bottom;
 }
 
