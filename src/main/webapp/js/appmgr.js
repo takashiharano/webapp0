@@ -11,8 +11,8 @@ scnjs.dialogBgColor = '#fff';
 scnjs.dialogTitleFgColor = '#fff';
 scnjs.dialogTitleBgColor = 'linear-gradient(150deg, rgba(0,32,255,0.8),rgba(0,82,255,0.8))';
 scnjs.userEditWindowW = 500;
-scnjs.userEditWindowH = 540;
-scnjs.userEditWindowH1 = 400;
+scnjs.userEditWindowH = 580;
+scnjs.userEditWindowH1 = 440;
 
 scnjs.LED_COLORS = [
   {t: 10 * util.MINUTE, color: 'led-color-green'},
@@ -30,10 +30,11 @@ scnjs.USER_LIST_COLUMNS = [
   {key: 'a_name', label: 'Alias name', style: 'min-width:5em;'},
   {key: 'email', label: 'Email', style: 'min-width:10em;'},
   {key: 'is_admin', label: 'Admin'},
-  {key: 'groups', label: 'Groups', style: 'min-width:5em;'},
-  {key: 'privs', label: 'Privileges', style: 'min-width:5em;'},
-  {key: 'info1', label: 'Info1', style: 'min-width:5em;'},
-  {key: 'info2', label: 'Info2', style: 'min-width:5em;'},
+  {key: 'groups', label: 'Groups', style: 'min-width:8em;'},
+  {key: 'privs', label: 'Privileges'},
+  {key: 'info1', label: 'Info1'},
+  {key: 'info2', label: 'Info2'},
+  {key: 'info3', label: 'Info3'},
   {key: 'desc', label: 'Description', style: 'min-width:5em;'},
   {key: 'flags', label: 'Flags'},
   {key: 'status_info.sessions', label: 'S'},
@@ -254,6 +255,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     var pwChangedDate = scnjs.getDateTimeString(statusInfo.pw_changed_at, scnjs.INSEC);
     var info1 = item.info1;
     var info2 = item.info2;
+    var info3 = item.info3;
     var desc = (item.desc ? item.desc : '');
 
     var escDesc = util.escHtml(desc);
@@ -276,6 +278,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     var dispPrivs = privs;
     var dispInfo1 = info1;
     var dispInfo2 = info2;
+    var dispInfo3 = info3;
 
     if (searchKey) {
       dispUid = scnjs.highlightKeyword(uid, searchKey, searchCaseSensitive);
@@ -287,6 +290,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
       dispPrivs = scnjs.highlightKeyword(privs, searchKey, searchCaseSensitive);
       dispInfo1 = scnjs.highlightKeyword(info1, searchKey, searchCaseSensitive);
       dispInfo2 = scnjs.highlightKeyword(info2, searchKey, searchCaseSensitive);
+      dispInfo3 = scnjs.highlightKeyword(info3, searchKey, searchCaseSensitive);
     }
 
     dispUid = cInd + '<span class="pseudo-link link-button" onclick="scnjs.editUser(\'' + uid + '\');" data-tooltip2="Edit">' + dispUid + '</span>';
@@ -296,6 +300,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     dispEmail = scnjs.buildCopyableLabel(email, dispEmail);
     dispInfo1 = scnjs.buildCopyableLabel(info1, dispInfo1);
     dispInfo2 = scnjs.buildCopyableLabel(info2, dispInfo2);
+    dispInfo3 = scnjs.buildCopyableLabel(info3, dispInfo3);
 
     var failedCount = '<td class="item-list" style="text-align:right;width:1.5em;">';
     if (loginFailedCount > 0) {
@@ -326,6 +331,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     htmlList += '<td class="item-list">' + dispPrivs + '</td>';
     htmlList += '<td class="item-list">' + dispInfo1 + '</td>';
     htmlList += '<td class="item-list">' + dispInfo2 + '</td>';
+    htmlList += '<td class="item-list">' + dispInfo3 + '</td>';
     htmlList += '<td class="item-list" style="max-width:15em;">' + dispDesc + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;" data-tooltip="' + ttFlg + '">' + flags + '</td>';
     htmlList += '<td class="item-list" style="text-align:right;">' + sessions + '</td>';
@@ -411,6 +417,7 @@ scnjs.searchUserByKeyword = function(item, key, caseSensitive) {
   targets.push(item.privs);
   targets.push(item.info1);
   targets.push(item.info2);
+  targets.push(item.info3);
   return scnjs.searchByKeyword(targets, key, caseSensitive);
 };
 scnjs.searchByKeyword = function(targets, key, caseSensitive) {
@@ -923,6 +930,10 @@ scnjs.openUserInfoEditorWindow = function(mode, uid) {
   html += '    <td><input type="text" id="info2" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
+  html += '    <td>Info3</td>';
+  html += '    <td><input type="text" id="info3" style="width:100%;"></td>';
+  html += '  </tr>';
+  html += '  <tr>';
   html += '    <td>Description</td>';
   html += '    <td><input type="text" id="desc" style="width:100%;"></td>';
   html += '  </tr>';
@@ -1054,6 +1065,7 @@ scnjs.setUserInfoToEditor = function(info) {
   $el('#privs').value = info.privs;
   $el('#info1').value = info.info1;
   $el('#info2').value = info.info2;
+  $el('#info3').value = info.info3;
   $el('#desc').value = (info.desc ? info.desc : '');
   $el('#flags').value = info.flags;
   $el('#flags').dataset.tooltip = scnjs.buildFlagsTooltip(info.flags);
@@ -1077,6 +1089,7 @@ scnjs.clearUserInfoEditor = function() {
     privs: '',
     info1: '',
     info2: '',
+    info3: '',
     desc: '',
     flags: ''
   };
@@ -1103,6 +1116,7 @@ scnjs.addUser = function() {
   var privs = $el('#privs').value;
   var info1 = $el('#info1').value;
   var info2 = $el('#info2').value;
+  var info3 = $el('#info3').value;
   var desc = $el('#desc').value;
   var flags = $el('#flags').value.trim();
   var pw1 = $el('#pw1').value;
@@ -1169,6 +1183,7 @@ scnjs.addUser = function() {
     privs: privs,
     info1: info1,
     info2: info2,
+    info3: info3,
     desc: desc,
     flags: flags,
     pw: pw
@@ -1202,6 +1217,7 @@ scnjs.updateUser = function() {
   var privs = $el('#privs').value;
   var info1 = $el('#info1').value;
   var info2 = $el('#info2').value;
+  var info3 = $el('#info3').value;
   var desc = $el('#desc').value;
   var flags = $el('#flags').value;
   var pw1 = $el('#pw1').value;
@@ -1225,6 +1241,7 @@ scnjs.updateUser = function() {
     privs: privs,
     info1: info1,
     info2: info2,
+    info3: info3,
     desc: desc,
     flags: flags
   };

@@ -221,12 +221,13 @@ public class UserManager {
       String privileges = csvFieldGetter.getFieldValue();
       String info1 = csvFieldGetter.getFieldValue();
       String info2 = csvFieldGetter.getFieldValue();
+      String info3 = csvFieldGetter.getFieldValue();
       String description = csvFieldGetter.getFieldValue();
       int status = csvFieldGetter.getFieldValueAsInteger(User.FLAG_NEED_PW_CHANGE);
       long createdAt = csvFieldGetter.getFieldValueAsLong();
       long updatedAt = csvFieldGetter.getFieldValueAsLong();
 
-      User user = new User(userId, fullname, localFullName, aliaslName, email, isAdmin, groups, privileges, info1, info2, description, status);
+      User user = new User(userId, fullname, localFullName, aliaslName, email, isAdmin, groups, privileges, info1, info2, info3, description, status);
       user.setCreatedAt(createdAt);
       user.setUpdatedAt(updatedAt);
 
@@ -261,6 +262,7 @@ public class UserManager {
       String privileges = user.getPrivilegesInOneLine();
       String info1 = user.getInfo1();
       String info2 = user.getInfo2();
+      String info3 = user.getInfo3();
       String description = user.getDescription();
       int flags = user.getFlags();
       long createdAt = user.getCreatedAt();
@@ -276,6 +278,7 @@ public class UserManager {
       csvBuilder.append(privileges);
       csvBuilder.append(info1);
       csvBuilder.append(info2);
+      csvBuilder.append(info3);
       csvBuilder.append(description);
       csvBuilder.append(flags);
       csvBuilder.append(createdAt);
@@ -305,6 +308,7 @@ public class UserManager {
     csvBuilder.append("privileges");
     csvBuilder.append("info1");
     csvBuilder.append("info2");
+    csvBuilder.append("info3");
     csvBuilder.append("description");
     csvBuilder.append("flags");
     csvBuilder.append("created_at");
@@ -338,6 +342,8 @@ public class UserManager {
    *          info1
    * @param info2
    *          info2
+   * @param info3
+   *          info3
    * @param description
    *          user description
    * @param userFlags
@@ -346,7 +352,7 @@ public class UserManager {
    * @throws Exception
    *           if an error occurres
    */
-  public User regieterNewUser(String userId, String pwHash, String fullname, String localFullName, String aliasName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String description, String userFlags) throws Exception {
+  public User regieterNewUser(String userId, String pwHash, String fullname, String localFullName, String aliasName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String info3, String description, String userFlags) throws Exception {
     if (users.containsKey(userId)) {
       throw new Exception("USER_ALREADY_EXISTS");
     }
@@ -363,7 +369,7 @@ public class UserManager {
     long createdDate = now;
     long updatedDate = now;
 
-    User user = new User(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, description, flags, createdDate, updatedDate);
+    User user = new User(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, info3, description, flags, createdDate, updatedDate);
     if (StrUtil.isEmpty(userFlags)) {
       user.setFlag(User.FLAG_NEED_PW_CHANGE);
     }
@@ -403,6 +409,8 @@ public class UserManager {
    *          info1
    * @param info2
    *          info2
+   * @param info3
+   *          info3
    * @param description
    *          user description
    * @param userFlags
@@ -413,7 +421,7 @@ public class UserManager {
    * @throws Exception
    *           if an error occurres
    */
-  public User updateUser(String userId, String pwHash, String fullname, String localFullName, String aliasName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String description, String userFlags, boolean onlyChangePass) throws Exception {
+  public User updateUser(String userId, String pwHash, String fullname, String localFullName, String aliasName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String info3, String description, String userFlags, boolean onlyChangePass) throws Exception {
     User user = users.get(userId);
     if (user == null) {
       throw new Exception("USER_NOT_FOUND");
@@ -467,6 +475,11 @@ public class UserManager {
       updated = true;
     }
 
+    if (info3 != null) {
+      user.setInfo3(info3);
+      updated = true;
+    }
+
     if (description != null) {
       user.setDescription(description);
       updated = true;
@@ -516,7 +529,7 @@ public class UserManager {
    *           if an error occurres
    */
   public void changePassword(String userId, String pwHash) throws Exception {
-    updateUser(userId, pwHash, null, null, null, null, null, null, null, null, null, null, null, true);
+    updateUser(userId, pwHash, null, null, null, null, null, null, null, null, null, null, null, null, true);
   }
 
   /**

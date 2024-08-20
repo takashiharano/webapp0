@@ -1,2 +1,2 @@
-#Username	Name	LocalFullName	isAdmin	Groups	Privileges	Description	Flags	Created	Updated
-admin	Administrator		1				0	0	0
+#uid	fullname	localFullName	aliasName	email	isAdmin	groups	privileges	info1	info2	info3	description	flags	created_at	updated_at
+admin	Administrator				1							0	0	0

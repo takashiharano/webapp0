@@ -29,6 +29,7 @@ public class User {
   private Set<String> privileges;
   private String info1;
   private String info2;
+  private String info3;
   private String description;
   private int flags;
   private long createdAt;
@@ -43,11 +44,11 @@ public class User {
     this.flags = FLAG_NONE;
   }
 
-  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags) {
-    this(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, description, flags, 0L, 0L);
+  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String info3, String description, int flags) {
+    this(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, info3, description, flags, 0L, 0L);
   }
 
-  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String description, int flags, long createdAt, long updatedAt) {
+  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String info3, String description, int flags, long createdAt, long updatedAt) {
     this.userId = userId;
     this.fullname = fullname;
     this.localFullName = localFullName;
@@ -58,6 +59,7 @@ public class User {
     setPrivileges(privileges);
     this.info1 = info1;
     this.info2 = info2;
+    this.info3 = info3;
     setDescription(description);
     this.flags = flags;
     this.createdAt = createdAt;
@@ -402,6 +404,25 @@ public class User {
   }
 
   /**
+   * Returns the info3.
+   *
+   * @return the info3
+   */
+  public String getInfo3() {
+    return info3;
+  }
+
+  /**
+   * Sets the info3.
+   *
+   * @param info3
+   *          the info3
+   */
+  public void setInfo3(String info3) {
+    this.info3 = info3;
+  }
+
+  /**
    * Returns the user description.
    *
    * @return the description
@@ -543,6 +564,7 @@ public class User {
     jb.append("privs", getPrivilegesInOneLine());
     jb.append("info1", getInfo1());
     jb.append("info2", getInfo2());
+    jb.append("info3", getInfo3());
     jb.append("desc", getDescription());
     jb.append("flags", getFlags());
     jb.append("created_at", getCreatedAt());
