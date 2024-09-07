@@ -32,7 +32,7 @@ public class GetUserInfoListAction extends Action {
 
     for (Entry<String, User> entry : users.entrySet()) {
       User info = entry.getValue();
-      String user = info.toJSON(true);
+      String user = info.toJSON(true, false);
       jb.appendListElementAsObject(user);
     }
 

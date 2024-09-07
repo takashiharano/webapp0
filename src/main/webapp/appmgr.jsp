@@ -59,6 +59,10 @@ table.edit-table {
   color: #26c;
 }
 
+.user-edit-field-name {
+  width: 120px;
+}
+
 .session-info-head {
   vertical-align: bottom;
 }

@@ -26,7 +26,7 @@ public class AddUserAction extends Action {
     String info1 = context.getRequestParameter("info1");
     String info2 = context.getRequestParameter("info2");
     String info3 = context.getRequestParameter("info3");
-    String description = context.getRequestParameter("desc");
+    String memo = context.getRequestParameter("memo");
     String userFlags = context.getRequestParameter("flags");
 
     if (!context.hasPermission("sysadmin")) {
@@ -44,7 +44,7 @@ public class AddUserAction extends Action {
 
     String status = "OK";
     try {
-      userManager.regieterNewUser(userId, pwHash, fullname, localFullName, aliasName, email, adminFlag, groups, privileges, info1, info2, info3, description, userFlags);
+      userManager.regieterNewUser(userId, pwHash, fullname, localFullName, aliasName, email, adminFlag, groups, privileges, info1, info2, info3, memo, userFlags);
     } catch (Exception e) {
       status = e.getMessage();
       Log.e("User regieter error: " + status);

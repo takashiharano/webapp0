@@ -30,7 +30,7 @@ public class User {
   private String info1;
   private String info2;
   private String info3;
-  private String description;
+  private String memo;
   private int flags;
   private long createdAt;
   private long updatedAt;
@@ -44,11 +44,11 @@ public class User {
     this.flags = FLAG_NONE;
   }
 
-  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String info3, String description, int flags) {
-    this(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, info3, description, flags, 0L, 0L);
+  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String info3, String memo, int flags) {
+    this(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, info3, memo, flags, 0L, 0L);
   }
 
-  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String info3, String description, int flags, long createdAt, long updatedAt) {
+  public User(String userId, String fullname, String localFullName, String aliasName, String email, boolean isAdmin, String groups, String privileges, String info1, String info2, String info3, String memo, int flags, long createdAt, long updatedAt) {
     this.userId = userId;
     this.fullname = fullname;
     this.localFullName = localFullName;
@@ -60,7 +60,7 @@ public class User {
     this.info1 = info1;
     this.info2 = info2;
     this.info3 = info3;
-    setDescription(description);
+    setMemo(memo);
     this.flags = flags;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
@@ -423,26 +423,25 @@ public class User {
   }
 
   /**
-   * Returns the user description.
+   * Returns the user memo.
    *
-   * @return the description
+   * @return the memo
    */
-  public String getDescription() {
-    return description;
+  public String getMemo() {
+    return memo;
   }
 
   /**
-   * Sets the user description.
+   * Sets the user memo.
    *
-   * @param description
-   *          the user description
+   * @param memo
+   *          the user memo
    */
-  public void setDescription(String description) {
-    if (description == null) {
-      description = "";
+  public void setMemo(String memo) {
+    if (memo == null) {
+      memo = "";
     }
-    description = description.replaceAll("\\t|\\r\\n|\\n", " ");
-    this.description = description;
+    this.memo = memo;
   }
 
   /**
@@ -542,17 +541,19 @@ public class User {
   }
 
   public String toJSON() {
-    return toJSON(false);
+    return toJSON(false, false);
   }
 
   /**
    * Returns all properties in JSON.
    *
-   * @param includeStatusInfo
+   * @param withStatusInfo
    *          If true, include status info
+   * @param withMemo
+   *          If true, include memo
    * @return JSON string
    */
-  public String toJSON(boolean includeStatusInfo) {
+  public String toJSON(boolean withStatusInfo, boolean withMemo) {
     JsonBuilder jb = new JsonBuilder();
     jb.append("uid", getUserId());
     jb.append("fullname", getFullName());
@@ -565,15 +566,16 @@ public class User {
     jb.append("info1", getInfo1());
     jb.append("info2", getInfo2());
     jb.append("info3", getInfo3());
-    jb.append("desc", getDescription());
     jb.append("flags", getFlags());
     jb.append("created_at", getCreatedAt());
     jb.append("updated_at", getUpdatedAt());
 
-    if (includeStatusInfo) {
+    if (withStatusInfo) {
       String jb1 = userStatus.toJSON();
       jb.appendObject("status_info", jb1);
     }
+
+    jb.append("memo", getMemo());
 
     String json = jb.toString();
     return json;

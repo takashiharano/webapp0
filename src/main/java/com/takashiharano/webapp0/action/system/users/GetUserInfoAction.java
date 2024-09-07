@@ -30,7 +30,9 @@ public class GetUserInfoAction extends Action {
       return;
     }
 
-    String json = user.toJSON();
+    boolean withMemo = context.getRequestParameterAsBoolean("w_memo", "1");
+
+    String json = user.toJSON(false, withMemo);
 
     context.sendJsonResponse(status, json);
   }

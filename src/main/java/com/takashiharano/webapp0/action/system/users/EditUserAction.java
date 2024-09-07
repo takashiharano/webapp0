@@ -26,7 +26,7 @@ public class EditUserAction extends Action {
     String info1 = context.getRequestParameter("info1");
     String info2 = context.getRequestParameter("info2");
     String info3 = context.getRequestParameter("info3");
-    String description = context.getRequestParameter("desc");
+    String memo = context.getRequestParameter("memo");
     String userFlags = context.getRequestParameter("flags");
 
     String currentUserId = context.getUserId();
@@ -40,7 +40,7 @@ public class EditUserAction extends Action {
     String info = null;
     try {
       UserManager userManager = context.getUserManager();
-      userManager.updateUser(userId, pwHash, fullname, localFullName, aliasName, email, adminFlag, groups, privileges, info1, info2, info3, description, userFlags, false);
+      userManager.updateUser(userId, pwHash, fullname, localFullName, aliasName, email, adminFlag, groups, privileges, info1, info2, info3, memo, userFlags, false);
       if (pwHash != null) {
         info = "PW_changed";
       }

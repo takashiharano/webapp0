@@ -26,6 +26,7 @@ public class UserManager {
   private static final String USERS_PW_FILE_NAME = "userspw.txt";
   private static final String USER_DATA_ROOT_DIR = "users";
   private static final String USER_STATUS_FILE_NAME = "status.txt";
+  private static final String USER_MEMO_FILE_NAME = "memo.txt";
 
   private static UserManager instance;
 
@@ -222,12 +223,12 @@ public class UserManager {
       String info1 = csvFieldGetter.getFieldValue();
       String info2 = csvFieldGetter.getFieldValue();
       String info3 = csvFieldGetter.getFieldValue();
-      String description = csvFieldGetter.getFieldValue();
       int status = csvFieldGetter.getFieldValueAsInteger(User.FLAG_NEED_PW_CHANGE);
       long createdAt = csvFieldGetter.getFieldValueAsLong();
       long updatedAt = csvFieldGetter.getFieldValueAsLong();
+      String memo = loadUserMemo(userId);
 
-      User user = new User(userId, fullname, localFullName, aliaslName, email, isAdmin, groups, privileges, info1, info2, info3, description, status);
+      User user = new User(userId, fullname, localFullName, aliaslName, email, isAdmin, groups, privileges, info1, info2, info3, memo, status);
       user.setCreatedAt(createdAt);
       user.setUpdatedAt(updatedAt);
 
@@ -263,7 +264,7 @@ public class UserManager {
       String info1 = user.getInfo1();
       String info2 = user.getInfo2();
       String info3 = user.getInfo3();
-      String description = user.getDescription();
+      String memo = user.getMemo();
       int flags = user.getFlags();
       long createdAt = user.getCreatedAt();
       long updatedAt = user.getUpdatedAt();
@@ -279,11 +280,12 @@ public class UserManager {
       csvBuilder.append(info1);
       csvBuilder.append(info2);
       csvBuilder.append(info3);
-      csvBuilder.append(description);
       csvBuilder.append(flags);
       csvBuilder.append(createdAt);
       csvBuilder.append(updatedAt);
       csvBuilder.nextRecord();
+
+      saveUserMemo(userId, memo);
     }
 
     String dataPath = getDataPath();
@@ -309,7 +311,6 @@ public class UserManager {
     csvBuilder.append("info1");
     csvBuilder.append("info2");
     csvBuilder.append("info3");
-    csvBuilder.append("description");
     csvBuilder.append("flags");
     csvBuilder.append("created_at");
     csvBuilder.append("updated_at");
@@ -344,15 +345,15 @@ public class UserManager {
    *          info2
    * @param info3
    *          info3
-   * @param description
-   *          user description
+   * @param memo
+   *          user memo
    * @param userFlags
    *          user flags
    * @return User
    * @throws Exception
    *           if an error occurres
    */
-  public User regieterNewUser(String userId, String pwHash, String fullname, String localFullName, String aliasName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String info3, String description, String userFlags) throws Exception {
+  public User regieterNewUser(String userId, String pwHash, String fullname, String localFullName, String aliasName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String info3, String memo, String userFlags) throws Exception {
     if (users.containsKey(userId)) {
       throw new Exception("USER_ALREADY_EXISTS");
     }
@@ -369,7 +370,7 @@ public class UserManager {
     long createdDate = now;
     long updatedDate = now;
 
-    User user = new User(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, info3, description, flags, createdDate, updatedDate);
+    User user = new User(userId, fullname, localFullName, aliasName, email, isAdmin, groups, privileges, info1, info2, info3, memo, flags, createdDate, updatedDate);
     if (StrUtil.isEmpty(userFlags)) {
       user.setFlag(User.FLAG_NEED_PW_CHANGE);
     }
@@ -411,8 +412,8 @@ public class UserManager {
    *          info2
    * @param info3
    *          info3
-   * @param description
-   *          user description
+   * @param memo
+   *          user memo
    * @param userFlags
    *          user flags
    * @param onlyChangePass
@@ -421,7 +422,7 @@ public class UserManager {
    * @throws Exception
    *           if an error occurres
    */
-  public User updateUser(String userId, String pwHash, String fullname, String localFullName, String aliasName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String info3, String description, String userFlags, boolean onlyChangePass) throws Exception {
+  public User updateUser(String userId, String pwHash, String fullname, String localFullName, String aliasName, String email, String adminFlag, String groups, String privileges, String info1, String info2, String info3, String memo, String userFlags, boolean onlyChangePass) throws Exception {
     User user = users.get(userId);
     if (user == null) {
       throw new Exception("USER_NOT_FOUND");
@@ -480,8 +481,8 @@ public class UserManager {
       updated = true;
     }
 
-    if (description != null) {
-      user.setDescription(description);
+    if (memo != null) {
+      user.setMemo(memo);
       updated = true;
     }
 
@@ -511,6 +512,9 @@ public class UserManager {
     try {
       saveUsers();
       saveUserStatus(userId, userStatus);
+      if (memo != null) {
+        saveUserMemo(userId, memo);
+      }
     } catch (IOException ioe) {
       throw new Exception("IO_ERROR_ON_USER_UPDATE");
     }
@@ -570,6 +574,48 @@ public class UserManager {
    */
   public boolean existsUser(String userId) {
     return users.containsKey(userId);
+  }
+
+  /**
+   * Load user memo.
+   *
+   * @param userId
+   *          target user id
+   * @return the memo text
+   */
+  public String loadUserMemo(String userId) {
+    String userDataPath = getUserDataPath(userId);
+    String path = FileUtil.joinPath(userDataPath, USER_MEMO_FILE_NAME);
+    String memo = FileUtil.readText(path);
+    if (memo == null) {
+      memo = "";
+    }
+    return memo;
+  }
+
+  /**
+   * Write user memo into a storage.
+   *
+   * @param userId
+   *          target user id
+   * @param memo
+   *          the memo to save
+   * @throws IOException
+   *           if an IO error occurres
+   */
+  public void saveUserMemo(String userId, String memo) throws IOException {
+    String userDataPath = getUserDataPath(userId);
+    String path = FileUtil.joinPath(userDataPath, USER_MEMO_FILE_NAME);
+    try {
+      if ("".equals(memo)) {
+        FileUtil.delete(path);
+      } else {
+        FileUtil.write(path, memo);
+      }
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+      throw ioe;
+    }
   }
 
   /**

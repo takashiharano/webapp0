@@ -10,9 +10,11 @@ scnjs.dialogFgColor = '#000';
 scnjs.dialogBgColor = '#fff';
 scnjs.dialogTitleFgColor = '#fff';
 scnjs.dialogTitleBgColor = 'linear-gradient(150deg, rgba(0,32,255,0.8),rgba(0,82,255,0.8))';
-scnjs.userEditWindowW = 500;
-scnjs.userEditWindowH = 580;
-scnjs.userEditWindowH1 = 440;
+scnjs.userEditWindowW = 640;
+scnjs.userEditWindowH = 610;
+scnjs.userEditWindowW1 = 500;
+scnjs.userEditWindowH1 = 510;
+scnjs.userEditMemoH = 74;
 
 scnjs.LED_COLORS = [
   {t: 10 * util.MINUTE, color: 'led-color-green'},
@@ -35,7 +37,6 @@ scnjs.USER_LIST_COLUMNS = [
   {key: 'info1', label: 'Info1'},
   {key: 'info2', label: 'Info2'},
   {key: 'info3', label: 'Info3'},
-  {key: 'desc', label: 'Description', style: 'min-width:5em;'},
   {key: 'flags', label: 'Flags'},
   {key: 'status_info.sessions', label: 'S'},
   {key: 'status_info.login_failed_count', label: 'E'},
@@ -256,14 +257,6 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     var info1 = item.info1;
     var info2 = item.info2;
     var info3 = item.info3;
-    var desc = (item.desc ? item.desc : '');
-
-    var escDesc = util.escHtml(desc);
-    var dispDesc = '<span style="display:inline-block;width:100%;overflow:hidden;text-overflow:ellipsis;"';
-    if (util.lenW(desc) > 15) {
-      dispDesc += ' data-tooltip="' + escDesc + '"';
-    }
-    dispDesc += '>' + escDesc + '</span>';
 
     var active = (sessions > 0);
     var led = scnjs.buildLedHtml(now, statusInfo.last_access, scnjs.INSEC, active);
@@ -332,7 +325,6 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     htmlList += '<td class="item-list">' + dispInfo1 + '</td>';
     htmlList += '<td class="item-list">' + dispInfo2 + '</td>';
     htmlList += '<td class="item-list">' + dispInfo3 + '</td>';
-    htmlList += '<td class="item-list" style="max-width:15em;">' + dispDesc + '</td>';
     htmlList += '<td class="item-list" style="text-align:center;" data-tooltip="' + ttFlg + '">' + flags + '</td>';
     htmlList += '<td class="item-list" style="text-align:right;">' + sessions + '</td>';
     htmlList += failedCount;
@@ -862,7 +854,8 @@ scnjs.editUser = function(uid) {
   scnjs.clearUserInfoEditor();
   if (mode == 'edit') {
     var params = {
-      uid: uid
+      uid: uid,
+      w_memo: 1
     };
     app.callServerApi('GetUserInfo', params, scnjs.GetUserInfoCb);
   } else {
@@ -887,60 +880,60 @@ scnjs.openUserInfoEditorWindow = function(mode, uid) {
   }
   html += '</div>';
 
-  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:400px;height:' + scnjs.userEditWindowH1 + 'px;text-align:left;">';
+  html += '<div style="padding:4px;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto;width:' + scnjs.userEditWindowW1 + 'px;height:' + scnjs.userEditWindowH1 + 'px;text-align:left;">';
 
   html += '<table class="edit-table">';
   html += '  <tr>';
-  html += '    <td>UID</td>';
+  html += '    <td class="user-edit-field-name">UID</td>';
   html += '    <td><input type="text" id="uid" style="width:100%;" onblur="scnjs.onUidBlur();"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Full name</td>';
+  html += '    <td class="user-edit-field-name">Full name</td>';
   html += '    <td><input type="text" id="fullname" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Local Full name</td>';
+  html += '    <td class="user-edit-field-name">Local Full name</td>';
   html += '    <td><input type="text" id="localfullname" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Alias name</td>';
+  html += '    <td class="user-edit-field-name">Alias name</td>';
   html += '    <td><input type="text" id="a_name" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Email</td>';
+  html += '    <td class="user-edit-field-name">Email</td>';
   html += '    <td><input type="text" id="email" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>isAdmin</td>';
+  html += '    <td class="user-edit-field-name">isAdmin</td>';
   html += '    <td><input type="checkbox" id="isadmin">';
   html += '    </td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Groups</td>';
+  html += '    <td class="user-edit-field-name">Groups</td>';
   html += '    <td><input type="text" id="groups" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Privileges</td>';
+  html += '    <td class="user-edit-field-name">Privileges</td>';
   html += '    <td><input type="text" id="privs" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Info1</td>';
+  html += '    <td class="user-edit-field-name">Info1</td>';
   html += '    <td><input type="text" id="info1" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Info2</td>';
+  html += '    <td class="user-edit-field-name">Info2</td>';
   html += '    <td><input type="text" id="info2" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Info3</td>';
+  html += '    <td class="user-edit-field-name">Info3</td>';
   html += '    <td><input type="text" id="info3" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Description</td>';
-  html += '    <td><input type="text" id="desc" style="width:100%;"></td>';
+  html += '    <td class="user-edit-field-name">Memo</td>';
+  html += '    <td><textarea id="memo" style="width:100%;height:' + scnjs.userEditMemoH + 'px;"></textarea></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Flags</td>';
+  html += '    <td class="user-edit-field-name">Flags</td>';
   html += '    <td><input type="text" id="flags" style="width:1.5em;"></td>';
   html += '  </tr>';
 
@@ -950,11 +943,11 @@ scnjs.openUserInfoEditorWindow = function(mode, uid) {
   html += '  </tr>';
 
   html += '  <tr>';
-  html += '    <td>Password</td>';
+  html += '    <td class="user-edit-field-name">Password</td>';
   html += '    <td><input type="password" id="pw1" style="width:100%;"></td>';
   html += '  </tr>';
   html += '  <tr>';
-  html += '    <td>Re-type</td>';
+  html += '    <td class="user-edit-field-name">Re-type</td>';
   html += '    <td><input type="password" id="pw2" style="width:100%;"></td>';
   html += '  </tr>';
   html += '</table>';
@@ -1068,7 +1061,7 @@ scnjs.setUserInfoToEditor = function(info) {
   $el('#info1').value = info.info1;
   $el('#info2').value = info.info2;
   $el('#info3').value = info.info3;
-  $el('#desc').value = (info.desc ? info.desc : '');
+  $el('#memo').value = (info.memo ? info.memo : '');
   $el('#flags').value = info.flags;
   $el('#flags').dataset.tooltip = scnjs.buildFlagsTooltip(info.flags);
 };
@@ -1092,8 +1085,8 @@ scnjs.clearUserInfoEditor = function() {
     info1: '',
     info2: '',
     info3: '',
-    desc: '',
-    flags: ''
+    flags: '',
+    memo: ''
   };
   scnjs.setUserInfoToEditor(info);
 };
@@ -1120,8 +1113,8 @@ scnjs.addUser = function() {
   var info1 = $el('#info1').value;
   var info2 = $el('#info2').value;
   var info3 = $el('#info3').value;
-  var desc = $el('#desc').value;
   var flags = $el('#flags').value.trim();
+  var memo = $el('#memo').value;
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
@@ -1187,8 +1180,8 @@ scnjs.addUser = function() {
     info1: info1,
     info2: info2,
     info3: info3,
-    desc: desc,
     flags: flags,
+    memo: memo,
     pw: pw
   };
 
@@ -1208,8 +1201,8 @@ scnjs.updateUser = function() {
   var info1 = $el('#info1').value;
   var info2 = $el('#info2').value;
   var info3 = $el('#info3').value;
-  var desc = $el('#desc').value;
   var flags = $el('#flags').value;
+  var memo = $el('#memo').value;
   var pw1 = $el('#pw1').value;
   var pw2 = $el('#pw2').value;
 
@@ -1232,8 +1225,8 @@ scnjs.updateUser = function() {
     info1: info1,
     info2: info2,
     info3: info3,
-    desc: desc,
-    flags: flags
+    flags: flags,
+    memo: memo
   };
 
   if (pw) {

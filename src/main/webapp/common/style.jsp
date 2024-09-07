@@ -82,6 +82,10 @@ td,th {
   padding: 2px 4px;
 }
 
+td {
+  vertical-align: top;
+}
+
 .row-odd {
   background: #fff;
 }
