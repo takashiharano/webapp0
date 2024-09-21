@@ -143,6 +143,7 @@ var appconfig = {
 <button onclick="app.appmgr.newUser();">+</button>
 <button onclick="app.appmgr.reloadUserInfo();">Reload</button>
 <span style="margin-left:16px;">Search: <input type="text" id="search-text" style="width:150px;" oninput="scnjs.onSearchInput(this);"></span><input type="checkbox" id="search-filter" onchange="scnjs.onFilterChange();"><label for="search-filter">Filter</label></span>
+<span id="letter-case-button" class="pseudo-link link-button" style="margin-left:16px;" onclick="scnjs.toggleLetterCase();"><span id="uc">A</span><span id="lc">a</span></span>
 </div>
 <div id="user-list" style="width:100%;max-height:400px;overflow:auto;"></div>
 

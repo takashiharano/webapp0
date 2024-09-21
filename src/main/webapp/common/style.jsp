@@ -102,6 +102,10 @@ tr.item-list:hover {
   color: #00a;
 }
 
+.link-button-inactive {
+  color: #aaa;
+}
+
 .screen-button {
   min-width: 7em;
 }
