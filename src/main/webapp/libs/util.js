@@ -5,7 +5,7 @@
  * https://libutil.com/
  */
 var util = util || {};
-util.v = '202408191824';
+util.v = '202409221724';
 
 util.SYSTEM_ZINDEX_BASE = 0x7ffffff0;
 util.DFLT_FADE_SPEED = 500;
@@ -1612,6 +1612,10 @@ util.isAscii = function(s) {
   return /^[\x20-\x7F\t\r\n]*$/.test(s);
 };
 
+util.isEmailAddress = function(s) {
+  return /^[\x21-\x5B\x5D-\x7E]{1,64}@[0-9A-Za-z.-]{1,189}$/.test(s);
+};
+
 /**
  * startsWith(string, pattern, position)
  * startsWith(string, pattern, case-insensitive)
@@ -1725,7 +1729,21 @@ util.snip = function(s, n1, n2, c) {
 /**
  * abc -> Abc
  */
-util.capitalize = function(s) {
+util.capitalize = function(s, d) {
+  if (!s) return s;
+  var v = '';
+  if (d) {
+    var a = s.split(d);
+    for (var i = 0; i < a.length; i++) {
+      if (i > 0) v += d;
+      v += util._capitalize(a[i]);
+    }
+  } else {
+    v = util._capitalize(s);
+  }
+  return v;
+};
+util._capitalize = function(s) {
   return (s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s);
 };
 

@@ -66,9 +66,14 @@ scnjs.timelineDayOffset = 0;
 scnjs.letterCase = 0;
 
 $onReady = function() {
+  scnjs.updateLetterCaseButton();
+  $el('#search-text').focus();
+  scnjs.onSysReady();
+};
+
+scnjs.onSysReady = function() {
   scnjs.reload();
   scnjs.queueNextUpdateSessionInfo();
-  $el('#search-text').focus();
 };
 
 scnjs.reload = function() {
@@ -208,20 +213,33 @@ scnjs.onFilterChange = function() {
 
 scnjs.toggleLetterCase = function() {
   scnjs.letterCase++;
-  if (scnjs.letterCase > 2) {
+  if (scnjs.letterCase > 3) {
     scnjs.letterCase = 0;
   }
-  $el('#uc').removeClass('link-button-inactive');
-  $el('#lc').removeClass('link-button-inactive');
+  scnjs.updateLetterCaseButton();
+  scnjs.redrawUserList();
+};
+scnjs.updateLetterCaseButton = function() {
+  $el('#uc').removeClass('link-button');
+  $el('#uc').addClass('link-button-inactive');
+  $el('#lc').removeClass('link-button');
+  $el('#lc').addClass('link-button-inactive');
   switch (scnjs.letterCase) {
     case 1:
-      $el('#lc').addClass('link-button-inactive');
+      $el('#uc').removeClass('link-button-inactive');
+      $el('#uc').addClass('link-button');
       break;
     case 2:
-      $el('#uc').addClass('link-button-inactive');
+      $el('#lc').removeClass('link-button-inactive');
+      $el('#lc').addClass('link-button');
+      break;
+    case 3:
+      $el('#uc').removeClass('link-button-inactive');
+      $el('#uc').addClass('link-button');
+      $el('#lc').removeClass('link-button-inactive');
+      $el('#lc').addClass('link-button');
       break;
   }
-  scnjs.redrawUserList();
 };
 
 scnjs.redrawUserList = function() {
@@ -282,7 +300,7 @@ scnjs._drawUserList = function(items, sortIdx, sortOrder, searchKey, filter) {
     fullname = scnjs.changeLetterCase(fullname, letterCase);
     localfullname = scnjs.changeLetterCase(localfullname, letterCase);
     a_name = scnjs.changeLetterCase(a_name, letterCase);
-    email = scnjs.changeLetterCase(email, letterCase);
+    email = scnjs.changeLetterCase4email(email, letterCase);
     info1 = scnjs.changeLetterCase(info1, letterCase);
     info2 = scnjs.changeLetterCase(info2, letterCase);
     info3 = scnjs.changeLetterCase(info3, letterCase);
@@ -386,7 +404,23 @@ scnjs.changeLetterCase = function(s, letterCase) {
     case 2:
       s = s.toLowerCase();
       break;
+    case 3:
+      s = util.capitalize(s, ' ');
+      break;
   }
+  return s;
+};
+
+scnjs.changeLetterCase4email = function(m, letterCase) {
+  if (!m) return m;
+  if (letterCase != 3) {
+    return scnjs.changeLetterCase(m, letterCase);
+  }
+  var a = m.split('@');
+  var localPart = a[0];
+  var domain = a[1];
+  var n = util.capitalize(localPart, '.');
+  var s = n + '@' + domain;
   return s;
 };
 
@@ -1046,27 +1080,27 @@ scnjs.copyUser = function() {
 };
 
 scnjs.onUidBlur = function() {
-  var fullname = $el('#fullname').value;
-  if (fullname) return;
   var uid = $el('#uid').value;
-  if (uid.match()) {
-    fullname = scnjs.mail2name(uid);
+  if (!util.isEmailAddress(uid)) return;
+  var fullname = $el('#fullname').value;
+  if (!fullname) {
+    fullname = scnjs.getNameFromEmail(uid);
+    fullname = util.capitalize(fullname, ' ');
+    $el('#fullname').value = fullname;
   }
-  $el('#fullname').value = fullname;
+  var email = $el('#email').value;
+  if (!email) {
+    $el('#email').value = uid.toLowerCase();
+  }
 };
 
-scnjs.mail2name = function(m) {
-  var a = m.split('@');
-  a = a[0].split('.');
-  if (a.length == 1) return a[0];
-  var s = '';
-  for (var i = 0; i < a.length; i++) {
-    if (i > 0) {
-      s += ' ';
-    }
-    s += util.capitalize(a[i]);
-  }
-  return s;
+scnjs.getNameFromEmail = function(m) {
+  var w = m.split('@');
+  var n = w[0];
+  n = n.replace(/\./g, ' ');
+  n = n.replace(/-/g, ' ');
+  n = n.replace(/_/g, ' ');
+  return n;
 };
 
 scnjs.GetUserInfoCb = function(xhr, res) {
