@@ -1183,7 +1183,7 @@ scnjs.clearUserInfoEditor = function() {
 };
 
 scnjs.saveUserInfo = function() {
-  var requested = false;
+  var requested;
   if (scnjs.userEditMode == 'new') {
     requested = scnjs.addUser();
   } else {
