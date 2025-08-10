@@ -24,7 +24,7 @@ import javax.servlet.http.HttpSession;
 import com.libutil.CsvBuilder;
 import com.libutil.FileUtil;
 import com.libutil.HashUtil;
-import com.libutil.RandomGenerator;
+import com.libutil.Randomizer;
 import com.libutil.RingBuffer;
 import com.libutil.StrUtil;
 import com.takashiharano.webapp0.AppManager;
@@ -505,7 +505,7 @@ public class SessionManager {
    * @return Session ID
    */
   private String generateSessionId(long t, String userId) {
-    long r = RandomGenerator.getLong();
+    long r = Randomizer.getLong();
     String s = t + userId + r;
     String sessionId = HashUtil.getHashString(s, "SHA-256");
     return sessionId;
