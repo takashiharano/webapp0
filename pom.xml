@@ -19,7 +19,7 @@
   </licenses>
 
   <properties>
-    <java.version>1.8</java.version>
+    <maven.compiler.release>8</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
@@ -31,11 +31,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.15.0</version>
-        <configuration>
-          <compilerVersion>${java.version}</compilerVersion>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-        </configuration>
       </plugin>
 
       <plugin>
@@ -44,9 +39,9 @@
         <version>3.4.0</version>
         <executions>
           <execution>
-            <phase>package</phase>
+            <id>attach-sources</id>
             <goals>
-              <goal>jar</goal>
+              <goal>jar-no-fork</goal>
             </goals>
           </execution>
         </executions>
@@ -134,7 +129,7 @@
     </dependency>
 
     <dependency>
-      <groupId>com.bsb64</groupId>
+      <groupId>com.libutil</groupId>
       <artifactId>bsb64</artifactId>
       <version>1.0.0</version>
     </dependency>

@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.bsb64.BSB64;
+import com.libutil.BSB64;
 import com.libutil.Base64Util;
 import com.libutil.FileUtil;
 import com.libutil.JsonBuilder;
@@ -334,7 +334,7 @@ public class ProcessContext {
       return null;
     }
     int n = getConfigValueAsInteger("bab64_n_param", 1);
-    return BSB64.decodeString(value, n);
+    return BSB64.decodeToString(value, n);
   }
 
   /**
