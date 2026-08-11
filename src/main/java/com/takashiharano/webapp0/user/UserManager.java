@@ -137,13 +137,17 @@ public class UserManager {
   /**
    * Authenticate the user.
    *
-   * @param user
+   * @param context
+   *          Process context
+   * @param userId
    *          id the target user id
    * @param pwHash
    *          the password hash for the user.<br>
    *          the hash is sha256(plain-pw + user_id).<br>
    *          it must be lower case.
    * @return The result status string. "OK" or any error status.
+   * @throws Exception
+   *           if error occured
    */
   public String authenticate(ProcessContext context, String userId, String pwHash) throws Exception {
     if (StrUtil.isBlank(userId) || StrUtil.isBlank(pwHash)) {

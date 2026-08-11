@@ -279,8 +279,9 @@ public class SessionManager {
   /**
    * Loads session info from a file.
    *
-   * @param path
-   *          Session info file path
+   * @param userId
+   *          The user ID
+   * @return the number of the loaded sessions
    */
   public int loadSessionInfo(String userId) {
     String path = getUserSessionPath(userId);
@@ -513,6 +514,9 @@ public class SessionManager {
 
   /**
    * Removes expired session info from the management map.
+   *
+   * @param flush
+   *          if true, force flush the session info to the session file
    */
   public void cleanInvalidatedSessionInfo(boolean flush) {
     long now = System.currentTimeMillis();
