@@ -32,7 +32,7 @@ app.login.login = function() {
   var pw = $el('#pw').value;
   var salt = uid;
   var pwHash = app.common.getHash('SHA-256', pw, salt);
-  pwHash = util.encodeBSB64(pwHash, BSB64N);
+  pwHash = util.bsb64.encode(pwHash, BSB64N);
 
   var params = {
     id: uid,
